@@ -45,7 +45,9 @@ async function toastText(page) {
     await page.keyboard.press('d'); ok('key D → diplomacy', (await mode(page)) === 'diplomacy');
     await page.keyboard.press('b'); ok('key B → build', (await mode(page)) === 'build');
 
-    // 3. Keys ignored while typing in chat
+    // 3. Keys ignored while typing in chat. The composer is Chat-tab-only (faithful to
+    //    the mockup, where <Input> renders only when tab==='chat'), so open that tab first.
+    await page.click('[data-tab="chat"]');
     await page.click('#chat-input');
     await page.keyboard.type('army');
     ok('keys ignored while typing in chat', (await mode(page)) === 'build');

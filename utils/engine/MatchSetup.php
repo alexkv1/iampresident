@@ -84,6 +84,22 @@ final class MatchSetup {
                     [$match['id'], $p['id'], $home, $type], 'iiss'
                 );
             }
+
+            // Starting army in the capital (GAME_RULES §5): infantry round(5 + 1.5·√popM),
+            // armor round(2·s) with s = startScale(gdp_md). Stored as a units-JSON stack.
+            $s = GameConfig::startScale((float)$country['gdp_md']);
+            $infantry = (int)round(5 + 1.5 * sqrt(max(0.0, $popM)));
+            $armor    = (int)round(2 * $s);
+            $units = [];
+            if ($infantry > 0) $units['infantry'] = $infantry;
+            if ($armor > 0)    $units['armor'] = $armor;
+            if ($units) {
+                $db->execute(
+                    "INSERT INTO `armies` (`match_id`, `player`, `country_code`, `units`, `origin`)
+                     VALUES (?, ?, ?, ?, ?)",
+                    [$match['id'], $p['id'], $home, json_encode($units), $home], 'iisss'
+                );
+            }
             $slot++;
         }
 

@@ -7,8 +7,8 @@
 
 const DEG2RAD = Math.PI / 180;
 const R = 1;                       // globe radius
-const NEUTRAL_LAND = 0x30415e;    // unowned country colour
-const OCEAN = 0x0c182e;
+const NEUTRAL_LAND = 0x5a8f4e;    // unowned country colour (land green)
+const OCEAN = 0x14456b;           // ocean blue
 
 function lonLatToVec3(lon, lat, r) {
   const phi = (90 - lat) * DEG2RAD;
@@ -71,7 +71,7 @@ class Globe {
     // Atmosphere glow (simple additive shell).
     const glow = new THREE.Mesh(
       new THREE.SphereGeometry(R * 1.06, 48, 32),
-      new THREE.MeshBasicMaterial({ color: 0x3a7bd5, transparent: true, opacity: 0.06, side: THREE.BackSide })
+      new THREE.MeshBasicMaterial({ color: 0x5ea0e0, transparent: true, opacity: 0.12, side: THREE.BackSide })
     );
     this.scene.add(glow);
 
@@ -133,7 +133,7 @@ class Globe {
     // All borders in one line object.
     const bgeo = new THREE.BufferGeometry();
     bgeo.setAttribute('position', new THREE.Float32BufferAttribute(borderPositions, 3));
-    this.borders = new THREE.LineSegments(bgeo, new THREE.LineBasicMaterial({ color: 0x0a1120, transparent: true, opacity: 0.55 }));
+    this.borders = new THREE.LineSegments(bgeo, new THREE.LineBasicMaterial({ color: 0x123524, transparent: true, opacity: 0.45 }));
     this.world.add(this.borders);
 
     return this;

@@ -58,11 +58,12 @@ $wsUrl = conf()['realtime-ws-url'] ?? '';
 
   <div class="globe-hint">Drag to rotate · scroll to zoom · click a country to claim it</div>
 
+  <?php $v = fn($p) => '/js/' . $p . '?v=' . (@filemtime(__DIR__ . '/../../js/' . $p) ?: 1); ?>
   <script src="/js/three.min.js"></script>
   <script src="/js/earcut.min.js"></script>
-  <script src="/js/api.js"></script>
-  <script src="/js/ui.js"></script>
-  <script src="/js/globe.js"></script>
-  <script src="/js/lobby.js"></script>
+  <script src="<?= $v('api.js') ?>"></script>
+  <script src="<?= $v('ui.js') ?>"></script>
+  <script src="<?= $v('globe.js') ?>"></script>
+  <script src="<?= $v('lobby.js') ?>"></script>
 </body>
 </html>

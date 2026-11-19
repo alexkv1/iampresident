@@ -1,0 +1,23 @@
+<!-- @dsCard group="Components" viewport="700x260" name="HUD: resources & country tag" subtitle="Resource chips (all six) and globe hover tag" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>HUD: resources & country tag</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>html,body{margin:0;background:var(--grad-page),var(--bg-page);min-height:100%}#root{padding:20px}.lbl{font:500 11px/1 var(--font-body);color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { ResourceChip, CountryTag } = window.IAmPresidentDesignSystem_7cd541;
+function App(){return (<div style={{display:'flex',flexDirection:'column',gap:18}}>
+<div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+<ResourceChip resource="food" value={1840}/><ResourceChip resource="energy" value={412}/><ResourceChip resource="minerals" value={655}/><ResourceChip resource="gold" value={12480}/><ResourceChip resource="oil" value={188}/><ResourceChip resource="research" value={45}/>
+</div>
+<div style={{display:'flex',gap:16}}>
+<CountryTag name="Sweden" leader="Lead as Prime Minister Ulf Kristersson" farmland={34} minerals={71} oil={4}/>
+<CountryTag name="Egypt" owner="Abdel Fattah el-Sisi" ownerColor="var(--player-4)" farmland={12} minerals={48} oil={55}/>
+</div>
+</div>);}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script></body></html>

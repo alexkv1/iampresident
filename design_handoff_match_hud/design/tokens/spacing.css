@@ -1,0 +1,66 @@
+/* Spacing, radii, elevation, motion. Pixel values copied from source app.css (not snapped to a grid). */
+:root{
+  --space-2:2px;
+  --space-4:4px;
+  --space-6:6px;
+  --space-7:7px;
+  --space-8:8px;
+  --space-10:10px;
+  --space-12:12px;
+  --space-14:14px;
+  --space-16:16px;
+  --space-18:18px;
+  --space-22:22px;
+  --space-26:26px;
+  --space-32:32px;
+  --space-48:48px;
+
+  /* Layout constants (HUD overlay) */
+  --hud-inset:14px; /* @kind spacing */
+  --hud-top-offset:86px; /* @kind spacing */
+  --topbar-min-h:56px; /* @kind spacing */
+  --panel-left-w:270px; /* @kind spacing */
+  --panel-right-w:300px; /* @kind spacing */
+  --panel-bottom-w:360px; /* @kind spacing */
+  --home-w:560px; /* @kind spacing */
+
+  /* Radii (source) */
+  --radius-xs:4px;
+  --radius-row:9px;
+  --radius:10px;
+  --radius-tag:12px;
+  --radius-panel:14px;
+  --radius-card:16px;
+  --radius-pill:999px;
+
+  /* Borders */
+  --border-w:1px; /* @kind spacing */
+  --border-w-bold:2px; /* @kind spacing */
+
+  /* Elevation */
+  --shadow-panel:0 8px 30px rgba(0,0,0,.45);
+  --shadow-float:0 14px 40px rgba(0,0,0,.55);
+  --shadow-sheen:inset 0 1px 0 rgba(255,255,255,.08);
+  --shadow-sheen-strong:inset 0 2px 0 rgba(255,255,255,.45);
+  --shadow-inset-well:inset 0 2px 0 rgba(0,0,0,.28);
+  /* "Lip" — the chunky 3D underside on pressable things */
+  --lip-gold:0 4px 0 var(--gold-700);
+  --lip-teal:0 4px 0 var(--teal-700);
+  --lip-sky:0 4px 0 #13367a;
+  --lip-navy:0 4px 0 var(--navy-950);
+  --lip-danger:0 4px 0 #7a0c27;
+  --glow-gold:0 0 24px rgba(245,185,66,.45);
+  --glow-teal:0 0 18px rgba(79,209,197,.45);
+  --glow-sky:0 0 32px rgba(63,162,255,.5);
+
+  --blur-overlay:blur(8px); /* @kind other */
+  --skew:-8deg; /* @kind other */
+
+  /* Motion */
+  --ease-out:cubic-bezier(.2,.8,.2,1); /* @kind other */
+  --ease-pop:cubic-bezier(.34,1.56,.64,1); /* @kind other */
+  --dur-press:80ms; /* @kind other */
+  --dur-fast:150ms; /* @kind other */
+  --dur-base:200ms; /* @kind other */
+  --dur-slow:320ms; /* @kind other */
+}

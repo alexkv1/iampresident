@@ -53,13 +53,14 @@ All components live under `components/<group>/` with `.jsx`, `.d.ts`, `.prompt.m
 - **players**: `PlayerRow`
 - **build**: `BuildItem`
 - **feed**: `FeedEvent`, `ChatMessage`
-- **feedback**: `Toast`, `Spinner`
+- **feedback**: `Toast`, `Spinner`, `Tooltip`
 - **home**: `ModeCard`
 
 Each one maps to a class family in `public/css/app.css`: `.btn*` → Button, `.input`/`label.field` → Input/Field, `.card` → Card, `.panel` → Panel, `.pill` → Pill, `.badge` → Badge, `.res` → ResourceChip, `.country-tag` → CountryTag, `.player-row` → PlayerRow, `.build-item` → BuildItem, `.feed .ev` → FeedEvent, `.chat-msgs .m` → ChatMessage, `.toast` → Toast, `.spinner` → Spinner, `.mode-card` → ModeCard, `.brand` → Wordmark.
 
 **Intentional additions**
 - `Icon`: thin wrapper for the Phosphor icon font, which replaces the codebase's emoji placeholders.
+- `Tooltip`: explainer popup for HUD icons so new players learn what each one means. Copy rule: two sentences at most, second person, concrete numbers from `GameConfig`.
 
 ### UI kits
 - `ui_kits/game/`: Home, Lobby and Match screens. Interactive: create or join a match, pick a country on the real 3D globe, ready up, start, then build, chat and watch ticks. Deep-link with `#lobby` or `#game`.

@@ -1,9 +1,9 @@
 # Match HUD — implementation plan
 
-Porting the design handoff (`design_handoff_match_hud/`) into the live stack (PHP 8.4,
+Porting the design handoff (`iampresident_handoff_v2/`) into the live stack (PHP 8.4,
 jQuery, three.js r149, plain CSS — no React, no bundler). The visual source of truth is
 `design/ui_kits/game/match-hud.html`; exact values come from the `.jsx` files and spec
-(`design_handoff_match_hud/README.md`, cited as §).
+(`iampresident_handoff_v2/README.md`, cited as §).
 
 ## Guiding rules
 - Copy pixel/colour values **verbatim** from `.jsx`; never round to a 4/8 grid, never invent colours. Use the token CSS variables.
@@ -75,5 +75,5 @@ jQuery, three.js r149, plain CSS — no React, no bundler). The visual source of
 ## Open questions
 1. **Alliance consent (§5, blocking for step 5):** immediate state change, or a pending proposal the other player must accept? (Prompt 5 says ask.)
 2. **`.claude/` skill:** currently git-ignored so the installed skill stays local only. OK, or should the skill be committed for teammates?
-3. **`design_handoff_match_hud/` in the repo:** committed (~1.5 MB incl. fonts/woff2 + a duplicate `countries.geo.json`). Keep in-repo, or git-ignore after porting?
+3. **`iampresident_handoff_v2/` in the repo:** committed (~1.5 MB incl. fonts/woff2 + a duplicate `countries.geo.json`). Keep in-repo, or git-ignore after porting?
 4. **Minor:** DS `globe.js` ships camera z 3.0 and ocean radius 0.998; spec wants z 2.6. I'll follow the spec. Flagging in case the mockup was tuned to 3.0.

@@ -61,8 +61,14 @@ function BuildTile({ type, props, sc, onBuild }) {
   const [hover, setHover] = React.useState(false);
   const afford = Object.keys(B.cost).every((k) => (sc.res[k] || 0) >= B.cost[k]);
   const y = buildYield(type, props);
+  const tip = { title: B.name, icon: B.icon, tone: B.tone, body: B.desc, stats: [
+    { label: 'Output here', value: y.map(([k, v, txt]) => txt || ((v >= 0 ? '+' : '\u2212') + Math.abs(v) + ' ' + HUD_RES[k].label.toLowerCase())).join(', ') },
+    { label: 'Energy use', value: B.needs_energy ? B.needs_energy + ' / day' : 'none', color: 'var(--res-energy)', icon: 'lightning' },
+    { label: 'Build time', value: B.build_ticks + ' days' },
+  ].concat(afford ? [] : [{ label: 'Can\u2019t afford', value: 'need more resources', color: 'var(--red-300)', icon: 'warning' }]) };
   return (
-    <div onClick={() => onBuild(type, afford)} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} title={B.desc}
+    <Tip tip={tip} place="left">
+    <div onClick={() => onBuild(type, afford)} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       style={{ padding: 9, borderRadius: 10, cursor: afford ? 'pointer' : 'not-allowed', opacity: afford ? 1 : 0.5, background: 'var(--grad-navy)', border: '1px solid ' + (hover && afford ? 'var(--teal-400)' : 'var(--navy-600)'), boxShadow: '0 3px 0 var(--navy-950), inset 0 1px 0 rgba(255,255,255,.06)' + (hover && afford ? ', var(--glow-teal)' : ''), transform: hover && afford ? 'translateY(-1px)' : 'none', transition: 'transform 80ms ease, box-shadow 150ms ease, border-color 150ms ease' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <Tile icon={B.icon} tone={B.tone} size={32} />
@@ -78,77 +84,7 @@ function BuildTile({ type, props, sc, onBuild }) {
         <span style={{ font: '500 11px/1 var(--font-body)', color: 'var(--text-muted)' }}><i className="ph-fill ph-hourglass" /> {B.build_ticks}d</span>
       </div>
     </div>
-  );
-}
-
-function ArmyPane({ code, props, owner, sc, onTrain, onMove }) {
-  const H = window.HUD_DATA;
-  const { Button } = window.IAP_DS;
-  const mine = owner && owner.me;
-  const forces = mine && code === 'SWE' ? H.armiesHere : [];
-  const strength = H.armiesHere.reduce((a, f) => a + f.count * H.UNITS[f.type].attack, 0);
-  if (!mine) {
-    const def = owner ? 4 + 18 : 8;
-    return (
-      <div>
-        <SectionHead>Attack {props.name}</SectionHead>
-        <div style={{ padding: 12, borderRadius: 12, background: 'rgba(230,25,75,.08)', boxShadow: 'inset 0 0 0 1px var(--red-800)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
-            <div style={{ textAlign: 'center' }}><Eyebrow>Your strike force</Eyebrow><div style={{ font: 'italic 900 40px/1 var(--font-display)', color: 'var(--teal-300)', marginTop: 4 }}>{strength}</div></div>
-            <span style={{ font: 'italic 900 22px/1 var(--font-display)', color: 'var(--text-muted)' }}>VS</span>
-            <div style={{ textAlign: 'center' }}><Eyebrow>Defence</Eyebrow><div style={{ font: 'italic 900 40px/1 var(--font-display)', color: 'var(--red-300)', marginTop: 4 }}>{def}</div></div>
-          </div>
-          <div style={{ textAlign: 'center', margin: '8px 0 12px', font: '500 12px/1.3 var(--font-body)', color: strength > def ? 'var(--green-300)' : 'var(--red-300)' }}>{strength > def ? 'Attacker wins if strength is higher. Expect ~' + Math.round(Math.min(0.9, def / strength) * 100) + '% losses.' : 'Too strong. Train more units first.'}</div>
-          <Button variant="danger" icon="sword" block onClick={() => onMove(code, true)}>Attack from Sweden · 2 days</Button>
-        </div>
-      </div>
-    );
-  }
-  return (
-    <div>
-      <SectionHead right={<span style={{ font: 'italic 800 14px/1 var(--font-display)', color: 'var(--teal-300)', textTransform: 'uppercase' }}>Strength {forces.length ? strength : 0}</span>}>Forces here</SectionHead>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 6, marginBottom: 14 }}>
-        {Object.keys(H.UNITS).map((u) => {
-          const f = forces.find((x) => x.type === u);
-          return (
-            <div key={u} style={{ textAlign: 'center', padding: '8px 4px', borderRadius: 10, background: 'var(--navy-850)', boxShadow: 'var(--shadow-inset-well)', opacity: f ? 1 : 0.5 }}>
-              <i className={'ph-fill ph-' + H.UNITS[u].icon} style={{ fontSize: 20, color: f ? '#fff' : 'var(--navy-400)' }} />
-              <div style={{ font: 'italic 900 20px/1 var(--font-display)', color: '#fff', marginTop: 4 }}>{f ? f.count : 0}</div>
-              <div style={{ font: '500 10px/1 var(--font-body)', color: 'var(--text-muted)', marginTop: 2 }}>{H.UNITS[u].name}</div>
-            </div>
-          );
-        })}
-      </div>
-      <SectionHead>Train</SectionHead>
-      {Object.keys(H.UNITS).map((u) => {
-        const U = H.UNITS[u];
-        const afford = Object.keys(U.cost).every((k) => (sc.res[k] || 0) >= U.cost[k] * 5);
-        return (
-          <div key={u} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,.04)' }}>
-            <Tile icon={U.icon} tone="var(--navy-500)" size={30} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, font: '600 13px/1 var(--font-body)', color: '#fff' }}>{U.name}<span style={{ font: 'italic 800 12px/1 var(--font-display)', color: 'var(--red-300)' }}>ATK {U.attack}</span></div>
-              <div style={{ marginTop: 4 }}><Cost cost={U.cost} have={sc.res} size={11} /></div>
-            </div>
-            <Button size="sm" variant={afford ? 'primary' : 'default'} disabled={!afford} onClick={() => onTrain(u)}>×5</Button>
-          </div>
-        );
-      })}
-      <SectionHead><span style={{ display: 'block', marginTop: 10 }}>Move forces</span></SectionHead>
-      {H.moveTargets.map((t) => {
-        const name = (window.__HUD_PROPS[t.code] || {}).name || t.code;
-        const hostile = t.owner == null;
-        return (
-          <div key={t.code} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0' }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ font: '600 13px/1.1 var(--font-body)', color: '#fff' }}>{name}</div>
-              <div style={{ font: '400 11px/1.3 var(--font-body)', color: hostile ? 'var(--red-300)' : 'var(--teal-300)' }}>{hostile ? 'Neutral · ' + strength + ' vs ' + t.garrison : 'Yours · reinforce'} · {t.eta}d</div>
-            </div>
-            <Button size="sm" variant={hostile ? 'danger' : 'ghost'} onClick={() => onMove(t.code, hostile)}>{hostile ? 'Attack' : 'Move'}</Button>
-          </div>
-        );
-      })}
-    </div>
+    </Tip>
   );
 }
 
@@ -206,13 +142,19 @@ function TradePane({ players, sc, onTrade }) {
   );
 }
 
-function DiplomacyPane({ players, onDiplo }) {
-  const { Button, Badge } = window.IAP_DS;
-  const ACTIONS = { neutral: [['allied', 'Propose alliance', 'primary'], ['war', 'Declare war', 'danger']], allied: [['neutral', 'Break alliance', 'ghost']], war: [['truce', 'Offer truce', 'default']], truce: [['allied', 'Propose alliance', 'primary'], ['war', 'Declare war', 'danger']] };
+function DiplomacyPane({ players, onDiplo, proposals, truceLeft, day }) {
+  const { Button, Badge, Pill } = window.IAP_DS;
+  const H = window.HUD_DATA;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       {players.filter((p) => !p.me).map((p) => {
-        const d = DIPLO[p.diplo || 'neutral'];
+        const d = DIPLO[p.diplo || 'neutral'], tl = truceLeft(p), access = !!H.ACCESS[p.id];
+        const pend = (k) => proposals[p.id + ':' + k];
+        const acts = [];
+        if (p.diplo === 'neutral' || !p.diplo) acts.push(['alliance', 'Propose alliance', 'primary'], ['war', 'Declare war', 'danger']);
+        if (p.diplo === 'allied') acts.push(['break', 'End alliance', 'ghost']);
+        if (p.diplo === 'war') acts.push(['truce', 'Offer truce', 'default']);
+        if (p.diplo !== 'war' && !access) acts.push(['access', 'Request access', 'default']);
         return (
           <div key={p.id} style={{ padding: 12, borderRadius: 12, background: 'var(--grad-navy)', border: '1px solid var(--navy-600)', boxShadow: '0 3px 0 var(--navy-950)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -221,10 +163,16 @@ function DiplomacyPane({ players, onDiplo }) {
                 <div style={{ font: '600 14px/1.2 var(--font-body)', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
                 <div style={{ font: '400 11px/1.3 var(--font-body)', color: 'var(--text-muted)' }}>{p.title} · {p.lands.length} lands{p.ai ? ' · AI' : ''}</div>
               </div>
-              <Badge kind={d.kind} icon={d.icon}>{d.label}</Badge>
+              <Tip tip={HUD_TIPS.diplo[p.diplo || 'neutral']} place="left" style={{ cursor: 'help' }}><Badge kind={d.kind} icon={d.icon}>{d.label}</Badge></Tip>
             </div>
-            <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
-              {ACTIONS[p.diplo || 'neutral'].map(([to, label, v]) => <Button key={to} size="sm" variant={v} style={{ flex: 1 }} onClick={() => onDiplo(p, to)}>{label}</Button>)}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+              {access ? <Tip tip={HUD_TIPS.access} place="left" style={{ cursor: 'help' }}><Pill tone="teal" icon="path">Access granted</Pill></Tip> : null}
+              {tl ? <Pill tone="sky" icon="hourglass">Truce · {tl} days left</Pill> : null}
+              {['alliance', 'access', 'truce'].filter(pend).map((k) => <Pill key={k} icon="hourglass">{{ alliance: 'Alliance', access: 'Access', truce: 'Truce' }[k]} proposed · waiting</Pill>)}
+            </div>
+            {tl ? <div style={{ marginTop: 8, font: '400 12px/1.4 var(--font-body)', color: 'var(--text-muted)' }}>Truces can’t be broken. You can’t attack each other until Day {day + tl}.</div> : null}
+            <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
+              {tl ? null : acts.map(([k, label, v]) => <Button key={k} size="sm" variant={v} disabled={!!pend(k)} style={{ flex: 1 }} onClick={() => onDiplo(p, k)}>{label}</Button>)}
             </div>
           </div>
         );
@@ -233,4 +181,4 @@ function DiplomacyPane({ players, onDiplo }) {
   );
 }
 
-Object.assign(window, { BuildPane, ArmyPane, TradePane, DiplomacyPane });
+Object.assign(window, { BuildPane, TradePane, DiplomacyPane, SectionHead });

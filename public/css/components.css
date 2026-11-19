@@ -279,3 +279,26 @@
 .mode-card__title{display:block; font:italic 800 24px/1 var(--font-display); text-transform:uppercase;
   color:var(--text-strong); text-shadow:var(--text-shadow-display); margin-bottom:4px}
 .mode-card__desc{display:block; font:400 13px/1.4 var(--font-body); color:var(--text-muted)}
+
+/* ---------------- feedback/Tooltip ---------------- */
+.tooltip{position:relative; width:260px; padding:12px 14px; border-radius:12px;
+  background:linear-gradient(180deg,#1f2e50 0%,#131c33 100%); border:1px solid rgba(124,196,255,.3);
+  box-shadow:0 14px 34px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.1); color:var(--text-body);
+  animation:iap-tip-in 150ms var(--ease-out); pointer-events:none}
+.tooltip__arrow{position:absolute; width:12px; height:12px; transform:rotate(45deg); background:#1a2745}
+.tooltip--bottom .tooltip__arrow{top:-6px; border-top:1px solid rgba(124,196,255,.3); border-left:1px solid rgba(124,196,255,.3)}
+.tooltip--top .tooltip__arrow{bottom:-6px; background:#131c33; border-bottom:1px solid rgba(124,196,255,.3); border-right:1px solid rgba(124,196,255,.3)}
+.tooltip--left .tooltip__arrow{right:-6px; top:50%; margin-top:-6px; border-top:1px solid rgba(124,196,255,.3); border-right:1px solid rgba(124,196,255,.3)}
+.tooltip--right .tooltip__arrow{left:-6px; top:50%; margin-top:-6px; border-bottom:1px solid rgba(124,196,255,.3); border-left:1px solid rgba(124,196,255,.3)}
+.tooltip__head{position:relative; display:flex; align-items:center; gap:9px}
+.tooltip__tile{width:26px; height:26px; border-radius:7px; flex-shrink:0; display:grid; place-items:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 2px 0 rgba(0,0,0,.35)}
+.tooltip__tile i{font-size:15px; color:#fff; filter:drop-shadow(0 1px 0 rgba(0,0,0,.3))}
+.tooltip__title{flex:1; min-width:0; font:italic 800 19px/1 var(--font-display); text-transform:uppercase; letter-spacing:.02em; color:#fff; text-shadow:var(--text-shadow-display)}
+.tooltip__key{display:inline-grid; place-items:center; min-width:20px; height:20px; padding:0 5px; border-radius:5px; background:var(--navy-950); border:1px solid var(--navy-500); box-shadow:0 2px 0 #000; font:700 11px/1 var(--font-body); color:var(--navy-200)}
+.tooltip__body{position:relative; margin-top:8px; font:400 13px/1.45 var(--font-body); color:var(--navy-200); text-wrap:pretty}
+.tooltip__stats{position:relative; margin-top:10px; padding-top:9px; border-top:1px solid rgba(255,255,255,.07); display:flex; flex-direction:column; gap:6px}
+.tooltip__stat{display:flex; justify-content:space-between; align-items:center; gap:10px}
+.tooltip__stat-label{font:600 11px/1 var(--font-body); text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted)}
+.tooltip__stat-val{display:inline-flex; align-items:center; gap:4px; font:600 13px/1 var(--font-body); color:#fff; font-variant-numeric:tabular-nums; text-align:right}
+.tooltip__stat-val i{font-size:13px}

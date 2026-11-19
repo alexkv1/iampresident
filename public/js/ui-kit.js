@@ -158,6 +158,18 @@
       return `<span class="spinner" role="progressbar" aria-label="Loading" style="width:${size}px;height:${size}px;border-width:${bw}px;border-top-color:${color}"></span>`;
     },
 
+    tooltip({ title, body, icon, tone = 'var(--sky-500)', keyHint, stats = [], placement = 'bottom', arrowOffset, width = 260 } = {}) {
+      const arrowLeft = (arrowOffset != null ? arrowOffset : width / 2) - 6;
+      const arrowStyle = (placement === 'bottom' || placement === 'top') ? ` style="left:${arrowLeft}px"` : '';
+      const iconEl = icon ? `<span class="tooltip__tile" style="background:linear-gradient(180deg, rgba(255,255,255,.28), rgba(0,0,0,.18)), ${tone}"><i class="ph-fill ph-${icon}" aria-hidden="true"></i></span>` : '';
+      const keyEl = keyHint ? `<span class="tooltip__key">${esc(keyHint)}</span>` : '';
+      const bodyEl = body ? `<div class="tooltip__body">${esc(body)}</div>` : '';
+      const statsEl = (stats && stats.length) ? `<div class="tooltip__stats">` + stats.map((s) =>
+        `<div class="tooltip__stat"><span class="tooltip__stat-label">${esc(s.label)}</span><span class="tooltip__stat-val"${s.color ? ` style="color:${s.color}"` : ''}>${s.icon ? iconTag(s.icon) : ''}${esc(s.value)}</span></div>`).join('') + `</div>` : '';
+      return `<div role="tooltip" class="tooltip tooltip--${placement}" style="width:${width}px"><span class="tooltip__arrow" aria-hidden="true"${arrowStyle}></span>` +
+        `<div class="tooltip__head">${iconEl}<span class="tooltip__title">${esc(title)}</span>${keyEl}</div>${bodyEl}${statsEl}</div>`;
+    },
+
     modeCard({ icon = 'globe-hemisphere-west', title, description, tone = 'sky' } = {}) {
       return `<button type="button" class="mode-card"><span class="mode-card__tile mode-card__tile--${tone}">${iconTag(icon)}</span>` +
         `<span class="mode-card__col"><span class="mode-card__title">${esc(title)}</span><span class="mode-card__desc">${esc(description)}</span></span></button>`;

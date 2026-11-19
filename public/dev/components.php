@@ -133,7 +133,14 @@ $v = fn($p) => $p . '?v=' . (@filemtime(__DIR__ . '/../' . ltrim($p, '/')) ?: 1)
         UI.toast({kind:'err', children:'Not enough resources.'}) +
         UI.toast({children:'Connecting to the world…'}));
       const spinners = row('display:flex;gap:16px;align-items:center', UI.spinner({}) + UI.spinner({size:22, color:'var(--gold-400)'}));
-      return row('display:flex;gap:28px;align-items:center', toasts + spinners);
+      const topRow = row('display:flex;gap:28px;align-items:center', toasts + spinners);
+      const tips = row('display:flex;gap:20px;align-items:flex-start;padding-top:6px',
+        UI.tooltip({placement:'bottom', icon:'grains', tone:'var(--res-food)', title:'Food',
+          body:'Feeds your people. Every million citizens eat 2 food a day. If it runs out, population shrinks 1.5% a day.',
+          stats:[{label:'Now', value:'2 410'}, {label:'Per day', value:'+86', color:'var(--green-300)'}, {label:'Made by', value:'Farm'}]}) +
+        UI.tooltip({placement:'left', icon:'hammer', tone:'var(--sky-500)', title:'Build', keyHint:'B',
+          body:'Construct farms, mines and power plants in lands you control.'}));
+      return row('display:flex;flex-direction:column;gap:22px', topRow + tips);
     },
 
     home() {

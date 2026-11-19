@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"IAmPresidentDesignSystem_7cd541","components":[{"name":"Wordmark","sourcePath":"components/brand/Wordmark.jsx"},{"name":"BuildItem","sourcePath":"components/build/BuildItem.jsx"},{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"Pill","sourcePath":"components/core/Pill.jsx"},{"name":"ChatMessage","sourcePath":"components/feed/ChatMessage.jsx"},{"name":"FeedEvent","sourcePath":"components/feed/FeedEvent.jsx"},{"name":"Spinner","sourcePath":"components/feedback/Spinner.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"Field","sourcePath":"components/forms/Field.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"ModeCard","sourcePath":"components/home/ModeCard.jsx"},{"name":"CountryTag","sourcePath":"components/hud/CountryTag.jsx"},{"name":"ResourceChip","sourcePath":"components/hud/ResourceChip.jsx"},{"name":"PlayerRow","sourcePath":"components/players/PlayerRow.jsx"},{"name":"Card","sourcePath":"components/surfaces/Card.jsx"},{"name":"Panel","sourcePath":"components/surfaces/Panel.jsx"}],"sourceHashes":{"components/brand/Wordmark.jsx":"e2d59640bb90","components/build/BuildItem.jsx":"17904ed227bd","components/core/Badge.jsx":"04577a3fff67","components/core/Button.jsx":"b7a8efdc5a57","components/core/Icon.jsx":"2b1597856e19","components/core/Pill.jsx":"87419b6675cd","components/feed/ChatMessage.jsx":"d66a1a9478a2","components/feed/FeedEvent.jsx":"05f3fabbc00d","components/feedback/Spinner.jsx":"6a19c14f1db1","components/feedback/Toast.jsx":"b1868f9d9139","components/forms/Field.jsx":"d8dcb6426511","components/forms/Input.jsx":"f306b4a07e34","components/home/ModeCard.jsx":"68cc23e0ed70","components/hud/CountryTag.jsx":"c4ea8707dbf9","components/hud/ResourceChip.jsx":"01e98c64d62f","components/hud/resourceMeta.js":"f9fc67998b45","components/players/PlayerRow.jsx":"f8ae397e5013","components/surfaces/Card.jsx":"1e22e7a0e213","components/surfaces/Panel.jsx":"f926e77dd84c","ui_kits/game/App.jsx":"9b71a228ef82","ui_kits/game/GameScreen.jsx":"87ce7b323860","ui_kits/game/GlobeView.jsx":"e8175b86c8b3","ui_kits/game/HomeScreen.jsx":"dc8a91d8ada6","ui_kits/game/LobbyScreen.jsx":"bc97932bbec3","ui_kits/game/data.js":"67e486b04933","ui_kits/game/globe.js":"85acf01532e3","ui_kits/game/hud/HudBottom.jsx":"03fab1e2ce43","ui_kits/game/hud/HudPanes.jsx":"6f891781533b","ui_kits/game/hud/HudParts.jsx":"39335bd1d396","ui_kits/game/hud/HudSide.jsx":"4af9c3b2fb61","ui_kits/game/hud/HudTop.jsx":"231495374b21","ui_kits/game/hud/MatchHud.jsx":"894fbfc47893","ui_kits/game/hud/hudData.js":"7b89c2a6da83","ui_kits/game/hud/tweaks-panel.jsx":"d259e3a86f73"},"inlinedExternals":[],"unexposedExports":[{"name":"formatNum","sourcePath":"components/hud/resourceMeta.js"},{"name":"resourceMeta","sourcePath":"components/hud/resourceMeta.js"}]} */
+/* @ds-bundle: {"format":4,"namespace":"IAmPresidentDesignSystem_7cd541","components":[{"name":"Wordmark","sourcePath":"components/brand/Wordmark.jsx"},{"name":"BuildItem","sourcePath":"components/build/BuildItem.jsx"},{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"Pill","sourcePath":"components/core/Pill.jsx"},{"name":"ChatMessage","sourcePath":"components/feed/ChatMessage.jsx"},{"name":"FeedEvent","sourcePath":"components/feed/FeedEvent.jsx"},{"name":"Spinner","sourcePath":"components/feedback/Spinner.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"Tooltip","sourcePath":"components/feedback/Tooltip.jsx"},{"name":"Field","sourcePath":"components/forms/Field.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"ModeCard","sourcePath":"components/home/ModeCard.jsx"},{"name":"CountryTag","sourcePath":"components/hud/CountryTag.jsx"},{"name":"ResourceChip","sourcePath":"components/hud/ResourceChip.jsx"},{"name":"PlayerRow","sourcePath":"components/players/PlayerRow.jsx"},{"name":"Card","sourcePath":"components/surfaces/Card.jsx"},{"name":"Panel","sourcePath":"components/surfaces/Panel.jsx"}],"sourceHashes":{"components/brand/Wordmark.jsx":"e2d59640bb90","components/build/BuildItem.jsx":"17904ed227bd","components/core/Badge.jsx":"04577a3fff67","components/core/Button.jsx":"b7a8efdc5a57","components/core/Icon.jsx":"2b1597856e19","components/core/Pill.jsx":"87419b6675cd","components/feed/ChatMessage.jsx":"d66a1a9478a2","components/feed/FeedEvent.jsx":"05f3fabbc00d","components/feedback/Spinner.jsx":"6a19c14f1db1","components/feedback/Toast.jsx":"b1868f9d9139","components/feedback/Tooltip.jsx":"a30acc9ef96d","components/forms/Field.jsx":"d8dcb6426511","components/forms/Input.jsx":"f306b4a07e34","components/home/ModeCard.jsx":"68cc23e0ed70","components/hud/CountryTag.jsx":"c4ea8707dbf9","components/hud/ResourceChip.jsx":"01e98c64d62f","components/hud/resourceMeta.js":"f9fc67998b45","components/players/PlayerRow.jsx":"f8ae397e5013","components/surfaces/Card.jsx":"1e22e7a0e213","components/surfaces/Panel.jsx":"f926e77dd84c","ui_kits/game/App.jsx":"9b71a228ef82","ui_kits/game/GameScreen.jsx":"87ce7b323860","ui_kits/game/GlobeView.jsx":"e8175b86c8b3","ui_kits/game/HomeScreen.jsx":"dc8a91d8ada6","ui_kits/game/LobbyScreen.jsx":"bc97932bbec3","ui_kits/game/data.js":"67e486b04933","ui_kits/game/globe.js":"827c3a393883","ui_kits/game/hud/HudArmies.jsx":"a1336017d71b","ui_kits/game/hud/HudBottom.jsx":"3d52eb3029e9","ui_kits/game/hud/HudPanes.jsx":"1b6fcdef30e7","ui_kits/game/hud/HudParts.jsx":"99cb6bb89b50","ui_kits/game/hud/HudResearch.jsx":"953bbff942d9","ui_kits/game/hud/HudSide.jsx":"2b7bc393d713","ui_kits/game/hud/HudTop.jsx":"8a85a8b99051","ui_kits/game/hud/MatchHud.jsx":"d578a4869ba8","ui_kits/game/hud/hudData.js":"fbf91ca9fe61","ui_kits/game/hud/hudGeo.js":"39ee21bbe3d0","ui_kits/game/hud/hudTips.js":"3f879e562023","ui_kits/game/hud/tweaks-panel.jsx":"d259e3a86f73"},"inlinedExternals":[],"unexposedExports":[{"name":"formatNum","sourcePath":"components/hud/resourceMeta.js"},{"name":"resourceMeta","sourcePath":"components/hud/resourceMeta.js"}]} */
 
 (() => {
 
@@ -592,6 +592,192 @@ function Toast({
 }
 Object.assign(__ds_scope, { Toast });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/feedback/Toast.jsx", error: String((e && e.message) || e) }); }
+
+// components/feedback/Tooltip.jsx
+try { (() => {
+const TIP_W = 260;
+const TIP_EDGE = '1px solid rgba(124,196,255,.3)';
+// rotate(45deg): top+left edges form the up-pointing tip, bottom+right the down tip, top+right the right tip, bottom+left the left tip.
+const TIP_ARROW_EDGES = {
+  bottom: {
+    borderTop: TIP_EDGE,
+    borderLeft: TIP_EDGE
+  },
+  top: {
+    borderBottom: TIP_EDGE,
+    borderRight: TIP_EDGE
+  },
+  left: {
+    borderTop: TIP_EDGE,
+    borderRight: TIP_EDGE
+  },
+  right: {
+    borderBottom: TIP_EDGE,
+    borderLeft: TIP_EDGE
+  }
+};
+function Tooltip({
+  title,
+  body,
+  icon,
+  tone = 'var(--sky-500)',
+  keyHint,
+  stats = [],
+  placement = 'bottom',
+  arrowOffset,
+  width = TIP_W,
+  style
+}) {
+  const arrow = 12;
+  const arrowPos = {
+    bottom: {
+      top: -arrow / 2,
+      left: (arrowOffset != null ? arrowOffset : width / 2) - arrow / 2
+    },
+    top: {
+      bottom: -arrow / 2,
+      left: (arrowOffset != null ? arrowOffset : width / 2) - arrow / 2
+    },
+    left: {
+      right: -arrow / 2,
+      top: '50%',
+      marginTop: -arrow / 2
+    },
+    right: {
+      left: -arrow / 2,
+      top: '50%',
+      marginTop: -arrow / 2
+    }
+  }[placement];
+  return /*#__PURE__*/React.createElement("div", {
+    role: "tooltip",
+    style: {
+      position: 'relative',
+      width: width,
+      padding: '12px 14px',
+      borderRadius: 12,
+      background: 'linear-gradient(180deg,#1f2e50 0%,#131c33 100%)',
+      border: '1px solid rgba(124,196,255,.3)',
+      boxShadow: '0 14px 34px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.1)',
+      color: 'var(--text-body)',
+      animation: 'iap-tip-in 150ms var(--ease-out)',
+      pointerEvents: 'none',
+      ...style
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true",
+    style: {
+      position: 'absolute',
+      width: arrow,
+      height: arrow,
+      transform: 'rotate(45deg)',
+      background: placement === 'top' ? '#131c33' : '#1a2745',
+      ...TIP_ARROW_EDGES[placement],
+      ...arrowPos
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'relative',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 9
+    }
+  }, icon ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 26,
+      height: 26,
+      borderRadius: 7,
+      flexShrink: 0,
+      display: 'grid',
+      placeItems: 'center',
+      background: 'linear-gradient(180deg, rgba(255,255,255,.28), rgba(0,0,0,.18)), ' + tone,
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,.35), 0 2px 0 rgba(0,0,0,.35)'
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: 'ph-fill ph-' + icon,
+    "aria-hidden": "true",
+    style: {
+      fontSize: 15,
+      color: '#fff',
+      filter: 'drop-shadow(0 1px 0 rgba(0,0,0,.3))'
+    }
+  })) : null, /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: 1,
+      minWidth: 0,
+      font: 'italic 800 19px/1 var(--font-display)',
+      textTransform: 'uppercase',
+      letterSpacing: '.02em',
+      color: '#fff',
+      textShadow: 'var(--text-shadow-display)'
+    }
+  }, title), keyHint ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'inline-grid',
+      placeItems: 'center',
+      minWidth: 20,
+      height: 20,
+      padding: '0 5px',
+      borderRadius: 5,
+      background: 'var(--navy-950)',
+      border: '1px solid var(--navy-500)',
+      boxShadow: '0 2px 0 #000',
+      font: '700 11px/1 var(--font-body)',
+      color: 'var(--navy-200)'
+    }
+  }, keyHint) : null), body ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'relative',
+      marginTop: 8,
+      font: '400 13px/1.45 var(--font-body)',
+      color: 'var(--navy-200)',
+      textWrap: 'pretty'
+    }
+  }, body) : null, stats.length ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'relative',
+      marginTop: 10,
+      paddingTop: 9,
+      borderTop: '1px solid rgba(255,255,255,.07)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 6
+    }
+  }, stats.map((s, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: '600 11px/1 var(--font-body)',
+      textTransform: 'uppercase',
+      letterSpacing: '.06em',
+      color: 'var(--text-muted)'
+    }
+  }, s.label), /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 4,
+      font: '600 13px/1 var(--font-body)',
+      color: s.color || '#fff',
+      fontVariantNumeric: 'tabular-nums',
+      textAlign: 'right'
+    }
+  }, s.icon ? /*#__PURE__*/React.createElement("i", {
+    className: 'ph-fill ph-' + s.icon,
+    "aria-hidden": "true",
+    style: {
+      fontSize: 13
+    }
+  }) : null, s.value)))) : null);
+}
+Object.assign(__ds_scope, { Tooltip });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/feedback/Tooltip.jsx", error: String((e && e.message) || e) }); }
 
 // components/forms/Field.jsx
 try { (() => {
@@ -2997,6 +3183,71 @@ try { (() => {
     getProps(code) {
       return this.props[code] || null;
     }
+
+    // ---- overlay helpers (troop markers, routes) ----------------------------
+    lonLatVec(lon, lat, r = 1) {
+      return lonLatToVec3(lon, lat, R * r);
+    }
+
+    // Project a point given in globe-local coords to container pixels.
+    // `vis` is 0..1: 0 behind the horizon, 1 clearly on the visible side.
+    projectLocal(p) {
+      this.world.updateMatrixWorld();
+      const v = new THREE.Vector3(p[0], p[1], p[2]).applyMatrix4(this.world.matrixWorld);
+      const dist = this.camera.position.length();
+      const facing = v.clone().normalize().dot(this.camera.position.clone().normalize());
+      const horizon = R / dist;
+      v.project(this.camera);
+      const el = this.renderer.domElement;
+      return {
+        x: (v.x + 1) / 2 * el.clientWidth,
+        y: (1 - v.y) / 2 * el.clientHeight,
+        vis: Math.max(0, Math.min(1, (facing - horizon) / 0.08))
+      };
+    }
+
+    // Draw a route as a (dashed) tube with an optional arrowhead. points = [[x,y,z], ...] in globe-local coords.
+    addPath(points, opts = {}) {
+      const {
+        color = '#ffffff',
+        opacity = 0.9,
+        radius = 0.0045,
+        dash = 0,
+        arrow = true
+      } = opts;
+      const g = new THREE.Group();
+      const mat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(color),
+        transparent: true,
+        opacity,
+        depthWrite: false
+      });
+      const vecs = points.map(p => new THREE.Vector3(p[0], p[1], p[2]));
+      const tube = seg => {
+        if (seg.length < 2) return;
+        const c = new THREE.CatmullRomCurve3(seg);
+        g.add(new THREE.Mesh(new THREE.TubeGeometry(c, Math.max(4, seg.length * 2), radius, 6, false), mat));
+      };
+      if (!dash) tube(vecs);else for (let i = 0; i + 1 < vecs.length; i += dash * 2) tube(vecs.slice(i, Math.min(vecs.length, i + dash + 1)));
+      if (arrow && vecs.length > 1) {
+        const end = vecs[vecs.length - 1],
+          prev = vecs[vecs.length - 2];
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(radius * 3.2, radius * 9, 10), mat);
+        cone.position.copy(end);
+        cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), end.clone().sub(prev).normalize());
+        g.add(cone);
+      }
+      g.renderOrder = 5;
+      this.world.add(g);
+      return g;
+    }
+    removePath(g) {
+      if (!g) return;
+      this.world.remove(g);
+      g.traverse(o => {
+        if (o.geometry) o.geometry.dispose();
+      });
+    }
     focus(code) {
       const mesh = this.byCode[code];
       if (!mesh) return;
@@ -3035,6 +3286,980 @@ try { (() => {
   window.Globe = Globe;
 })();
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/game/globe.js", error: String((e && e.message) || e) }); }
+
+// ui_kits/game/hud/HudArmies.jsx
+try { (() => {
+// Troops on the globe: army markers, march routes, target reticles, battle bursts, and the Army pane.
+const ARMY_UNIT_ORDER = ['air', 'armor', 'artillery', 'navy', 'infantry'];
+function armyStrength(u) {
+  const U = window.HUD_DATA.UNITS;
+  return Object.keys(u).reduce((s, k) => s + u[k] * U[k].attack, 0);
+}
+function armyCount(u) {
+  return Object.values(u).reduce((a, b) => a + b, 0);
+}
+function armyTop(u) {
+  return ARMY_UNIT_ORDER.find(k => u[k] > 0) || 'infantry';
+}
+function armyList(u) {
+  const U = window.HUD_DATA.UNITS;
+  return ARMY_UNIT_ORDER.filter(k => u[k] > 0).map(k => u[k] + ' ' + U[k].name.toLowerCase()).join(', ');
+}
+const ROUTE_COLOR = {
+  land: '#7fe6dc',
+  sea: '#7cc4ff',
+  air: '#c9adf2'
+};
+
+// One marker: a chunky plate in the owner's colour, pinned to a point on the globe.
+function ArmyMarker({
+  a,
+  player,
+  isMe,
+  atWar,
+  day,
+  onPick
+}) {
+  const U = window.HUD_DATA.UNITS;
+  const top = armyTop(a.units),
+    moving = !!a.route;
+  const name = isMe ? 'Your army' : player.name + '’s army';
+  const where = (window.__HUD_PROPS[moving ? a.to : a.at] || {}).name;
+  const tip = {
+    title: name,
+    icon: U[top].icon,
+    tone: player.color,
+    body: HUD_TIPS.marker.body,
+    stats: ARMY_UNIT_ORDER.filter(k => a.units[k] > 0).map(k => ({
+      label: U[k].name,
+      value: a.units[k],
+      icon: U[k].icon
+    })).concat([{
+      label: 'Strength',
+      value: armyStrength(a.units),
+      color: 'var(--teal-300)'
+    }, moving ? {
+      label: 'Marching to',
+      value: where + ' · Day ' + a.arriveDay,
+      color: atWar ? 'var(--red-300)' : 'var(--sky-300)'
+    } : {
+      label: 'Stationed in',
+      value: where
+    }])
+  };
+  return /*#__PURE__*/React.createElement(Tip, {
+    tip: tip,
+    place: "top",
+    onClick: e => {
+      e.stopPropagation();
+      onPick(moving ? a.to : a.at);
+    },
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      cursor: 'pointer'
+    }
+  }, moving ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 3,
+      padding: '2px 6px',
+      borderRadius: 5,
+      background: 'rgba(6,10,20,.85)',
+      font: 'italic 800 11px/1 var(--font-display)',
+      textTransform: 'uppercase',
+      color: atWar ? 'var(--red-300)' : '#fff',
+      whiteSpace: 'nowrap'
+    }
+  }, "Day ", a.arriveDay) : null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 4,
+      height: 24,
+      padding: '0 8px 0 3px',
+      borderRadius: 8,
+      background: 'linear-gradient(180deg, rgba(255,255,255,.4), rgba(0,0,0,.14)), ' + player.color,
+      border: '2px solid ' + (isMe ? '#fff' : 'rgba(6,10,20,.85)'),
+      boxShadow: '0 3px 0 rgba(0,0,0,.5), 0 6px 14px rgba(0,0,0,.5)' + (atWar ? ', 0 0 0 3px rgba(230,25,75,.6)' : ''),
+      animation: atWar && moving ? 'iap-pulse 1s ease-in-out infinite' : 'none'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 18,
+      height: 18,
+      borderRadius: '50%',
+      display: 'grid',
+      placeItems: 'center',
+      background: 'rgba(6,10,20,.4)'
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: 'ph-fill ph-' + U[top].icon,
+    style: {
+      fontSize: 12,
+      color: '#fff'
+    }
+  })), /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: 'italic 900 16px/1 var(--font-display)',
+      color: '#fff',
+      textShadow: '0 1px 0 rgba(0,0,0,.6), 0 0 4px rgba(0,0,0,.5)'
+    }
+  }, armyCount(a.units)), moving ? /*#__PURE__*/React.createElement("i", {
+    className: "ph-fill ph-caret-double-right",
+    style: {
+      fontSize: 11,
+      color: '#fff'
+    }
+  }) : null), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 2,
+      height: 7,
+      background: isMe ? '#fff' : 'rgba(6,10,20,.85)'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 10,
+      height: 4,
+      borderRadius: '50%',
+      background: 'rgba(0,0,0,.55)',
+      boxShadow: '0 0 4px rgba(0,0,0,.6)'
+    }
+  }));
+}
+
+// Positions every marker each frame by projecting its globe point; fades markers on the far side.
+const BURST_STYLE = {
+  win: {
+    glow: 'rgba(255,216,100,.9)',
+    icon: 'sword',
+    size: 80
+  },
+  lose: {
+    glow: 'rgba(124,196,255,.9)',
+    icon: 'shield',
+    size: 80
+  },
+  strike: {
+    glow: 'rgba(255,159,67,.95)',
+    icon: 'fire',
+    size: 90
+  },
+  nuke: {
+    glow: 'rgba(255,214,120,1)',
+    icon: 'radioactive',
+    size: 220
+  }
+};
+const SHOT_ICON = {
+  artillery: 'target',
+  air: 'airplane-tilt',
+  missile: 'rocket',
+  nuke: 'radioactive'
+};
+function MarkerLayer({
+  globeRef,
+  armies,
+  players,
+  me,
+  warIds,
+  day,
+  reticles,
+  bursts,
+  shots = [],
+  onPick
+}) {
+  const els = React.useRef({});
+  const items = React.useRef([]);
+  items.current = armies.map(a => ({
+    id: a.id,
+    a
+  })).concat(reticles.map(r => ({
+    id: 'ret-' + r.code,
+    code: r.code
+  }))).concat(bursts.map(b => ({
+    id: 'burst-' + b.id,
+    code: b.code
+  }))).concat(shots.map(s => ({
+    id: 'shot-' + s.id,
+    a: s
+  })));
+  React.useEffect(() => {
+    let raf;
+    const loop = () => {
+      raf = requestAnimationFrame(loop);
+      const g = globeRef.current;
+      if (!g || !window.HUD_GEO.centroid('SWE')) return;
+      const now = performance.now();
+      for (const it of items.current) {
+        const el = els.current[it.id];
+        if (!el) continue;
+        let p;
+        if (it.a && it.a.route) {
+          const f = (now - it.a.start) / it.a.dur;
+          p = window.HUD_GEO.pointAt(it.a.route, it.a.ease ? 1 - Math.pow(1 - Math.min(1, f), 2) : f);
+        } else {
+          const c = window.HUD_GEO.centroid(it.a ? it.a.at : it.code);
+          if (!c) continue;
+          p = g.lonLatVec(c[0], c[1], 1.012);
+        }
+        const s = g.projectLocal(p);
+        el.style.transform = 'translate(' + s.x.toFixed(1) + 'px,' + s.y.toFixed(1) + 'px)';
+        el.style.opacity = s.vis;
+        el.style.pointerEvents = s.vis > 0.6 ? 'auto' : 'none';
+        el.style.zIndex = Math.round(s.y);
+      }
+    };
+    loop();
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  const pl = id => players.find(p => p.id === id);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      pointerEvents: 'none',
+      zIndex: 0,
+      isolation: 'isolate'
+    }
+  }, reticles.map(r => /*#__PURE__*/React.createElement("div", {
+    key: 'ret-' + r.code,
+    ref: n => {
+      els.current['ret-' + r.code] = n;
+    },
+    style: {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      pointerEvents: 'none'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      left: -22,
+      top: -22,
+      width: 44,
+      height: 44,
+      borderRadius: '50%',
+      border: '2px solid ' + r.color,
+      boxShadow: '0 0 12px ' + r.color,
+      animation: 'iap-reticle 1.4s ease-out infinite'
+    }
+  }), /*#__PURE__*/React.createElement("i", {
+    className: "ph-bold ph-crosshair",
+    style: {
+      position: 'absolute',
+      left: -11,
+      top: -11,
+      fontSize: 22,
+      color: r.color,
+      filter: 'drop-shadow(0 1px 2px rgba(0,0,0,.8))'
+    }
+  }))), armies.map(a => /*#__PURE__*/React.createElement("div", {
+    key: a.id,
+    ref: n => {
+      els.current[a.id] = n;
+    },
+    style: {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      opacity: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      transform: 'translate(-50%, -100%)'
+    }
+  }, /*#__PURE__*/React.createElement(ArmyMarker, {
+    a: a,
+    player: pl(a.owner),
+    isMe: a.owner === me.id,
+    atWar: warIds.has(a.owner),
+    day: day,
+    onPick: onPick
+  })))), shots.map(s => /*#__PURE__*/React.createElement("div", {
+    key: 'shot-' + s.id,
+    ref: n => {
+      els.current['shot-' + s.id] = n;
+    },
+    style: {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      pointerEvents: 'none'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      left: -15,
+      top: -15,
+      width: 30,
+      height: 30,
+      borderRadius: '50%',
+      display: 'grid',
+      placeItems: 'center',
+      background: 'radial-gradient(circle, rgba(255,179,107,.95), rgba(255,120,40,.35) 60%, transparent 72%)'
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: 'ph-fill ph-' + SHOT_ICON[s.kind],
+    style: {
+      fontSize: 16,
+      color: '#fff',
+      filter: 'drop-shadow(0 1px 1px rgba(0,0,0,.7))'
+    }
+  })))), bursts.map(b => {
+    const k = BURST_STYLE[b.kind || (b.win ? 'win' : 'lose')],
+      h = k.size / 2;
+    return /*#__PURE__*/React.createElement("div", {
+      key: 'burst-' + b.id,
+      ref: n => {
+        els.current['burst-' + b.id] = n;
+      },
+      style: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        pointerEvents: 'none'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: 'absolute',
+        left: -h,
+        top: -h,
+        width: k.size,
+        height: k.size,
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, ' + k.glow + ' 0%, rgba(255,255,255,0) 70%)',
+        animation: 'iap-burst ' + (b.kind === 'nuke' ? '2.4s' : '1.4s') + ' ease-out forwards'
+      }
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: 'absolute',
+        left: -20,
+        top: -20,
+        width: 40,
+        height: 40,
+        display: 'grid',
+        placeItems: 'center',
+        animation: 'iap-burst-icon 1.4s var(--ease-pop) forwards'
+      }
+    }, /*#__PURE__*/React.createElement("i", {
+      className: 'ph-fill ph-' + k.icon,
+      style: {
+        fontSize: 30,
+        color: '#fff',
+        filter: 'drop-shadow(0 2px 0 rgba(0,0,0,.5))'
+      }
+    })));
+  }));
+}
+
+// ---- Army pane ------------------------------------------------------------
+function FogNote({
+  name
+}) {
+  return /*#__PURE__*/React.createElement(Tip, {
+    tip: HUD_TIPS.fog,
+    place: "left",
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      padding: 10,
+      borderRadius: 10,
+      background: 'repeating-linear-gradient(135deg, rgba(255,255,255,.04) 0 8px, transparent 8px 16px), rgba(6,10,20,.5)',
+      boxShadow: 'inset 0 0 0 1px var(--navy-600)',
+      cursor: 'help'
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ph-fill ph-eye-slash",
+    style: {
+      fontSize: 22,
+      color: 'var(--navy-300)'
+    }
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: 'italic 800 15px/1 var(--font-display)',
+      textTransform: 'uppercase',
+      color: '#fff'
+    }
+  }, "Hidden by fog of war"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 3,
+      font: '400 12px/1.35 var(--font-body)',
+      color: 'var(--text-muted)'
+    }
+  }, "Move troops next to ", name, " to scout its defence.")));
+}
+function RouteRow({
+  opt,
+  onSend,
+  onPreview,
+  def,
+  friendly
+}) {
+  const {
+    Button
+  } = window.IAP_DS;
+  const t = HUD_TIPS.route[opt.kind];
+  const icon = {
+    land: 'person-simple-run',
+    sea: 'boat',
+    air: 'airplane-tilt'
+  }[opt.kind];
+  const win = def == null ? null : opt.strength > def;
+  return /*#__PURE__*/React.createElement("div", {
+    onMouseEnter: () => opt.ok && onPreview(opt),
+    onMouseLeave: () => onPreview(null),
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 9,
+      padding: '8px 0',
+      borderBottom: '1px solid rgba(255,255,255,.04)',
+      opacity: opt.ok ? 1 : 0.5
+    }
+  }, /*#__PURE__*/React.createElement(Tip, {
+    tip: t,
+    place: "left",
+    style: {
+      cursor: 'help'
+    }
+  }, /*#__PURE__*/React.createElement(Tile, {
+    icon: icon,
+    tone: ROUTE_COLOR[opt.kind] === '#7fe6dc' ? 'var(--teal-600)' : opt.kind === 'sea' ? 'var(--sky-500)' : '#8a63c4',
+    size: 30
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: '600 13px/1.15 var(--font-body)',
+      color: '#fff'
+    }
+  }, t.title, opt.ok ? ' · ' + opt.days + (opt.days === 1 ? ' day' : ' days') : ''), opt.ok ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 3,
+      font: '400 11px/1.3 var(--font-body)',
+      color: 'var(--text-muted)'
+    }
+  }, 'from ' + opt.fromName + (opt.via.length ? ' via ' + opt.via.join(', ') : '')) : opt.blockers ? /*#__PURE__*/React.createElement(Tip, {
+    tip: HUD_TIPS.blocked,
+    place: "left",
+    style: {
+      marginTop: 3,
+      font: '400 11px/1.3 var(--font-body)',
+      color: 'var(--red-300)',
+      cursor: 'help'
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ph-fill ph-prohibit"
+  }), " Blocked by ", opt.blockers.join(', ')) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 3,
+      font: '400 11px/1.3 var(--font-body)',
+      color: 'var(--text-muted)'
+    }
+  }, opt.reason)), opt.ok ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: 'italic 800 16px/1 var(--font-display)',
+      color: win == null ? '#fff' : win ? 'var(--green-300)' : 'var(--red-300)'
+    }
+  }, opt.strength) : null, /*#__PURE__*/React.createElement(Button, {
+    size: "sm",
+    variant: !opt.ok ? 'default' : friendly ? 'primary' : 'danger',
+    disabled: !opt.ok,
+    onClick: () => onSend(opt)
+  }, friendly ? 'Move' : 'Attack'));
+}
+function StrikeRow({
+  s,
+  onStrike
+}) {
+  const {
+    Button
+  } = window.IAP_DS;
+  const t = HUD_TIPS.strike[s.kind],
+    nuke = s.kind === 'nuke';
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 9,
+      padding: '8px 0',
+      borderBottom: '1px solid rgba(255,255,255,.04)',
+      opacity: s.ok ? 1 : 0.55
+    }
+  }, /*#__PURE__*/React.createElement(Tip, {
+    tip: t,
+    place: "left",
+    style: {
+      cursor: 'help'
+    }
+  }, /*#__PURE__*/React.createElement(Tile, {
+    icon: t.icon,
+    tone: nuke ? 'linear-gradient(180deg,#ff9f43,#b4520c)' : t.tone,
+    size: 30
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: '600 13px/1.15 var(--font-body)',
+      color: nuke ? 'var(--gold-300)' : '#fff'
+    }
+  }, t.title), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 3,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 4,
+      font: '400 11px/1.3 var(--font-body)',
+      color: s.ok ? 'var(--text-muted)' : s.locked ? 'var(--navy-300)' : 'var(--red-300)'
+    }
+  }, s.locked ? /*#__PURE__*/React.createElement("i", {
+    className: "ph-fill ph-lock"
+  }) : null, s.ok ? s.detail : s.reason)), s.ok ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: 'italic 800 16px/1 var(--font-display)',
+      color: 'var(--gold-300)'
+    }
+  }, "\u2212", s.damage) : null, /*#__PURE__*/React.createElement(Button, {
+    size: "sm",
+    variant: s.ok ? nuke ? 'danger' : 'gold' : 'default',
+    disabled: !s.ok,
+    icon: s.ok ? 'fire' : undefined,
+    onClick: () => onStrike(s)
+  }, "Strike"));
+}
+function ArmyPane({
+  code,
+  props,
+  owner,
+  sc,
+  onTrain,
+  army
+}) {
+  const H = window.HUD_DATA;
+  const {
+    Button
+  } = window.IAP_DS;
+  const {
+    mine,
+    allied,
+    stacks,
+    incoming,
+    neighbors,
+    plan,
+    defence,
+    fogged,
+    enemyHere,
+    onSend,
+    onPreview,
+    onStrike,
+    techDone
+  } = army;
+  if (allied) {
+    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(SectionHead, null, "Reinforce ", props.name), /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginBottom: 12,
+        font: '400 12px/1.45 var(--font-body)',
+        color: 'var(--text-muted)'
+      }
+    }, "Allied land. Your troops can pass through it and help defend it; they never fight your ally."), /*#__PURE__*/React.createElement(SectionHead, {
+      right: /*#__PURE__*/React.createElement("span", {
+        style: {
+          font: '400 11px/1 var(--font-body)',
+          color: 'var(--text-muted)'
+        }
+      }, "hover to preview route")
+    }, "Routes"), plan.invade.map(o => /*#__PURE__*/React.createElement(RouteRow, {
+      key: o.kind,
+      opt: o,
+      def: null,
+      friendly: true,
+      onSend: onSend,
+      onPreview: onPreview
+    })));
+  }
+  if (!mine) {
+    const best = plan.invade.filter(o => o.ok).sort((x, y) => y.strength - x.strength)[0];
+    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(SectionHead, null, "Attack ", props.name), /*#__PURE__*/React.createElement("div", {
+      style: {
+        padding: 12,
+        borderRadius: 12,
+        background: 'rgba(230,25,75,.08)',
+        boxShadow: 'inset 0 0 0 1px var(--red-800)',
+        marginBottom: 12
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-around'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: 'center'
+      }
+    }, /*#__PURE__*/React.createElement(Eyebrow, null, "Best strike"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        font: 'italic 900 40px/1 var(--font-display)',
+        color: 'var(--teal-300)',
+        marginTop: 4
+      }
+    }, best ? best.strength : 0)), /*#__PURE__*/React.createElement("span", {
+      style: {
+        font: 'italic 900 22px/1 var(--font-display)',
+        color: 'var(--text-muted)'
+      }
+    }, "VS"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: 'center'
+      }
+    }, /*#__PURE__*/React.createElement(Eyebrow, null, "Defence"), fogged ? /*#__PURE__*/React.createElement(Tip, {
+      tip: HUD_TIPS.fog,
+      place: "left",
+      style: {
+        cursor: 'help',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+        justifyContent: 'center',
+        font: 'italic 900 40px/1 var(--font-display)',
+        color: 'var(--navy-300)',
+        marginTop: 4
+      }
+    }, "?", /*#__PURE__*/React.createElement("i", {
+      className: "ph-fill ph-eye-slash",
+      style: {
+        fontSize: 18
+      }
+    })) : /*#__PURE__*/React.createElement("div", {
+      style: {
+        font: 'italic 900 40px/1 var(--font-display)',
+        color: 'var(--red-300)',
+        marginTop: 4
+      }
+    }, defence))), !fogged && best ? /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: 'center',
+        marginTop: 8,
+        font: '500 12px/1.3 var(--font-body)',
+        color: best.strength > defence ? 'var(--green-300)' : 'var(--red-300)'
+      }
+    }, best.strength > defence ? 'You should win. Expect ~' + Math.round(Math.min(0.9, defence / best.strength) * 100) + '% losses.' : 'Too strong. Combine stacks or train more units.') : null), fogged ? /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginBottom: 12
+      }
+    }, /*#__PURE__*/React.createElement(FogNote, {
+      name: props.name
+    })) : enemyHere.length ? /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginBottom: 12,
+        font: '400 12px/1.4 var(--font-body)',
+        color: 'var(--text-muted)'
+      }
+    }, "Spotted here: ", /*#__PURE__*/React.createElement("b", {
+      style: {
+        color: '#fff'
+      }
+    }, enemyHere.map(s => armyList(s.units)).join(' + '))) : null, /*#__PURE__*/React.createElement(SectionHead, {
+      right: /*#__PURE__*/React.createElement("span", {
+        style: {
+          font: '400 11px/1 var(--font-body)',
+          color: 'var(--text-muted)'
+        }
+      }, "hover to preview route")
+    }, "Invade"), plan.invade.map(o => /*#__PURE__*/React.createElement(RouteRow, {
+      key: o.kind,
+      opt: o,
+      def: fogged ? null : defence,
+      onSend: onSend,
+      onPreview: onPreview
+    })), /*#__PURE__*/React.createElement(SectionHead, {
+      right: /*#__PURE__*/React.createElement(Tip, {
+        tip: HUD_TIPS.strikeRule,
+        place: "left",
+        style: {
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 4,
+          font: '400 11px/1 var(--font-body)',
+          color: 'var(--text-muted)',
+          cursor: 'help'
+        }
+      }, /*#__PURE__*/React.createElement("i", {
+        className: "ph-fill ph-info"
+      }), "can\u2019t capture land")
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        display: 'block',
+        marginTop: 12
+      }
+    }, "Strike from range")), plan.strike.map(s => /*#__PURE__*/React.createElement(StrikeRow, {
+      key: s.kind,
+      s: s,
+      onStrike: onStrike
+    })));
+  }
+  const here = stacks[0];
+  const strength = here ? armyStrength(here.units) : 0;
+  return /*#__PURE__*/React.createElement("div", null, incoming.length ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: 10,
+      borderRadius: 10,
+      marginBottom: 12,
+      background: 'rgba(230,25,75,.12)',
+      boxShadow: 'inset 0 0 0 1px var(--red-800)'
+    }
+  }, incoming.map(m => /*#__PURE__*/React.createElement("div", {
+    key: m.id,
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ph-fill ph-warning",
+    style: {
+      fontSize: 18,
+      color: 'var(--red-300)',
+      animation: 'iap-pulse 1s ease-in-out infinite'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      font: '500 12px/1.35 var(--font-body)',
+      color: '#fff'
+    }
+  }, /*#__PURE__*/React.createElement("b", null, m.ownerName), " \xB7 ", armyList(m.units), " \xB7 arrives Day ", m.arriveDay), /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: 'italic 800 15px/1 var(--font-display)',
+      color: armyStrength(m.units) >= defence ? 'var(--red-300)' : 'var(--green-300)'
+    }
+  }, armyStrength(m.units), " vs ", defence))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 6,
+      font: '400 11px/1.3 var(--font-body)',
+      color: 'var(--text-muted)'
+    }
+  }, "Your defence here is ", defence, " (garrison 4 + troops). Reinforce from a neighbouring land.")) : null, /*#__PURE__*/React.createElement(SectionHead, {
+    right: /*#__PURE__*/React.createElement(Tip, {
+      tip: HUD_TIPS.strength,
+      place: "left",
+      style: {
+        font: 'italic 800 14px/1 var(--font-display)',
+        color: 'var(--teal-300)',
+        textTransform: 'uppercase',
+        cursor: 'help'
+      }
+    }, "Strength ", strength)
+  }, "Forces here"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(5,1fr)',
+      gap: 5,
+      marginBottom: 14
+    }
+  }, Object.keys(H.UNITS).map(u => {
+    const n = here ? here.units[u] || 0 : 0;
+    return /*#__PURE__*/React.createElement(Tip, {
+      key: u,
+      place: "left",
+      tip: {
+        title: H.UNITS[u].name,
+        icon: H.UNITS[u].icon,
+        tone: 'var(--navy-500)',
+        body: H.UNITS_TIPS[u],
+        stats: [{
+          label: 'Attack',
+          value: H.UNITS[u].attack,
+          color: 'var(--red-300)'
+        }, {
+          label: 'Here',
+          value: n + ' units'
+        }, {
+          label: 'Strength',
+          value: n * H.UNITS[u].attack,
+          color: 'var(--teal-300)'
+        }]
+      },
+      style: {
+        cursor: 'help',
+        textAlign: 'center',
+        padding: '8px 4px',
+        borderRadius: 10,
+        background: 'var(--navy-850)',
+        boxShadow: 'var(--shadow-inset-well)',
+        opacity: n ? 1 : 0.5
+      }
+    }, /*#__PURE__*/React.createElement("i", {
+      className: 'ph-fill ph-' + H.UNITS[u].icon,
+      style: {
+        fontSize: 20,
+        color: n ? '#fff' : 'var(--navy-400)'
+      }
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        font: 'italic 900 20px/1 var(--font-display)',
+        color: '#fff',
+        marginTop: 4
+      }
+    }, n), /*#__PURE__*/React.createElement("div", {
+      style: {
+        font: '500 10px/1 var(--font-body)',
+        color: 'var(--text-muted)',
+        marginTop: 2,
+        whiteSpace: 'nowrap'
+      }
+    }, H.UNITS[u].name.replace('Air Force', 'Air')));
+  })), /*#__PURE__*/React.createElement(SectionHead, null, "Train"), Object.keys(H.UNITS).map(u => {
+    const U = H.UNITS[u];
+    const afford = Object.keys(U.cost).every(k => (sc.res[k] || 0) >= U.cost[k] * 5);
+    const locked = U.tech && !techDone.has(U.tech);
+    return /*#__PURE__*/React.createElement("div", {
+      key: u,
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 9,
+        padding: '6px 0',
+        borderBottom: '1px solid rgba(255,255,255,.04)',
+        opacity: locked ? 0.55 : 1
+      }
+    }, /*#__PURE__*/React.createElement(Tile, {
+      icon: U.icon,
+      tone: "var(--navy-500)",
+      size: 30
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+        font: '600 13px/1 var(--font-body)',
+        color: '#fff'
+      }
+    }, U.name, /*#__PURE__*/React.createElement("span", {
+      style: {
+        font: 'italic 800 12px/1 var(--font-display)',
+        color: 'var(--red-300)'
+      }
+    }, "ATK ", U.attack)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: 4
+      }
+    }, locked ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+        font: '500 11px/1 var(--font-body)',
+        color: 'var(--navy-300)'
+      }
+    }, /*#__PURE__*/React.createElement("i", {
+      className: "ph-fill ph-lock"
+    }), "Research ", U.name, " first") : /*#__PURE__*/React.createElement(Cost, {
+      cost: U.cost,
+      have: sc.res,
+      size: 11
+    }))), /*#__PURE__*/React.createElement(Button, {
+      size: "sm",
+      variant: afford && !locked ? 'primary' : 'default',
+      disabled: !afford || locked,
+      onClick: () => onTrain(u)
+    }, "\xD75"));
+  }), /*#__PURE__*/React.createElement(SectionHead, null, /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'block',
+      marginTop: 10
+    }
+  }, "Send forces")), neighbors.map(n => /*#__PURE__*/React.createElement("div", {
+    key: n.code,
+    onMouseEnter: () => here && onPreview({
+      kind: 'land',
+      codes: [code, n.code]
+    }),
+    onMouseLeave: () => onPreview(null),
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      padding: '6px 0'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6,
+      font: '600 13px/1.1 var(--font-body)',
+      color: '#fff'
+    }
+  }, n.ownerColor ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 8,
+      height: 8,
+      borderRadius: 2,
+      background: n.ownerColor
+    }
+  }) : null, n.name), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 4,
+      font: '400 11px/1.3 var(--font-body)',
+      color: n.friendly ? 'var(--teal-300)' : 'var(--red-300)'
+    }
+  }, n.friendly ? (n.mine ? 'Yours' : 'Allied') + ' · reinforce' : (n.ownerName || 'Neutral') + ' · ' + strength + ' vs ', !n.friendly ? n.def == null ? /*#__PURE__*/React.createElement(Tip, {
+    tip: HUD_TIPS.fog,
+    place: "left",
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 2,
+      cursor: 'help'
+    }
+  }, "?", /*#__PURE__*/React.createElement("i", {
+    className: "ph-fill ph-eye-slash"
+  })) : n.def : null, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: 'var(--text-muted)'
+    }
+  }, "\xB7 1 day"))), /*#__PURE__*/React.createElement(Button, {
+    size: "sm",
+    variant: n.friendly ? 'ghost' : 'danger',
+    disabled: !here,
+    onClick: () => onSend({
+      kind: 'land',
+      armyId: here.id,
+      codes: [code, n.code],
+      days: 1
+    })
+  }, n.friendly ? 'Move' : 'Attack'))));
+}
+Object.assign(window, {
+  MarkerLayer,
+  ArmyPane,
+  armyStrength,
+  armyCount,
+  armyList,
+  ROUTE_COLOR
+});
+})(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/game/hud/HudArmies.jsx", error: String((e && e.message) || e) }); }
 
 // ui_kits/game/hud/HudBottom.jsx
 try { (() => {
@@ -3217,8 +4442,8 @@ function HotbarSlot({
   }), count ? /*#__PURE__*/React.createElement("span", {
     style: {
       position: 'absolute',
-      top: -8,
-      left: -8,
+      top: -9,
+      left: -6,
       minWidth: 22,
       height: 22,
       padding: '0 6px',
@@ -3242,15 +4467,24 @@ function Hotbar({
       left: '50%',
       transform: 'translateX(-50%)',
       display: 'flex',
-      gap: 14
+      gap: 20
     }
-  }, Object.keys(MODE_META).map(k => /*#__PURE__*/React.createElement(HotbarSlot, {
+  }, Object.keys(MODE_META).map(k => /*#__PURE__*/React.createElement(Tip, {
     key: k,
+    place: "top",
+    tip: {
+      title: MODE_META[k].label,
+      icon: MODE_META[k].icon,
+      tone: 'var(--sky-500)',
+      keyHint: MODE_META[k].key,
+      body: HUD_TIPS.modes[k].body
+    }
+  }, /*#__PURE__*/React.createElement(HotbarSlot, {
     m: MODE_META[k],
     active: mode === k,
     count: counts[k],
     onClick: () => setMode(k)
-  })));
+  }))));
 }
 const LENSES = [{
   value: 'political',
@@ -3277,12 +4511,16 @@ function RoundBtn({
   onClick,
   title,
   active,
-  color
+  color,
+  tip
 }) {
   const [p, setP] = React.useState(false);
-  return /*#__PURE__*/React.createElement("button", {
+  return /*#__PURE__*/React.createElement(Tip, {
+    tip: tip,
+    place: "top"
+  }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    title: title,
+    "aria-label": title,
     onClick: onClick,
     onPointerDown: () => setP(true),
     onPointerUp: () => setP(false),
@@ -3306,7 +4544,7 @@ function RoundBtn({
       fontSize: 18,
       color: active ? color || 'var(--teal-300)' : '#fff'
     }
-  }));
+  })));
 }
 function GlobeControls({
   lens,
@@ -3336,7 +4574,12 @@ function GlobeControls({
     title: l.label + ' lens',
     active: lens === l.value,
     color: l.color,
-    onClick: () => setLens(l.value)
+    onClick: () => setLens(l.value),
+    tip: {
+      ...HUD_TIPS.lens[l.value],
+      icon: l.icon,
+      tone: l.color || 'var(--sky-500)'
+    }
   })), /*#__PURE__*/React.createElement("div", {
     style: {
       flex: 1
@@ -3344,22 +4587,26 @@ function GlobeControls({
   }), /*#__PURE__*/React.createElement(RoundBtn, {
     icon: "minus",
     title: "Zoom out",
-    onClick: () => onZoom(0.35)
+    onClick: () => onZoom(0.35),
+    tip: HUD_TIPS.zoomOut
   }), /*#__PURE__*/React.createElement(RoundBtn, {
     icon: "plus",
     title: "Zoom in",
-    onClick: () => onZoom(-0.35)
+    onClick: () => onZoom(-0.35),
+    tip: HUD_TIPS.zoomIn
   }), /*#__PURE__*/React.createElement(RoundBtn, {
     icon: "crosshair",
     title: "Focus capital",
-    onClick: onHome
+    onClick: onHome,
+    tip: HUD_TIPS.focus
   }));
 }
 function HoverTip({
   hover,
   pos,
   owner,
-  lens
+  lens,
+  fogged
 }) {
   if (!hover) return null;
   const p = hover.props;
@@ -3422,7 +4669,20 @@ function HoverTip({
       color: HUD_RES[r].color,
       fontSize: 12
     }
-  }), p[a]))));
+  }), p[a]))), fogged ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 5,
+      marginTop: 8,
+      paddingTop: 7,
+      borderTop: '1px solid rgba(255,255,255,.08)',
+      font: '500 11px/1 var(--font-body)',
+      color: 'var(--navy-300)'
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ph-fill ph-eye-slash"
+  }), "Troops hidden by fog of war") : null);
 }
 Object.assign(window, {
   Comms,
@@ -3576,11 +4836,36 @@ function BuildTile({
   const [hover, setHover] = React.useState(false);
   const afford = Object.keys(B.cost).every(k => (sc.res[k] || 0) >= B.cost[k]);
   const y = buildYield(type, props);
-  return /*#__PURE__*/React.createElement("div", {
+  const tip = {
+    title: B.name,
+    icon: B.icon,
+    tone: B.tone,
+    body: B.desc,
+    stats: [{
+      label: 'Output here',
+      value: y.map(([k, v, txt]) => txt || (v >= 0 ? '+' : '\u2212') + Math.abs(v) + ' ' + HUD_RES[k].label.toLowerCase()).join(', ')
+    }, {
+      label: 'Energy use',
+      value: B.needs_energy ? B.needs_energy + ' / day' : 'none',
+      color: 'var(--res-energy)',
+      icon: 'lightning'
+    }, {
+      label: 'Build time',
+      value: B.build_ticks + ' days'
+    }].concat(afford ? [] : [{
+      label: 'Can\u2019t afford',
+      value: 'need more resources',
+      color: 'var(--red-300)',
+      icon: 'warning'
+    }])
+  };
+  return /*#__PURE__*/React.createElement(Tip, {
+    tip: tip,
+    place: "left"
+  }, /*#__PURE__*/React.createElement("div", {
     onClick: () => onBuild(type, afford),
     onMouseEnter: () => setHover(true),
     onMouseLeave: () => setHover(false),
-    title: B.desc,
     style: {
       padding: 9,
       borderRadius: 10,
@@ -3651,208 +4936,7 @@ function BuildTile({
     }
   }, /*#__PURE__*/React.createElement("i", {
     className: "ph-fill ph-hourglass"
-  }), " ", B.build_ticks, "d")));
-}
-function ArmyPane({
-  code,
-  props,
-  owner,
-  sc,
-  onTrain,
-  onMove
-}) {
-  const H = window.HUD_DATA;
-  const {
-    Button
-  } = window.IAP_DS;
-  const mine = owner && owner.me;
-  const forces = mine && code === 'SWE' ? H.armiesHere : [];
-  const strength = H.armiesHere.reduce((a, f) => a + f.count * H.UNITS[f.type].attack, 0);
-  if (!mine) {
-    const def = owner ? 4 + 18 : 8;
-    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(SectionHead, null, "Attack ", props.name), /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: 12,
-        borderRadius: 12,
-        background: 'rgba(230,25,75,.08)',
-        boxShadow: 'inset 0 0 0 1px var(--red-800)'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-around'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        textAlign: 'center'
-      }
-    }, /*#__PURE__*/React.createElement(Eyebrow, null, "Your strike force"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        font: 'italic 900 40px/1 var(--font-display)',
-        color: 'var(--teal-300)',
-        marginTop: 4
-      }
-    }, strength)), /*#__PURE__*/React.createElement("span", {
-      style: {
-        font: 'italic 900 22px/1 var(--font-display)',
-        color: 'var(--text-muted)'
-      }
-    }, "VS"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        textAlign: 'center'
-      }
-    }, /*#__PURE__*/React.createElement(Eyebrow, null, "Defence"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        font: 'italic 900 40px/1 var(--font-display)',
-        color: 'var(--red-300)',
-        marginTop: 4
-      }
-    }, def))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        textAlign: 'center',
-        margin: '8px 0 12px',
-        font: '500 12px/1.3 var(--font-body)',
-        color: strength > def ? 'var(--green-300)' : 'var(--red-300)'
-      }
-    }, strength > def ? 'Attacker wins if strength is higher. Expect ~' + Math.round(Math.min(0.9, def / strength) * 100) + '% losses.' : 'Too strong. Train more units first.'), /*#__PURE__*/React.createElement(Button, {
-      variant: "danger",
-      icon: "sword",
-      block: true,
-      onClick: () => onMove(code, true)
-    }, "Attack from Sweden \xB7 2 days")));
-  }
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(SectionHead, {
-    right: /*#__PURE__*/React.createElement("span", {
-      style: {
-        font: 'italic 800 14px/1 var(--font-display)',
-        color: 'var(--teal-300)',
-        textTransform: 'uppercase'
-      }
-    }, "Strength ", forces.length ? strength : 0)
-  }, "Forces here"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(4,1fr)',
-      gap: 6,
-      marginBottom: 14
-    }
-  }, Object.keys(H.UNITS).map(u => {
-    const f = forces.find(x => x.type === u);
-    return /*#__PURE__*/React.createElement("div", {
-      key: u,
-      style: {
-        textAlign: 'center',
-        padding: '8px 4px',
-        borderRadius: 10,
-        background: 'var(--navy-850)',
-        boxShadow: 'var(--shadow-inset-well)',
-        opacity: f ? 1 : 0.5
-      }
-    }, /*#__PURE__*/React.createElement("i", {
-      className: 'ph-fill ph-' + H.UNITS[u].icon,
-      style: {
-        fontSize: 20,
-        color: f ? '#fff' : 'var(--navy-400)'
-      }
-    }), /*#__PURE__*/React.createElement("div", {
-      style: {
-        font: 'italic 900 20px/1 var(--font-display)',
-        color: '#fff',
-        marginTop: 4
-      }
-    }, f ? f.count : 0), /*#__PURE__*/React.createElement("div", {
-      style: {
-        font: '500 10px/1 var(--font-body)',
-        color: 'var(--text-muted)',
-        marginTop: 2
-      }
-    }, H.UNITS[u].name));
-  })), /*#__PURE__*/React.createElement(SectionHead, null, "Train"), Object.keys(H.UNITS).map(u => {
-    const U = H.UNITS[u];
-    const afford = Object.keys(U.cost).every(k => (sc.res[k] || 0) >= U.cost[k] * 5);
-    return /*#__PURE__*/React.createElement("div", {
-      key: u,
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 9,
-        padding: '6px 0',
-        borderBottom: '1px solid rgba(255,255,255,.04)'
-      }
-    }, /*#__PURE__*/React.createElement(Tile, {
-      icon: U.icon,
-      tone: "var(--navy-500)",
-      size: 30
-    }), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: 1,
-        minWidth: 0
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 6,
-        font: '600 13px/1 var(--font-body)',
-        color: '#fff'
-      }
-    }, U.name, /*#__PURE__*/React.createElement("span", {
-      style: {
-        font: 'italic 800 12px/1 var(--font-display)',
-        color: 'var(--red-300)'
-      }
-    }, "ATK ", U.attack)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        marginTop: 4
-      }
-    }, /*#__PURE__*/React.createElement(Cost, {
-      cost: U.cost,
-      have: sc.res,
-      size: 11
-    }))), /*#__PURE__*/React.createElement(Button, {
-      size: "sm",
-      variant: afford ? 'primary' : 'default',
-      disabled: !afford,
-      onClick: () => onTrain(u)
-    }, "\xD75"));
-  }), /*#__PURE__*/React.createElement(SectionHead, null, /*#__PURE__*/React.createElement("span", {
-    style: {
-      display: 'block',
-      marginTop: 10
-    }
-  }, "Move forces")), H.moveTargets.map(t => {
-    const name = (window.__HUD_PROPS[t.code] || {}).name || t.code;
-    const hostile = t.owner == null;
-    return /*#__PURE__*/React.createElement("div", {
-      key: t.code,
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        padding: '6px 0'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: 1,
-        minWidth: 0
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        font: '600 13px/1.1 var(--font-body)',
-        color: '#fff'
-      }
-    }, name), /*#__PURE__*/React.createElement("div", {
-      style: {
-        font: '400 11px/1.3 var(--font-body)',
-        color: hostile ? 'var(--red-300)' : 'var(--teal-300)'
-      }
-    }, hostile ? 'Neutral · ' + strength + ' vs ' + t.garrison : 'Yours · reinforce', " \xB7 ", t.eta, "d")), /*#__PURE__*/React.createElement(Button, {
-      size: "sm",
-      variant: hostile ? 'danger' : 'ghost',
-      onClick: () => onMove(t.code, hostile)
-    }, hostile ? 'Attack' : 'Move'));
-  }));
+  }), " ", B.build_ticks, "d"))));
 }
 function ResLine({
   res
@@ -4130,14 +5214,15 @@ function DiplomacyPane({
 }
 Object.assign(window, {
   BuildPane,
-  ArmyPane,
   TradePane,
-  DiplomacyPane
+  DiplomacyPane,
+  SectionHead
 });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/game/hud/HudPanes.jsx", error: String((e && e.message) || e) }); }
 
 // ui_kits/game/hud/HudParts.jsx
 try { (() => {
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 // Small HUD building blocks for the Match HUD mockup (kit-local; candidates for promotion into components/).
 const HUD_RES = {
   food: {
@@ -4488,6 +5573,31 @@ const DIPLO = {
     color: 'var(--text-muted)'
   }
 };
+
+// ---- Explainer tooltips -------------------------------------------------
+// <Tip tip={{title, body, icon, tone, keyHint, stats}} place="bottom" style={…}>…</Tip>
+// Renders a div (pass layout styles through `style`); MatchHud's TipLayer positions the DS Tooltip.
+const HudTipCtx = React.createContext({
+  show() {},
+  hide() {}
+});
+function Tip({
+  tip,
+  place = 'bottom',
+  style,
+  children,
+  ...rest
+}) {
+  const ctx = React.useContext(HudTipCtx);
+  const ref = React.useRef(null);
+  return /*#__PURE__*/React.createElement("div", _extends({
+    ref: ref,
+    onMouseEnter: () => ctx.show(typeof tip === 'function' ? tip() : tip, ref.current, place),
+    onMouseLeave: ctx.hide,
+    onPointerDown: ctx.hide,
+    style: style
+  }, rest), children);
+}
 Object.assign(window, {
   HUD_RES,
   hudNum,
@@ -4500,12 +5610,310 @@ Object.assign(window, {
   KeyCap,
   Silhouette,
   TabPlates,
-  DIPLO
+  DIPLO,
+  HudTipCtx,
+  Tip
 });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/game/hud/HudParts.jsx", error: String((e && e.message) || e) }); }
 
+// ui_kits/game/hud/HudResearch.jsx
+try { (() => {
+// Research mode: weapons tech track (Artillery → Air Force → Ballistic Missiles → Nuclear Weapons).
+function techState(tech, list, sc, labs) {
+  if (tech.status === 'done') return {
+    kind: 'done'
+  };
+  if (tech.status === 'active') return {
+    kind: 'active'
+  };
+  const missing = (tech.requires || []).filter(k => (list.find(x => x.key === k) || {}).status !== 'done').map(k => list.find(x => x.key === k).name);
+  if (missing.length) return {
+    kind: 'locked',
+    reason: 'Requires ' + missing.join(', ')
+  };
+  if (tech.labs && labs < tech.labs) return {
+    kind: 'locked',
+    reason: 'Requires ' + tech.labs + ' Research Labs (you have ' + labs + ')'
+  };
+  const busy = list.find(x => x.status === 'active');
+  if (busy) return {
+    kind: 'queued',
+    reason: 'Finish ' + busy.name + ' first'
+  };
+  const short = Object.keys(tech.cost).filter(k => (sc.res[k] || 0) < tech.cost[k]);
+  if (short.length) return {
+    kind: 'poor',
+    reason: 'Not enough ' + short.map(k => HUD_RES[k].label.toLowerCase()).join(' and ')
+  };
+  return {
+    kind: 'ready'
+  };
+}
+function TechCard({
+  tech,
+  st,
+  progress,
+  daysLeft,
+  onResearch,
+  last
+}) {
+  const {
+    Button,
+    Badge
+  } = window.IAP_DS;
+  const nuke = tech.danger;
+  const chip = {
+    done: ['ready', 'check', 'Researched'],
+    active: ['host', 'hourglass', 'Researching'],
+    locked: ['default', 'lock', 'Locked'],
+    queued: ['default', 'clock', 'Waiting'],
+    poor: ['danger', 'coins', 'Can’t afford'],
+    ready: ['ai', 'flask', 'Available']
+  }[st.kind];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      width: 34,
+      flexShrink: 0
+    }
+  }, /*#__PURE__*/React.createElement(Tip, {
+    tip: {
+      title: tech.name,
+      icon: tech.icon,
+      tone: nuke ? '#b4520c' : 'var(--teal-600)',
+      body: tech.unlocks,
+      stats: [{
+        label: 'Research',
+        value: tech.cost.research,
+        icon: 'flask',
+        color: 'var(--res-research)'
+      }, {
+        label: 'Gold',
+        value: hudNum(tech.cost.gold),
+        icon: 'coins',
+        color: 'var(--res-gold)'
+      }].concat(tech.cost.minerals ? [{
+        label: 'Minerals',
+        value: hudNum(tech.cost.minerals),
+        icon: 'diamond'
+      }] : []).concat([{
+        label: 'Takes',
+        value: tech.days + ' days'
+      }])
+    },
+    place: "left",
+    style: {
+      cursor: 'help'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 34,
+      height: 34,
+      borderRadius: 10,
+      display: 'grid',
+      placeItems: 'center',
+      background: st.kind === 'done' ? 'linear-gradient(180deg, rgba(255,255,255,.28), rgba(0,0,0,.18)), var(--teal-600)' : nuke ? 'linear-gradient(180deg,#ff9f43,#b4520c)' : 'var(--navy-750)',
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,.3), 0 3px 0 rgba(0,0,0,.4)',
+      border: st.kind === 'active' ? '2px solid var(--sky-300)' : '0'
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: 'ph-fill ph-' + tech.icon,
+    style: {
+      fontSize: 19,
+      color: st.kind === 'locked' || st.kind === 'queued' ? 'var(--navy-300)' : '#fff'
+    }
+  }))), !last ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: 1,
+      width: 3,
+      minHeight: 14,
+      margin: '4px 0',
+      borderRadius: 2,
+      background: st.kind === 'done' ? 'var(--teal-400)' : 'var(--navy-600)'
+    }
+  }) : null), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0,
+      marginBottom: last ? 0 : 10,
+      padding: 10,
+      borderRadius: 12,
+      background: nuke ? 'repeating-linear-gradient(135deg, rgba(245,185,66,.08) 0 10px, rgba(0,0,0,.18) 10px 20px), rgba(40,14,10,.55)' : 'var(--grad-navy)',
+      border: '1px solid ' + (nuke ? '#6b3206' : st.kind === 'active' ? 'var(--sky-700)' : 'var(--navy-600)'),
+      boxShadow: '0 3px 0 var(--navy-950)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: 1,
+      font: 'italic 800 18px/1 var(--font-display)',
+      textTransform: 'uppercase',
+      color: nuke ? 'var(--gold-300)' : '#fff'
+    }
+  }, tech.name), /*#__PURE__*/React.createElement(Badge, {
+    kind: chip[0],
+    icon: chip[1]
+  }, chip[2])), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 5,
+      font: '400 12px/1.4 var(--font-body)',
+      color: 'var(--navy-200)'
+    }
+  }, tech.unlocks), st.kind === 'active' ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginBottom: 5,
+      font: '600 11px/1 var(--font-body)',
+      color: 'var(--sky-300)'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, Math.round(progress * 100), "%"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: 'var(--text-muted)'
+    }
+  }, daysLeft, " ", daysLeft === 1 ? 'day' : 'days', " left")), /*#__PURE__*/React.createElement(Meter, {
+    value: progress,
+    max: 1,
+    color: "var(--sky-400)",
+    height: 6
+  })) : st.kind !== 'done' ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement(Cost, {
+    cost: tech.cost,
+    have: {
+      research: 1e9,
+      gold: 1e9,
+      minerals: 1e9,
+      ...(st.kind === 'poor' ? window.__HUD_RES : {})
+    },
+    size: 11
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: '500 11px/1 var(--font-body)',
+      color: 'var(--text-muted)'
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ph-fill ph-hourglass"
+  }), " ", tech.days, "d"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }), st.kind === 'ready' ? /*#__PURE__*/React.createElement(Button, {
+    size: "sm",
+    variant: nuke ? 'danger' : 'gold',
+    icon: "flask",
+    onClick: () => onResearch(tech)
+  }, "Research") : null) : null, st.reason ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 5,
+      marginTop: 7,
+      font: '500 11px/1.3 var(--font-body)',
+      color: st.kind === 'poor' ? 'var(--red-300)' : 'var(--text-muted)'
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: 'ph-fill ph-' + (st.kind === 'poor' ? 'warning' : 'lock')
+  }), st.reason) : null));
+}
+function ResearchPane({
+  tech,
+  sc,
+  labs,
+  dayFloat,
+  onResearch
+}) {
+  window.__HUD_RES = sc.res;
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      padding: 10,
+      borderRadius: 12,
+      marginBottom: 14,
+      background: 'rgba(6,10,20,.45)',
+      boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.05)'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 34,
+      height: 34,
+      borderRadius: '50%',
+      display: 'grid',
+      placeItems: 'center',
+      background: 'color-mix(in oklab, var(--res-research) 20%, transparent)'
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ph-fill ph-flask",
+    style: {
+      fontSize: 19,
+      color: 'var(--res-research)'
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: '700 22px/1 var(--font-num)',
+      color: '#fff'
+    }
+  }, hudNum(sc.res.research), " ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: '600 12px/1 var(--font-body)',
+      color: 'var(--green-300)'
+    }
+  }, "+", sc.delta.research, "/day")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 3,
+      font: '400 11px/1.3 var(--font-body)',
+      color: 'var(--text-muted)'
+    }
+  }, labs, " Research Labs \xB7 build more to research faster"))), /*#__PURE__*/React.createElement(SectionHead, null, "Weapons"), tech.map((x, i) => {
+    const st = techState(x, tech, sc, labs);
+    const prog = x.status === 'active' ? Math.min(1, x.progress + (dayFloat - x.startDay) / x.days) : 0;
+    return /*#__PURE__*/React.createElement(TechCard, {
+      key: x.key,
+      tech: x,
+      st: st,
+      progress: prog,
+      daysLeft: Math.max(1, Math.ceil((1 - prog) * x.days)),
+      onResearch: onResearch,
+      last: i === tech.length - 1
+    });
+  }));
+}
+Object.assign(window, {
+  ResearchPane,
+  techState
+});
+})(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/game/hud/HudResearch.jsx", error: String((e && e.message) || e) }); }
+
 // ui_kits/game/hud/HudSide.jsx
 try { (() => {
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 // Left standings + right context panel (selected country × active mode).
 function Standings({
   players,
@@ -4596,13 +6004,16 @@ function Standings({
         color: 'var(--teal-300)',
         fontWeight: 600
       }
-    }, "You") : /*#__PURE__*/React.createElement("span", {
+    }, "You") : /*#__PURE__*/React.createElement(Tip, {
+      tip: HUD_TIPS.diplo[p.diplo || 'neutral'],
+      place: "right",
       style: {
         display: 'inline-flex',
         alignItems: 'center',
         gap: 3,
         color: d.color,
-        fontWeight: 600
+        fontWeight: 600,
+        cursor: 'help'
       }
     }, /*#__PURE__*/React.createElement("i", {
       className: 'ph-fill ph-' + d.icon
@@ -4639,6 +6050,11 @@ const MODE_META = {
     label: 'Army',
     icon: 'sword',
     key: 'A'
+  },
+  research: {
+    label: 'Research',
+    icon: 'flask',
+    key: 'R'
   },
   trade: {
     label: 'Trade',
@@ -4737,18 +6153,36 @@ function CountryHeader({
       font: '600 12px/1 var(--font-body)',
       color: 'var(--text-muted)'
     }
-  }, "Neutral \xB7 garrison 8"), owner && !mine ? /*#__PURE__*/React.createElement(Badge, {
+  }, "Neutral \xB7 garrison 8"), owner && !mine ? /*#__PURE__*/React.createElement(Tip, {
+    tip: HUD_TIPS.diplo[owner.diplo || 'neutral'],
+    place: "left",
+    style: {
+      cursor: 'help'
+    }
+  }, /*#__PURE__*/React.createElement(Badge, {
     kind: DIPLO[owner.diplo || 'neutral'].kind,
     icon: DIPLO[owner.diplo || 'neutral'].icon
-  }, DIPLO[owner.diplo || 'neutral'].label) : null))), /*#__PURE__*/React.createElement("div", {
+  }, DIPLO[owner.diplo || 'neutral'].label)) : null))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(4, 1fr)',
       gap: 10,
       marginTop: 12
     }
-  }, attrs.map(([a, r]) => /*#__PURE__*/React.createElement("div", {
-    key: a
+  }, attrs.map(([a, r]) => /*#__PURE__*/React.createElement(Tip, {
+    key: a,
+    place: "left",
+    style: {
+      cursor: 'help'
+    },
+    tip: {
+      ...HUD_TIPS.attr[a],
+      stats: [{
+        label: props.name,
+        value: props[a] + ' / 100',
+        color: HUD_RES[r].color
+      }]
+    }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -4772,8 +6206,18 @@ function CountryHeader({
     max: 100,
     color: HUD_RES[r].color,
     height: 5
-  }))), /*#__PURE__*/React.createElement("div", {
-    title: "Land slots"
+  }))), /*#__PURE__*/React.createElement(Tip, {
+    place: "left",
+    style: {
+      cursor: 'help'
+    },
+    tip: {
+      ...HUD_TIPS.attr.slots,
+      stats: [{
+        label: 'Used',
+        value: (mine ? used : 0) + ' of ' + props.land_slots
+      }]
+    }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -4845,7 +6289,8 @@ function ContextPanel({
   queue,
   onBuild,
   onTrain,
-  onMove,
+  army,
+  research,
   onTrade,
   onDiplo,
   setMode,
@@ -4880,8 +6325,11 @@ function ContextPanel({
     owner: owner,
     sc: sc,
     onTrain: onTrain,
-    onMove: onMove
+    army: army
   });
+  if (mode === 'research') body = /*#__PURE__*/React.createElement(ResearchPane, _extends({}, research, {
+    sc: sc
+  }));
   if (mode === 'trade') body = /*#__PURE__*/React.createElement(TradePane, {
     players: players,
     sc: sc,
@@ -4971,7 +6419,9 @@ function IdentityPlate({
       gap: 12,
       alignItems: 'center'
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Tip, {
+    tip: HUD_TIPS.identity,
+    place: "bottom",
     style: {
       width: 68,
       height: 68,
@@ -4979,6 +6429,7 @@ function IdentityPlate({
       flexShrink: 0,
       display: 'grid',
       placeItems: 'center',
+      cursor: 'help',
       background: 'radial-gradient(circle at 50% 30%, color-mix(in oklab, ' + me.color + ' 40%, #0a0e1a), #0a0e1a 80%)',
       border: '2px solid ' + me.color,
       boxShadow: '0 3px 0 rgba(0,0,0,.45), 0 0 20px color-mix(in oklab, ' + me.color + ' 45%, transparent), inset 0 1px 0 rgba(255,255,255,.2)'
@@ -5028,9 +6479,25 @@ function IdentityPlate({
       gap: 10,
       marginTop: 12
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Tip, {
+    tip: {
+      ...HUD_TIPS.pop,
+      stats: [{
+        label: 'Now',
+        value: hudNum(pop)
+      }, {
+        label: 'Cap',
+        value: hudNum(me.popCap)
+      }, {
+        label: 'Per day',
+        value: sc.fed ? '+1.0%' : '\u22121.5%',
+        color: sc.fed ? 'var(--green-300)' : 'var(--red-300)'
+      }]
+    },
+    place: "bottom",
     style: {
-      flex: 1
+      flex: 1,
+      cursor: 'help'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -5061,10 +6528,16 @@ function IdentityPlate({
     max: me.popCap,
     color: sc.fed ? 'var(--green-500)' : 'var(--red-500)',
     height: 7
-  })), /*#__PURE__*/React.createElement(Badge, {
+  })), /*#__PURE__*/React.createElement(Tip, {
+    tip: sc.fed ? HUD_TIPS.fed : HUD_TIPS.starving,
+    place: "bottom",
+    style: {
+      cursor: 'help'
+    }
+  }, /*#__PURE__*/React.createElement(Badge, {
     kind: sc.fed ? 'ready' : 'danger',
     icon: sc.fed ? 'grains' : 'warning'
-  }, sc.fed ? 'Fed' : 'Starving')));
+  }, sc.fed ? 'Fed' : 'Starving'))));
 }
 function WorldClock({
   day,
@@ -5090,13 +6563,28 @@ function WorldClock({
       transform: 'translateX(-50%)',
       width: 500
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Tip, {
+    tip: () => ({
+      ...HUD_TIPS.day,
+      stats: [{
+        label: 'Today',
+        value: 'Day ' + day
+      }, {
+        label: 'Next day in',
+        value: secsLeft + 's'
+      }]
+    }),
+    place: "bottom",
     style: {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       gap: 12,
-      marginBottom: 10
+      marginBottom: 10,
+      cursor: 'help',
+      width: 'fit-content',
+      marginLeft: 'auto',
+      marginRight: 'auto'
     }
   }, /*#__PURE__*/React.createElement(Ring, {
     pct: 1 - secsLeft / tickSec,
@@ -5134,7 +6622,25 @@ function WorldClock({
       font: 'italic 800 18px/1 var(--font-display)',
       color: '#fff'
     }
-  }, "0:", String(secsLeft).padStart(2, '0')))), /*#__PURE__*/React.createElement(Panel, {
+  }, "0:", String(secsLeft).padStart(2, '0')))), /*#__PURE__*/React.createElement(Tip, {
+    tip: {
+      ...HUD_TIPS.world,
+      stats: ranked.map(p => ({
+        label: p.me ? 'You' : p.name.split(' ').slice(-1)[0],
+        value: pct(p) + ' \u00b7 ' + p.lands.length + ' lands',
+        color: p.color
+      })).concat([{
+        label: 'To win',
+        value: Math.ceil(total * victory) + ' lands',
+        color: 'var(--gold-300)',
+        icon: 'trophy'
+      }])
+    },
+    place: "bottom",
+    style: {
+      cursor: 'help'
+    }
+  }, /*#__PURE__*/React.createElement(Panel, {
     padding: "10px 14px",
     style: hudSurface(solid)
   }, /*#__PURE__*/React.createElement("div", {
@@ -5170,7 +6676,6 @@ function WorldClock({
     }
   }, ranked.map((p, i) => /*#__PURE__*/React.createElement("div", {
     key: p.id,
-    title: p.name + ' · ' + pct(p),
     style: {
       width: p.lands.length / total * 100 + '%',
       background: 'linear-gradient(180deg, rgba(255,255,255,.4), rgba(255,255,255,0) 60%), ' + p.color,
@@ -5207,7 +6712,7 @@ function WorldClock({
     style: {
       color: leader.color
     }
-  }, leader.name), " ", pct(leader)))));
+  }, leader.name), " ", pct(leader))))));
 }
 function Treasury({
   sc,
@@ -5236,10 +6741,29 @@ function Treasury({
     const m = HUD_RES[k],
       d = sc.delta[k],
       empty = sc.res[k] <= 0;
-    return /*#__PURE__*/React.createElement("div", {
+    return /*#__PURE__*/React.createElement(Tip, {
       key: k,
-      title: m.label,
+      place: "bottom",
+      tip: {
+        title: m.label,
+        icon: m.icon,
+        tone: m.color,
+        body: HUD_TIPS.res[k].body,
+        stats: [{
+          label: 'Now',
+          value: hudNum(sc.res[k]),
+          color: empty ? 'var(--red-300)' : undefined
+        }, {
+          label: 'Per day',
+          value: (d >= 0 ? '+' : '\u2212') + Math.abs(d),
+          color: d >= 0 ? 'var(--green-300)' : 'var(--red-300)'
+        }, {
+          label: 'Made by',
+          value: HUD_TIPS.res[k].source
+        }]
+      },
       style: {
+        cursor: 'help',
         display: 'flex',
         alignItems: 'center',
         gap: 7,
@@ -5290,13 +6814,23 @@ function Treasury({
         fontWeight: 400
       }
     }, "/day"))));
-  })), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement(Tip, {
+    tip: {
+      ...HUD_TIPS.grid,
+      stats: [{
+        label: 'Efficiency',
+        value: eff + '%',
+        color: eff < 100 ? 'var(--red-300)' : 'var(--res-energy)'
+      }]
+    },
+    place: "bottom",
     style: {
       display: 'flex',
       alignItems: 'center',
       gap: 8,
       marginTop: 9,
-      padding: '0 2px'
+      padding: '0 2px',
+      cursor: 'help'
     }
   }, /*#__PURE__*/React.createElement("i", {
     className: "ph-fill ph-plug",
@@ -5405,14 +6939,47 @@ Object.assign(window, {
 
 // ui_kits/game/hud/MatchHud.jsx
 try { (() => {
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 // Match HUD mockup — composes the HUD regions over the live globe on a 1440×900 stage scaled to fit.
 const HUD_W = 1440,
   HUD_H = 900;
 const HUD_TWEAKS = /*EDITMODE-BEGIN*/{
   "scenario": "attack",
   "panels": "frosted",
-  "myColor": "#42d4f4"
+  "myColor": "#42d4f4",
+  "fog": true,
+  "speed": 4
 } /*EDITMODE-END*/;
+const FOG_TINT = '#161e30',
+  NEUTRAL_LAND = '#4d6390';
+const ROUTE_LIFT = {
+  land: 0,
+  sea: 0.04,
+  air: 0.14
+};
+function scaleUnits(u, f, keepOne) {
+  const out = {};
+  let n = 0;
+  Object.keys(u).forEach(k => {
+    out[k] = Math.floor(u[k] * f);
+    n += out[k];
+  });
+  if (!n && keepOne) {
+    const k = Object.keys(u).find(x => u[x] > 0);
+    out[k] = 1;
+    n = 1;
+  }
+  return n ? out : null;
+}
+function mergeUnits(a, b) {
+  const o = {
+    ...a
+  };
+  Object.keys(b).forEach(k => {
+    o[k] = (o[k] || 0) + b[k];
+  });
+  return o;
+}
 function hudShape(feature) {
   if (!feature) return null;
   const polys = feature.geometry.type === 'Polygon' ? [feature.geometry.coordinates] : feature.geometry.coordinates;
@@ -5433,6 +7000,57 @@ function hudShape(feature) {
   const ox = (100 - (maxX - minX) * s) / 2,
     oy = (100 - (maxY - minY) * s) / 2;
   return pts.map(r => 'M' + r.map(p => ((p[0] - minX) * s + ox).toFixed(1) + ' ' + ((p[1] - minY) * s + oy).toFixed(1)).join('L') + 'Z').join('');
+}
+const TIP_W = 260;
+function TipLayer({
+  state
+}) {
+  const {
+    Tooltip
+  } = window.IAP_DS;
+  if (!state || !Tooltip) return null;
+  const {
+    tip,
+    r,
+    place
+  } = state;
+  const cx = r.x + r.w / 2,
+    cy = r.y + r.h / 2,
+    gap = 12;
+  let style, arrowOffset;
+  if (place === 'top' || place === 'bottom') {
+    const left = Math.max(8, Math.min(HUD_W - TIP_W - 8, cx - TIP_W / 2));
+    arrowOffset = cx - left;
+    style = place === 'bottom' ? {
+      left,
+      top: r.y + r.h + gap
+    } : {
+      left,
+      top: r.y - gap,
+      transform: 'translateY(-100%)'
+    };
+  } else {
+    style = place === 'left' ? {
+      left: r.x - gap - TIP_W,
+      top: cy,
+      transform: 'translateY(-50%)'
+    } : {
+      left: r.x + r.w + gap,
+      top: cy,
+      transform: 'translateY(-50%)'
+    };
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      zIndex: 60,
+      pointerEvents: 'none',
+      ...style
+    }
+  }, /*#__PURE__*/React.createElement(Tooltip, _extends({}, tip, {
+    placement: place,
+    arrowOffset: arrowOffset
+  })));
 }
 function MatchHud() {
   const {
@@ -5455,6 +7073,12 @@ function MatchHud() {
   });
   const [day, setDay] = React.useState(H.DAY);
   const [secs, setSecs] = React.useState(12);
+  const clock = React.useRef({
+    t0: performance.now(),
+    day0: H.DAY,
+    into: H.TICK_SEC - 12,
+    dayMs: H.TICK_SEC * 1000
+  });
   const [queue, setQueue] = React.useState(H.buildingsHere.map(b => ({
     ...b,
     country: 'SWE'
@@ -5463,9 +7087,59 @@ function MatchHud() {
   const [chat, setChat] = React.useState(H.chat);
   const [players, setPlayers] = React.useState(H.players);
   const [toasts, setToasts] = React.useState([]);
+  const [armies, setArmies] = React.useState([]);
+  const [bursts, setBursts] = React.useState([]);
+  const [preview, setPreview] = React.useState(null);
+  const [geoReady, setGeoReady] = React.useState(false);
+  const [tech, setTech] = React.useState(() => H.TECH.map(x => ({
+    ...x,
+    startDay: H.DAY
+  })));
+  const [shots, setShots] = React.useState([]);
+  const [scars, setScars] = React.useState({});
+  const shotsRef = React.useRef(shots);
+  shotsRef.current = shots;
+  const techDone = new Set(tech.filter(x => x.status === 'done').map(x => x.key));
+  const labs = queue.filter(b => b.type === 'lab' && b.status === 'active').length + 1;
+  const dayMs = H.TICK_SEC * 1000 / (t.speed || 1);
+  const armiesRef = React.useRef(armies),
+    playersRef = React.useRef(players),
+    dayRef = React.useRef(day);
+  armiesRef.current = armies;
+  playersRef.current = players;
+  dayRef.current = day;
   const stageRef = React.useRef(null),
     hostRef = React.useRef(null),
     globeRef = React.useRef(null);
+  const [tipState, setTipState] = React.useState(null);
+  const tipTimer = React.useRef(null);
+  const scaleRef = React.useRef(1);
+  scaleRef.current = scale;
+  const tipApi = React.useMemo(() => ({
+    show(tip, el, place) {
+      clearTimeout(tipTimer.current);
+      if (!tip || !el) return;
+      tipTimer.current = setTimeout(() => {
+        const st = stageRef.current.getBoundingClientRect(),
+          b = el.getBoundingClientRect(),
+          k = scaleRef.current;
+        setTipState({
+          tip,
+          place,
+          r: {
+            x: (b.left - st.left) / k,
+            y: (b.top - st.top) / k,
+            w: b.width / k,
+            h: b.height / k
+          }
+        });
+      }, 300);
+    },
+    hide() {
+      clearTimeout(tipTimer.current);
+      setTipState(null);
+    }
+  }), []);
   const me = {
     ...players.find(p => p.me),
     color: t.myColor
@@ -5477,16 +7151,31 @@ function MatchHud() {
     window.addEventListener('resize', fit);
     return () => window.removeEventListener('resize', fit);
   }, []);
+
+  // Day + countdown come from one epoch; re-anchor when the speed changes so time stays continuous.
+  const dayNow = () => {
+    const c = clock.current;
+    const el = (performance.now() - c.t0) / c.dayMs + c.into / H.TICK_SEC;
+    return c.day0 + el;
+  };
   React.useEffect(() => {
-    const id = setInterval(() => setSecs(s => {
-      if (s <= 1) {
-        setDay(d => d + 1);
-        return H.TICK_SEC;
-      }
-      return s - 1;
-    }), 1000);
+    const c = clock.current,
+      cur = dayNow();
+    c.t0 = performance.now();
+    c.day0 = Math.floor(cur);
+    c.into = (cur - Math.floor(cur)) * H.TICK_SEC;
+    c.dayMs = H.TICK_SEC * 1000 / (t.speed || 1);
+    const tick = () => {
+      const d = dayNow(),
+        whole = Math.floor(d);
+      setDay(x => x === whole ? x : whole);
+      const s = Math.max(1, Math.ceil((1 - (d - whole)) * H.TICK_SEC));
+      setSecs(x => x === s ? x : s);
+    };
+    tick();
+    const id = setInterval(tick, 200); // interval (not rAF) so the clock keeps pace with marches even when the tab isn't painting
     return () => clearInterval(id);
-  }, []);
+  }, [t.speed]);
   const toast = (msg, kind) => {
     const id = Math.random();
     setToasts(x => [...x, {
@@ -5516,10 +7205,12 @@ function MatchHud() {
         fc.features.forEach(f => {
           feats[f.properties.code] = f;
         });
+        window.HUD_GEO.build(fc);
         setGeo({
           props,
           feats
         });
+        setGeoReady(true);
       });
       g.focus('SWE');
       g._targetRotX = Math.min(g._targetRotX, 0.92);
@@ -5531,6 +7222,10 @@ function MatchHud() {
     setHover,
     setSelected
   };
+  window.__hud = {
+    setSelected,
+    setMode
+  };
   React.useEffect(() => {
     const g = globeRef.current;
     if (!g || !geo) return;
@@ -5541,17 +7236,459 @@ function MatchHud() {
     g.onSelect(c => cbs.current.setSelected(c));
   }, [geo]);
   const ownerOf = code => allPlayers.find(p => p.lands.includes(code)) || null;
+  const cname = c => geo && geo.props[c] ? geo.props[c].name : c;
+  const isFriendlyLand = c => {
+    const o = ownerOf(c);
+    return !!o && (o.me || o.diplo === 'allied');
+  };
+  const warIds = new Set(allPlayers.filter(p => p.diplo === 'war').map(p => p.id));
+  const alliedIds = new Set(allPlayers.filter(p => p.diplo === 'allied').map(p => p.id));
 
-  // Lens colouring
+  // ---- Fog of war: you see your + allied lands, where your troops are, and one border beyond.
+  const vision = React.useMemo(() => {
+    const v = new Set();
+    if (!geoReady) return v;
+    const seed = [];
+    allPlayers.forEach(p => {
+      if (p.me || alliedIds.has(p.id)) seed.push(...p.lands);
+    });
+    armies.forEach(a => {
+      if (a.owner === me.id || alliedIds.has(a.owner)) {
+        if (a.route) seed.push(a.from, a.to);else seed.push(a.at);
+      }
+    });
+    seed.forEach(c => {
+      v.add(c);
+      window.HUD_GEO.neighbors(c).forEach(n => v.add(n));
+    });
+    return v;
+  }, [geoReady, players, armies]);
+  const seen = c => !t.fog || vision.has(c);
+  const armyVisible = a => a.owner === me.id || alliedIds.has(a.owner) || (a.route ? seen(a.from) || seen(a.to) : seen(a.at));
+  const visibleArmies = armies.filter(armyVisible);
+  const stackStrengthAt = (c, ownerId) => armies.filter(a => !a.route && a.at === c && a.owner === ownerId).reduce((s, a) => s + armyStrength(a.units), 0);
+  const defenceOf = c => {
+    const o = ownerOf(c);
+    return Math.max(0, (o ? 4 : 8) - (scars[c] || 0)) + (o ? stackStrengthAt(c, o.id) : 0);
+  };
+  const fogged = c => {
+    const o = ownerOf(c);
+    return !!o && !o.me && !seen(c);
+  };
+
+  // ---- Launch / resolve marches
+  const launch = (owner, units, codes, kind, days, idHint) => {
+    const g = globeRef.current;
+    return {
+      id: idHint || 'm' + Math.random().toString(36).slice(2, 8),
+      owner,
+      units,
+      from: codes[0],
+      to: codes[codes.length - 1],
+      codes,
+      kind,
+      route: window.HUD_GEO.pathPoints(g, codes, {
+        lift: ROUTE_LIFT[kind],
+        step: 0.5
+      }),
+      start: performance.now(),
+      dur: Math.max(500, (Math.floor(dayNow()) + days - dayNow()) * clock.current.dayMs),
+      arriveDay: Math.floor(dayNow()) + days
+    };
+  };
+  React.useEffect(() => {
+    if (!geoReady) return;
+    setPlayers(H.players.map(p => ({
+      ...p,
+      lands: p.lands.slice()
+    })));
+    const base = H.armies.map(a => ({
+      ...a,
+      units: {
+        ...a.units
+      }
+    }));
+    if (t.scenario === 'attack') H.incoming.forEach(i => base.push(launch(i.owner, {
+      ...i.units
+    }, [i.from, i.to], 'land', i.days, i.id)));
+    setArmies(base);
+    setScars({});
+  }, [geoReady, t.scenario]);
+  const resolve = mv => {
+    const ps = playersRef.current,
+      rest = armiesRef.current.filter(a => a.id !== mv.id);
+    const tOwner = ps.find(p => p.lands.includes(mv.to)) || null,
+      mover = ps.find(p => p.id === mv.owner);
+    const mvMe = !!mover.me,
+      place = cname(mv.to);
+    const allied = tOwner && (tOwner.id === mv.owner || mvMe && tOwner.diplo === 'allied' || tOwner.me && mover.diplo === 'allied');
+    const settle = (list, ownerId, at, units) => {
+      const ex = list.find(a => !a.route && a.owner === ownerId && a.at === at);
+      return ex ? list.map(a => a === ex ? {
+        ...a,
+        units: mergeUnits(a.units, units)
+      } : a) : list.concat([{
+        id: 's' + Math.random().toString(36).slice(2, 7),
+        owner: ownerId,
+        at,
+        units
+      }]);
+    };
+    if (allied) {
+      setArmies(settle(rest, mv.owner, mv.to, mv.units));
+      if (mvMe) toast('Reinforced ' + place + '.', 'ok');
+      return;
+    }
+    const defStacks = rest.filter(a => !a.route && a.at === mv.to && a.owner !== mv.owner);
+    const def = Math.max(0, (tOwner ? 4 : 8) - (scarsRef.current[mv.to] || 0)) + defStacks.reduce((s, a) => s + armyStrength(a.units), 0),
+      atk = armyStrength(mv.units);
+    const bid = Math.random();
+    setBursts(b => [...b, {
+      id: bid,
+      code: mv.to,
+      win: atk > def
+    }]);
+    setTimeout(() => setBursts(b => b.filter(x => x.id !== bid)), 1500);
+    if (atk > def) {
+      const units = scaleUnits(mv.units, 1 - Math.min(0.9, def / atk), true);
+      setArmies(settle(rest.filter(a => !defStacks.includes(a)), mv.owner, mv.to, units));
+      setPlayers(ps.map(p => p.id === mv.owner ? {
+        ...p,
+        lands: p.lands.concat([mv.to])
+      } : tOwner && p.id === tOwner.id ? {
+        ...p,
+        lands: p.lands.filter(c => c !== mv.to)
+      } : p));
+      setEvents(ev => [{
+        id: Math.random(),
+        type: 'conquest',
+        actor: mvMe ? 'You' : mover.name,
+        text: 'conquered ' + place,
+        day: mv.arriveDay
+      }, ...ev]);
+      if (mvMe) toast('Victory! ' + place + ' is yours.', 'ok');else if (tOwner && tOwner.me) toast(place + ' has fallen to ' + mover.name + '.', 'err');
+    } else {
+      const units = scaleUnits(mv.units, atk / def * 0.5, false);
+      setArmies(units ? settle(rest, mv.owner, mv.from, units) : rest);
+      setEvents(ev => [{
+        id: Math.random(),
+        type: 'battle_repelled',
+        actor: place,
+        text: 'held against ' + (mvMe ? 'you' : mover.name),
+        day: mv.arriveDay
+      }, ...ev]);
+      if (mvMe) toast('The attack on ' + place + ' failed. Survivors fell back.', 'err');else if (tOwner && tOwner.me) toast(place + ' held! The attack was repelled.', 'ok');
+    }
+  };
+  const resolveRef = React.useRef(resolve);
+  resolveRef.current = resolve;
+  const scarsRef = React.useRef(scars);
+  scarsRef.current = scars;
+
+  // ---- Strikes: projectile flies along a high arc, then damages troops / garrison. Never captures.
+  const STRIKE_BURST = {
+    artillery: 'strike',
+    air: 'strike',
+    missile: 'strike',
+    nuke: 'nuke'
+  };
+  const fireStrike = s => {
+    const g = globeRef.current;
+    const lift = s.kind === 'artillery' ? 0.05 : s.kind === 'air' ? 0.12 : 0.3;
+    const route = window.HUD_GEO.pathPoints(g, [s.from, s.to], {
+      lift,
+      step: 0.5
+    });
+    const id = 'x' + Math.random().toString(36).slice(2, 7);
+    const trail = g.addPath(route, {
+      color: '#ffb36b',
+      opacity: 0.85,
+      radius: 0.0028,
+      dash: 0,
+      arrow: false
+    });
+    setShots(x => [...x, {
+      id,
+      kind: s.kind,
+      route,
+      start: performance.now(),
+      dur: s.kind === 'artillery' ? 900 : 1600,
+      ease: true,
+      to: s.to,
+      damage: s.damage,
+      trail,
+      owner: me.id
+    }]);
+    toast(HUD_TIPS.strike[s.kind].title + ' launched at ' + cname(s.to) + '.', 'ok');
+  };
+  const impact = shot => {
+    globeRef.current && globeRef.current.removePath(shot.trail);
+    const bid = Math.random();
+    setBursts(b => [...b, {
+      id: bid,
+      code: shot.to,
+      kind: STRIKE_BURST[shot.kind]
+    }]);
+    setTimeout(() => setBursts(b => b.filter(x => x.id !== bid)), 2500);
+    let dmg = shot.damage,
+      hit = 0;
+    const list = armiesRef.current.map(a => {
+      if (a.route || a.at !== shot.to || a.owner === me.id || dmg <= 0) return a;
+      const st = armyStrength(a.units),
+        take = Math.min(st, dmg);
+      dmg -= take;
+      hit += take;
+      return {
+        ...a,
+        units: scaleUnits(a.units, (st - take) / st, false)
+      };
+    }).filter(a => a.units);
+    setArmies(list);
+    if (dmg > 0) {
+      const base = ownerOf(shot.to) ? 4 : 8,
+        cur = scarsRef.current[shot.to] || 0,
+        add = Math.min(dmg, base - cur);
+      if (add > 0) {
+        hit += add;
+        setScars(x => ({
+          ...x,
+          [shot.to]: cur + add
+        }));
+      }
+    }
+    setEvents(ev => [{
+      id: Math.random(),
+      type: 'war',
+      actor: 'You',
+      text: HUD_TIPS.strike[shot.kind].title.toLowerCase() + ' on ' + cname(shot.to) + ' (−' + hit + ' defence)',
+      day: Math.floor(dayNow() + 1e-6)
+    }, ...ev]);
+    toast('Strike on ' + cname(shot.to) + ' knocked ' + hit + ' off its defence.', 'ok');
+  };
+  const impactRef = React.useRef(impact);
+  impactRef.current = impact;
+  React.useEffect(() => {
+    const id = setInterval(() => {
+      const now = performance.now();
+      const done = shotsRef.current.filter(x => now >= x.start + x.dur);
+      if (done.length) {
+        setShots(x => x.filter(y => !done.includes(y)));
+        done.forEach(d => impactRef.current(d));
+      }
+    }, 100);
+    return () => clearInterval(id);
+  }, []);
+
+  // ---- Research progress (one project at a time)
+  React.useEffect(() => {
+    const act = tech.find(x => x.status === 'active');
+    if (!act) return;
+    const prog = act.progress + (day - act.startDay) / act.days;
+    if (prog >= 1) {
+      setTech(list => list.map(x => x.key === act.key ? {
+        ...x,
+        status: 'done'
+      } : x));
+      toast('Research complete: ' + act.name + ' unlocked.', 'ok');
+      setEvents(ev => [{
+        id: Math.random(),
+        type: 'build_complete',
+        actor: 'You',
+        text: 'researched ' + act.name,
+        day
+      }, ...ev]);
+    }
+  }, [day]);
+  const onResearch = x => {
+    setTech(list => list.map(y => y.key === x.key ? {
+      ...y,
+      status: 'active',
+      progress: 0,
+      startDay: dayNow()
+    } : y));
+    toast('Researching ' + x.name + ' · ' + x.days + ' days.', 'ok');
+  };
+  React.useEffect(() => {
+    const id = setInterval(() => {
+      const now = performance.now();
+      const done = armiesRef.current.find(a => a.route && now >= a.start + a.dur);
+      if (done) resolveRef.current(done);
+    }, 150);
+    return () => clearInterval(id);
+  }, []);
+
+  // ---- Planning (Army pane)
+  const myStatic = armies.filter(a => a.owner === me.id && !a.route);
+  const planFor = target => {
+    const land = [],
+      sea = [];
+    myStatic.forEach(a => {
+      const path = window.HUD_GEO.landPath(a.at, target, isFriendlyLand);
+      if (path) land.push({
+        kind: 'land',
+        ok: true,
+        armyId: a.id,
+        codes: path,
+        days: path.length - 1,
+        strength: armyStrength(a.units),
+        fromName: cname(a.at),
+        via: path.slice(1, -1).map(cname)
+      });
+      if (a.units.navy) sea.push({
+        kind: 'sea',
+        ok: true,
+        armyId: a.id,
+        codes: [a.at, target],
+        days: Math.ceil(window.HUD_GEO.angleDeg(a.at, target) / 15) + 1,
+        strength: armyStrength(a.units),
+        fromName: cname(a.at),
+        via: []
+      });
+    });
+    const pick = arr => arr.sort((x, y) => x.days - y.days || y.strength - x.strength)[0];
+    // Explain a blocked land route: shortest geographic path from any of your stacks, listing who's in the way.
+    let blockers = null;
+    myStatic.forEach(a => {
+      const geoPath = window.HUD_GEO.landPath(a.at, target, () => true);
+      if (!geoPath) return;
+      const b = geoPath.slice(1, -1).filter(c => !isFriendlyLand(c)).map(c => {
+        const o = ownerOf(c);
+        return cname(c) + (o ? '' : ' (neutral)');
+      });
+      if (!blockers || b.length < blockers.length) blockers = b;
+    });
+    const invade = [pick(land) || (blockers && blockers.length ? {
+      kind: 'land',
+      ok: false,
+      blockers: blockers.slice(0, 3)
+    } : {
+      kind: 'land',
+      ok: false,
+      reason: 'No land connection. Ship by sea or strike from range.'
+    }), pick(sea) || {
+      kind: 'sea',
+      ok: false,
+      reason: 'Needs a stack with at least one Navy unit.'
+    }];
+    const S = H.STRIKES,
+      strike = [];
+    const lockFor = k => {
+      const tt = tech.find(x => x.key === S[k].tech);
+      return techDone.has(S[k].tech) ? null : 'Research ' + tt.name + (tt.status === 'active' ? ' (in progress)' : '');
+    };
+    // artillery: a stack with artillery must border the target
+    let lk = lockFor('artillery');
+    const art = myStatic.filter(a => a.units.artillery && window.HUD_GEO.neighbors(a.at).includes(target)).sort((x, y) => y.units.artillery - x.units.artillery)[0];
+    strike.push(lk ? {
+      kind: 'artillery',
+      ok: false,
+      locked: true,
+      reason: lk
+    } : art ? {
+      kind: 'artillery',
+      ok: true,
+      from: art.at,
+      to: target,
+      damage: art.units.artillery * S.artillery.perUnit,
+      detail: art.units.artillery + ' guns in ' + cname(art.at) + ' · ready now'
+    } : {
+      kind: 'artillery',
+      ok: false,
+      reason: 'No artillery in a country that borders ' + cname(target) + '.'
+    });
+    lk = lockFor('air');
+    const air = myStatic.filter(a => a.units.air && window.HUD_GEO.angleDeg(a.at, target) <= S.air.rangeDeg).sort((x, y) => y.units.air - x.units.air)[0];
+    strike.push(lk ? {
+      kind: 'air',
+      ok: false,
+      locked: true,
+      reason: lk
+    } : air ? {
+      kind: 'air',
+      ok: true,
+      from: air.at,
+      to: target,
+      damage: air.units.air * S.air.perUnit,
+      detail: air.units.air + ' planes from ' + cname(air.at)
+    } : {
+      kind: 'air',
+      ok: false,
+      reason: myStatic.some(a => a.units.air) ? 'Out of range (3 300 km)' : 'Train planes in Army mode first.'
+    });
+    lk = lockFor('missile');
+    strike.push(lk ? {
+      kind: 'missile',
+      ok: false,
+      locked: true,
+      reason: lk
+    } : H.ARSENAL.missiles ? {
+      kind: 'missile',
+      ok: true,
+      from: me.country,
+      to: target,
+      damage: S.missile.damage,
+      detail: H.ARSENAL.missiles + ' in silo'
+    } : {
+      kind: 'missile',
+      ok: false,
+      reason: 'No missiles built (1 500 gold each).'
+    });
+    lk = lockFor('nuke');
+    strike.push(lk ? {
+      kind: 'nuke',
+      ok: false,
+      locked: true,
+      reason: lk + ' · 40 000 gold · 3 Labs'
+    } : {
+      kind: 'nuke',
+      ok: false,
+      reason: 'No warhead built.'
+    });
+    return {
+      invade,
+      strike
+    };
+  };
+  const sendArmy = opt => {
+    const a = armies.find(x => x.id === opt.armyId);
+    if (!a) return;
+    const units = opt.airOnly ? {
+      air: a.units.air
+    } : a.units;
+    const left = opt.airOnly ? scaleUnits({
+      ...a.units,
+      air: 0
+    }, 1, false) : null;
+    const mv = launch(me.id, units, opt.codes, opt.kind, opt.days);
+    setArmies(list => list.filter(x => x.id !== a.id).concat(left ? [{
+      ...a,
+      units: left
+    }] : []).concat([mv]));
+    setPreview(null);
+    const hostile = !isFriendlyLand(mv.to);
+    toast((hostile ? 'Forces marching on ' : 'Reinforcing ') + cname(mv.to) + ' · arrives Day ' + mv.arriveDay + '.', 'ok');
+    if (hostile) setEvents(ev => [{
+      id: Math.random(),
+      type: 'war',
+      actor: 'You',
+      text: 'sent forces toward ' + cname(mv.to),
+      day
+    }, ...ev]);
+  };
+
+  // ---- Globe colouring (lens + fog)
   React.useEffect(() => {
     const g = globeRef.current;
     if (!g || !geo) return;
     const map = {};
     if (lens === 'political') {
-      allPlayers.forEach(p => p.lands.forEach(c => {
-        map[c] = p.color;
-      }));
-      if (t.scenario === 'attack') map.FIN = me.color;
+      const fogC = new THREE.Color(FOG_TINT);
+      Object.keys(geo.props).forEach(c => {
+        const o = ownerOf(c);
+        const col = new THREE.Color(o ? o.color : NEUTRAL_LAND);
+        if (t.fog && !vision.has(c)) col.lerp(fogC, o ? 0.6 : 0.5);
+        map[c] = '#' + col.getHexString();
+      });
     } else {
       const hex = {
         farmland: HUD_RES.food.hex,
@@ -5566,13 +7703,124 @@ function MatchHud() {
     }
     g.setOwners(map);
     g.setSelected(lens === 'political' ? selected : null);
-  }, [geo, lens, selected, t.myColor, t.scenario, players]);
+  }, [geo, lens, selected, t.myColor, t.fog, players, vision]);
+
+  // ---- Route lines on the globe: visible marches + hover/plan preview
+  const pathGroups = React.useRef({});
+  React.useEffect(() => {
+    const g = globeRef.current;
+    if (!g || !geoReady) return;
+    const want = {};
+    visibleArmies.filter(a => a.route).forEach(a => {
+      want[a.id] = a;
+    });
+    Object.keys(pathGroups.current).forEach(id => {
+      if (!want[id]) {
+        g.removePath(pathGroups.current[id]);
+        delete pathGroups.current[id];
+      }
+    });
+    Object.values(want).forEach(a => {
+      if (pathGroups.current[a.id]) return;
+      const col = (allPlayers.find(p => p.id === a.owner) || {}).color || '#fff';
+      pathGroups.current[a.id] = g.addPath(a.route, {
+        color: col,
+        opacity: 0.95,
+        radius: 0.004,
+        dash: 2
+      });
+    });
+  }, [armies, vision, geoReady, t.myColor]);
+  const inArmyHostile = mode === 'army' && geo && selected && !(ownerOf(selected) && ownerOf(selected).me);
+  const plan = inArmyHostile ? planFor(selected) : null;
+  const shownPreview = preview || plan && plan.invade.find(o => o.ok) || null;
+  const previewGroup = React.useRef(null);
+  React.useEffect(() => {
+    const g = globeRef.current;
+    if (!g || !geoReady) return;
+    g.removePath(previewGroup.current);
+    previewGroup.current = null;
+    if (shownPreview && shownPreview.codes) previewGroup.current = g.addPath(window.HUD_GEO.pathPoints(g, shownPreview.codes, {
+      lift: ROUTE_LIFT[shownPreview.kind],
+      step: 0.5
+    }), {
+      color: ROUTE_COLOR[shownPreview.kind],
+      opacity: 0.6,
+      radius: 0.0035,
+      dash: 2
+    });
+  }, [shownPreview && shownPreview.codes && shownPreview.codes.join('>') + shownPreview.kind, geoReady]);
+  React.useEffect(() => {
+    setPreview(null);
+  }, [selected, mode]);
+
+  // ---- Alerts derived from hostile marches you can see
+  const threat = visibleArmies.filter(a => a.route && a.owner !== me.id && me.lands.includes(a.to)).sort((x, y) => x.arriveDay - y.arriveDay)[0];
+  const alert = sc.alert || (threat ? {
+    kind: 'war',
+    title: 'Invasion incoming',
+    body: (allPlayers.find(p => p.id === threat.owner) || {}).name + '’s ' + armyList(threat.units) + ' is marching on ' + cname(threat.to),
+    eta: Math.max(0, threat.arriveDay - day),
+    target: threat.to
+  } : null);
+  const armyCtx = geo && selected ? (() => {
+    const o = ownerOf(selected),
+      mine = !!o && o.me;
+    return {
+      mine,
+      allied: !!o && !o.me && o.diplo === 'allied',
+      stacks: armies.filter(a => !a.route && a.at === selected && a.owner === me.id),
+      incoming: visibleArmies.filter(a => a.route && a.to === selected && a.owner !== me.id).map(a => ({
+        ...a,
+        ownerName: (allPlayers.find(p => p.id === a.owner) || {}).name
+      })),
+      defence: defenceOf(selected),
+      fogged: fogged(selected),
+      enemyHere: armies.filter(a => !a.route && a.at === selected && a.owner !== me.id),
+      neighbors: window.HUD_GEO.neighbors(selected).filter(c => geo.props[c]).map(c => {
+        const no = ownerOf(c),
+          fr = isFriendlyLand(c);
+        return {
+          code: c,
+          name: cname(c),
+          mine: !!no && no.me,
+          friendly: fr,
+          ownerName: no ? no.me ? 'Yours' : no.name : null,
+          ownerColor: no ? no.color : null,
+          def: fr ? null : fogged(c) ? null : defenceOf(c)
+        };
+      }).sort((a, b) => a.friendly - b.friendly),
+      plan: plan || {
+        invade: [],
+        strike: []
+      },
+      onSend: sendArmy,
+      onPreview: setPreview,
+      onStrike: fireStrike,
+      techDone
+    };
+  })() : null;
+  const reticles = [];
+  if (shownPreview && shownPreview.codes) {
+    const tc = shownPreview.codes[shownPreview.codes.length - 1];
+    reticles.push({
+      code: tc,
+      color: isFriendlyLand(tc) ? '#7fe6dc' : '#ff9db1'
+    });
+  }
+  visibleArmies.filter(a => a.route).forEach(a => {
+    if (!reticles.find(r => r.code === a.to)) reticles.push({
+      code: a.to,
+      color: a.owner === me.id ? '#7fe6dc' : '#ff4d73'
+    });
+  });
 
   // Keyboard: B / A / T / D
   React.useEffect(() => {
     const keys = {
       b: 'build',
       a: 'army',
+      r: 'research',
       t: 'trade',
       d: 'diplomacy'
     };
@@ -5603,17 +7851,25 @@ function MatchHud() {
     }]);
     toast(B.name + ' started.', 'ok');
   };
-  const onTrain = u => toast('Training 5 ' + H.UNITS[u].name.toLowerCase() + '.', 'ok');
-  const onMove = (code, hostile) => {
-    const name = geo && geo.props[code] ? geo.props[code].name : code;
-    toast(hostile ? 'Forces marching on ' + name + '.' : 'Reinforcing ' + name + '.', 'ok');
-    if (hostile) setEvents(ev => [{
-      id: Math.random(),
-      type: 'war',
-      actor: 'You',
-      text: 'sent forces toward ' + name,
-      day
-    }, ...ev]);
+  const onTrain = u => {
+    const at = selected;
+    setArmies(list => {
+      const ex = list.find(a => !a.route && a.owner === me.id && a.at === at);
+      return ex ? list.map(a => a === ex ? {
+        ...a,
+        units: mergeUnits(a.units, {
+          [u]: 5
+        })
+      } : a) : list.concat([{
+        id: 's' + Math.random().toString(36).slice(2, 7),
+        owner: me.id,
+        at,
+        units: {
+          [u]: 5
+        }
+      }]);
+    });
+    toast('Trained 5 ' + H.UNITS[u].name.toLowerCase() + ' in ' + cname(at) + '.', 'ok');
   };
   const onTrade = (tr, ok) => toast(ok ? 'Trade accepted.' : 'Offer declined.', ok ? 'ok' : 'default');
   const onDiplo = (p, to) => {
@@ -5635,10 +7891,10 @@ function MatchHud() {
     body
   }]);
   const onAlert = () => {
-    if (t.scenario === 'attack') {
-      setSelected('FIN');
+    if (alert && alert.target) {
+      setSelected(alert.target);
       setMode('army');
-      globeRef.current && globeRef.current.focus('FIN');
+      globeRef.current && globeRef.current.focus(alert.target);
     } else {
       setSelected('SWE');
       setMode('build');
@@ -5649,7 +7905,9 @@ function MatchHud() {
   const myShape = React.useMemo(() => shapeOf(me.country), [geo]);
   const selShape = React.useMemo(() => shapeOf(selected), [geo, selected]);
   const pending = H.trades.filter(x => x.dir === 'in').length;
-  return /*#__PURE__*/React.createElement("div", {
+  return /*#__PURE__*/React.createElement(HudTipCtx.Provider, {
+    value: tipApi
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'fixed',
       inset: 0,
@@ -5682,6 +7940,20 @@ function MatchHud() {
       pointerEvents: 'none',
       background: 'linear-gradient(180deg, rgba(6,10,20,.65) 0%, rgba(6,10,20,0) 22%, rgba(6,10,20,0) 72%, rgba(6,10,20,.7) 100%)'
     }
+  }), /*#__PURE__*/React.createElement(MarkerLayer, {
+    globeRef: globeRef,
+    armies: visibleArmies,
+    players: allPlayers,
+    me: me,
+    warIds: warIds,
+    day: day,
+    reticles: reticles,
+    bursts: bursts,
+    shots: shots,
+    onPick: c => {
+      setSelected(c);
+      setMode('army');
+    }
   }), /*#__PURE__*/React.createElement(IdentityPlate, {
     me: me,
     countryName: geo ? geo.props[me.country].name : 'Sweden',
@@ -5701,7 +7973,7 @@ function MatchHud() {
     sc: sc,
     solid: solid
   }), /*#__PURE__*/React.createElement(AlertRibbon, {
-    alert: sc.alert,
+    alert: alert,
     day: day,
     onAction: onAlert
   }), /*#__PURE__*/React.createElement(Standings, {
@@ -5727,7 +7999,13 @@ function MatchHud() {
     queue: queue.filter(b => b.country === selected),
     onBuild: onBuild,
     onTrain: onTrain,
-    onMove: onMove,
+    army: armyCtx,
+    research: {
+      tech,
+      labs,
+      dayFloat: day + (1 - secs / H.TICK_SEC),
+      onResearch
+    },
     onTrade: onTrade,
     onDiplo: onDiplo,
     solid: solid
@@ -5742,7 +8020,7 @@ function MatchHud() {
     setMode: setMode,
     counts: {
       trade: pending,
-      army: t.scenario === 'attack' ? '!' : 0
+      army: threat ? '!' : 0
     }
   }), /*#__PURE__*/React.createElement(GlobeControls, {
     lens: lens,
@@ -5759,11 +8037,14 @@ function MatchHud() {
     hover: hover,
     pos: pos,
     owner: hover ? ownerOf(hover.code) : null,
-    lens: lens
+    lens: lens,
+    fogged: hover ? fogged(hover.code) : false
+  }), /*#__PURE__*/React.createElement(TipLayer, {
+    state: tipState
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
-      top: sc.alert ? 262 : 186,
+      top: alert ? 262 : 186,
       left: '50%',
       transform: 'translateX(-50%)',
       display: 'flex',
@@ -5805,12 +8086,30 @@ function MatchHud() {
       label: 'Solid'
     }],
     onChange: v => setTweak('panels', v)
+  }), /*#__PURE__*/React.createElement(TweakToggle, {
+    label: "Fog of war",
+    value: t.fog,
+    onChange: v => setTweak('fog', v)
+  }), /*#__PURE__*/React.createElement(TweakRadio, {
+    label: "Demo speed",
+    value: t.speed,
+    options: [{
+      value: 1,
+      label: '1×'
+    }, {
+      value: 4,
+      label: '4×'
+    }, {
+      value: 10,
+      label: '10×'
+    }],
+    onChange: v => setTweak('speed', v)
   }), /*#__PURE__*/React.createElement(TweakColor, {
     label: "Your slot colour",
     value: t.myColor,
     options: ['#42d4f4', '#bfef45', '#f032e6', '#dcbeff'],
     onChange: v => setTweak('myColor', v)
-  })));
+  }))));
 }
 ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(MatchHud, null));
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/game/hud/MatchHud.jsx", error: String((e && e.message) || e) }); }
@@ -5840,7 +8139,7 @@ window.HUD_DATA = function () {
     pop: 241e6,
     ai: true,
     diplo: 'war',
-    lands: ['PRK', 'KOR', 'MNG', 'JPN', 'TWN', 'PHL', 'VNM', 'LAO', 'KHM', 'THA', 'MMR']
+    lands: ['PRK', 'KOR', 'MNG', 'JPN', 'RUS', 'PHL', 'VNM', 'LAO', 'KHM', 'THA', 'MMR']
   }, {
     id: 3,
     name: 'Luiz Inácio Lula da Silva',
@@ -5915,12 +8214,7 @@ window.HUD_DATA = function () {
       },
       efficiency: 1,
       fed: true,
-      alert: {
-        kind: 'war',
-        title: 'Invasion incoming',
-        body: 'Kim Jong Un’s armor is marching on Finland',
-        eta: 2
-      }
+      alert: null // derived live from hostile armies marching on your land
     },
     starving: {
       res: {
@@ -6017,34 +8311,223 @@ window.HUD_DATA = function () {
       },
       attack: 4,
       build_ticks: 7
+    },
+    artillery: {
+      name: 'Artillery',
+      icon: 'target',
+      cost: {
+        gold: 150,
+        minerals: 80
+      },
+      attack: 2,
+      build_ticks: 3,
+      tech: 'artillery'
     }
   };
-  const armiesHere = [{
-    type: 'infantry',
-    count: 24
+  UNITS.air.tech = 'air';
+
+  // Weapons research (player_tech). One project at a time; costs research points + gold up front.
+  const TECH = [{
+    key: 'artillery',
+    name: 'Artillery',
+    icon: 'target',
+    cost: {
+      research: 300,
+      gold: 1500
+    },
+    days: 4,
+    status: 'done',
+    unlocks: 'Artillery unit. Shell any country that borders a stack with artillery.'
   }, {
-    type: 'armor',
-    count: 6
+    key: 'air',
+    name: 'Air Force',
+    icon: 'airplane-tilt',
+    cost: {
+      research: 600,
+      gold: 3000
+    },
+    days: 6,
+    requires: ['artillery'],
+    status: 'active',
+    progress: 0.62,
+    unlocks: 'Air Force unit. Strike anything within 3 300 km of a stack with planes.'
+  }, {
+    key: 'missiles',
+    name: 'Ballistic Missiles',
+    icon: 'rocket',
+    cost: {
+      research: 1200,
+      gold: 8000
+    },
+    days: 10,
+    requires: ['air'],
+    status: 'locked',
+    unlocks: 'Missiles (1 500 gold each). Hit any country on Earth; each missile is used up.'
+  }, {
+    key: 'nukes',
+    name: 'Nuclear Weapons',
+    icon: 'radioactive',
+    cost: {
+      research: 4000,
+      gold: 40000,
+      minerals: 5000
+    },
+    days: 15,
+    requires: ['missiles'],
+    labs: 3,
+    status: 'locked',
+    danger: true,
+    unlocks: 'One warhead at a time. Wipes out every troop and building in a country and kills 40% of its people. Every other nation may declare war on you.'
   }];
-  const moveTargets = [{
-    code: 'FIN',
+
+  // Long-range strikes: damage troops and garrisons, never capture land.
+  const STRIKES = {
+    artillery: {
+      name: 'Artillery barrage',
+      icon: 'target',
+      tech: 'artillery',
+      unit: 'artillery',
+      range: 'border',
+      perUnit: 2
+    },
+    air: {
+      name: 'Air strike',
+      icon: 'airplane-tilt',
+      tech: 'air',
+      unit: 'air',
+      rangeDeg: 30,
+      perUnit: 4
+    },
+    missile: {
+      name: 'Missile strike',
+      icon: 'rocket',
+      tech: 'missiles',
+      stock: 'missiles',
+      rangeDeg: 120,
+      damage: 20
+    },
+    nuke: {
+      name: 'Nuclear strike',
+      icon: 'radioactive',
+      tech: 'nukes',
+      stock: 'nukes',
+      rangeDeg: 180,
+      damage: 'all'
+    }
+  };
+  const ARSENAL = {
+    missiles: 0,
+    nukes: 0
+  };
+  const UNITS_TIPS = {
+    infantry: 'Cheap foot soldiers. Train lots of them to hold your borders.',
+    armor: 'Tanks hit three times harder than infantry but burn oil to build.',
+    air: 'The strongest attackers. Expensive, and they need plenty of oil.',
+    navy: 'Warships for reaching lands across the sea.',
+    artillery: 'Big guns. Shell countries next to the stack, or join an invasion with attack 2.'
+  };
+  // armies table: one row per stack. owner = match_players.id; at = current country; units by type.
+  // Fog of war: you only see stacks in your/allied lands or one border away from them.
+  const armies = [{
+    id: 'a1',
     owner: 1,
-    eta: 1
+    at: 'SWE',
+    units: {
+      infantry: 24,
+      armor: 6,
+      navy: 3
+    }
   }, {
-    code: 'RUS',
-    owner: null,
-    eta: 2,
-    garrison: 8
+    id: 'a2',
+    owner: 1,
+    at: 'FIN',
+    units: {
+      infantry: 8,
+      artillery: 4
+    }
   }, {
-    code: 'POL',
-    owner: null,
-    eta: 2,
-    garrison: 8
+    id: 'a3',
+    owner: 1,
+    at: 'DNK',
+    units: {
+      infantry: 6,
+      armor: 2
+    }
   }, {
-    code: 'DEU',
-    owner: null,
-    eta: 2,
-    garrison: 8
+    id: 'a4',
+    owner: 1,
+    at: 'LVA',
+    units: {
+      infantry: 10,
+      armor: 1
+    }
+  }, {
+    id: 'f1',
+    owner: 5,
+    at: 'FRA',
+    units: {
+      infantry: 20,
+      armor: 4,
+      air: 2
+    }
+  }, {
+    id: 'f2',
+    owner: 5,
+    at: 'BEL',
+    units: {
+      infantry: 6
+    }
+  }, {
+    id: 'k1',
+    owner: 2,
+    at: 'RUS',
+    units: {
+      infantry: 18,
+      armor: 8
+    }
+  }, {
+    id: 'k2',
+    owner: 2,
+    at: 'KOR',
+    units: {
+      infantry: 30,
+      armor: 14,
+      air: 4
+    }
+  }, {
+    id: 'k3',
+    owner: 2,
+    at: 'MNG',
+    units: {
+      infantry: 12
+    }
+  }, {
+    id: 's1',
+    owner: 4,
+    at: 'SAU',
+    units: {
+      infantry: 22,
+      armor: 10
+    }
+  }, {
+    id: 'b1',
+    owner: 3,
+    at: 'BRA',
+    units: {
+      infantry: 26,
+      armor: 5
+    }
+  }];
+  // 'attack' scenario: Kim's armor is already on the march into Finland (3 days).
+  const incoming = [{
+    id: 'k9',
+    owner: 2,
+    from: 'RUS',
+    to: 'FIN',
+    units: {
+      armor: 9
+    },
+    days: 3
   }];
   const trades = [{
     id: 1,
@@ -6141,8 +8624,12 @@ window.HUD_DATA = function () {
     scenarios,
     buildingsHere,
     UNITS,
-    armiesHere,
-    moveTargets,
+    TECH,
+    STRIKES,
+    ARSENAL,
+    UNITS_TIPS,
+    armies,
+    incoming,
     trades,
     events,
     chat,
@@ -6153,6 +8640,425 @@ window.HUD_DATA = function () {
   };
 }();
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/game/hud/hudData.js", error: String((e && e.message) || e) }); }
+
+// ui_kits/game/hud/hudGeo.js
+try { (() => {
+// Geography helpers for troop movement: centroids, land adjacency, route planning, great-circle paths.
+// Pure JS; needs a Globe instance only for lonLatVec (globe-local coordinates).
+window.HUD_GEO = function () {
+  const cent = {},
+    adj = {};
+  // Readable "staging" points for countries whose largest-polygon centroid sits far from where the action is.
+  const CENTROID_OVERRIDE = {
+    RUS: [44, 57],
+    USA: [-98, 39],
+    CAN: [-100, 56],
+    NOR: [10, 61.5],
+    FRA: [2.5, 46.6],
+    CHL: [-71, -33],
+    IDN: [113, -1]
+  };
+  // Safety net in case simplified borders don't share an exact vertex.
+  const EXTRA_LINKS = [['SWE', 'FIN'], ['SWE', 'NOR'], ['FIN', 'NOR'], ['FIN', 'RUS'], ['NOR', 'RUS'], ['EST', 'RUS'], ['EST', 'LVA'], ['LVA', 'LTU'], ['LVA', 'RUS'], ['LVA', 'BLR'], ['LTU', 'BLR'], ['LTU', 'POL'], ['LTU', 'RUS'], ['DNK', 'DEU'], ['DEU', 'POL'], ['DEU', 'NLD'], ['DEU', 'BEL'], ['DEU', 'FRA'], ['FRA', 'BEL'], ['FRA', 'ESP'], ['RUS', 'MNG'], ['RUS', 'KAZ'], ['RUS', 'CHN'], ['RUS', 'PRK'], ['PRK', 'KOR'], ['PRK', 'CHN']];
+  function link(a, b) {
+    if (a === b) return;
+    (adj[a] = adj[a] || new Set()).add(b);
+    (adj[b] = adj[b] || new Set()).add(a);
+  }
+  function centroidOf(f) {
+    const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+    let best = null,
+      bestA = 0;
+    for (const p of polys) {
+      const ring = p[0];
+      const lons = ring.map(c => c[0]);
+      const wrap = Math.max(...lons) - Math.min(...lons) > 180;
+      const r = ring.map(c => [wrap && c[0] < 0 ? c[0] + 360 : c[0], c[1]]);
+      let a = 0,
+        cx = 0,
+        cy = 0;
+      for (let i = 0; i < r.length - 1; i++) {
+        const cr = r[i][0] * r[i + 1][1] - r[i + 1][0] * r[i][1];
+        a += cr;
+        cx += (r[i][0] + r[i + 1][0]) * cr;
+        cy += (r[i][1] + r[i + 1][1]) * cr;
+      }
+      a /= 2;
+      if (Math.abs(a) > bestA && a !== 0) {
+        bestA = Math.abs(a);
+        best = [cx / (6 * a), cy / (6 * a)];
+      }
+    }
+    if (!best) best = polys[0][0][0];
+    let lon = best[0];
+    if (lon > 180) lon -= 360;
+    return [lon, best[1]];
+  }
+  function build(fc) {
+    const pts = {};
+    for (const f of fc.features) {
+      const code = f.properties.code;
+      cent[code] = CENTROID_OVERRIDE[code] || centroidOf(f);
+      adj[code] = adj[code] || new Set();
+      const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+      for (const p of polys) for (const ring of p) for (const c of ring) {
+        const k = Math.round(c[0] * 20) + ',' + Math.round(c[1] * 20);
+        (pts[k] = pts[k] || new Set()).add(code);
+      }
+    }
+    Object.values(pts).forEach(s => {
+      if (s.size > 1) {
+        const a = [...s];
+        for (let i = 0; i < a.length; i++) for (let j = i + 1; j < a.length; j++) link(a[i], a[j]);
+      }
+    });
+    EXTRA_LINKS.forEach(([a, b]) => {
+      if (cent[a] && cent[b]) link(a, b);
+    });
+  }
+  const neighbors = c => [...(adj[c] || [])];
+
+  // Shortest land path from -> to where every intermediate country passes `passable(code)`.
+  function landPath(from, to, passable) {
+    if (from === to) return [from];
+    const prev = {
+        [from]: null
+      },
+      q = [from];
+    while (q.length) {
+      const c = q.shift();
+      for (const n of neighbors(c)) {
+        if (n in prev) continue;
+        if (n !== to && !passable(n)) continue;
+        prev[n] = c;
+        if (n === to) {
+          const path = [to];
+          let x = c;
+          while (x) {
+            path.unshift(x);
+            x = prev[x];
+          }
+          return path;
+        }
+        q.push(n);
+      }
+    }
+    return null;
+  }
+  function angleDeg(a, b) {
+    const ca = cent[a],
+      cb = cent[b];
+    const r = Math.PI / 180;
+    const d = Math.sin(ca[1] * r) * Math.sin(cb[1] * r) + Math.cos(ca[1] * r) * Math.cos(cb[1] * r) * Math.cos((ca[0] - cb[0]) * r);
+    return Math.acos(Math.max(-1, Math.min(1, d))) / r;
+  }
+
+  // Globe-local 3D points along consecutive great circles through `codes`.
+  // lift: 0 = hug the ground; >0 = arc up by that much at the midpoint of each leg (sea/air).
+  function pathPoints(globe, codes, {
+    alt = 1.012,
+    lift = 0,
+    step = 0.8
+  } = {}) {
+    const out = [];
+    for (let i = 0; i < codes.length - 1; i++) {
+      const A = globe.lonLatVec(cent[codes[i]][0], cent[codes[i]][1], 1),
+        B = globe.lonLatVec(cent[codes[i + 1]][0], cent[codes[i + 1]][1], 1);
+      const dot = Math.max(-1, Math.min(1, A[0] * B[0] + A[1] * B[1] + A[2] * B[2]));
+      const om = Math.acos(dot),
+        deg = om * 180 / Math.PI,
+        n = Math.max(2, Math.ceil(deg / step));
+      for (let k = i === 0 ? 0 : 1; k <= n; k++) {
+        const t = k / n;
+        const s0 = om < 1e-6 ? 1 - t : Math.sin((1 - t) * om) / Math.sin(om),
+          s1 = om < 1e-6 ? t : Math.sin(t * om) / Math.sin(om);
+        const h = alt + lift * Math.sin(Math.PI * t) * Math.min(1, deg / 25);
+        out.push([(A[0] * s0 + B[0] * s1) * h, (A[1] * s0 + B[1] * s1) * h, (A[2] * s0 + B[2] * s1) * h]);
+      }
+    }
+    return out;
+  }
+
+  // Position at fraction t (0..1) along a polyline, by arc length.
+  function pointAt(pts, t) {
+    if (!pts._len) {
+      let L = 0;
+      pts._cum = [0];
+      for (let i = 1; i < pts.length; i++) {
+        const a = pts[i - 1],
+          b = pts[i];
+        L += Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+        pts._cum.push(L);
+      }
+      pts._len = L;
+    }
+    const target = Math.max(0, Math.min(1, t)) * pts._len;
+    let i = 1;
+    while (i < pts.length - 1 && pts._cum[i] < target) i++;
+    const seg = pts._cum[i] - pts._cum[i - 1] || 1,
+      f = (target - pts._cum[i - 1]) / seg,
+      a = pts[i - 1],
+      b = pts[i];
+    return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f];
+  }
+  return {
+    build,
+    neighbors,
+    landPath,
+    angleDeg,
+    pathPoints,
+    pointAt,
+    centroid: c => cent[c]
+  };
+}();
+})(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/game/hud/hudGeo.js", error: String((e && e.message) || e) }); }
+
+// ui_kits/game/hud/hudTips.js
+try { (() => {
+// Explainer copy for HUD tooltips. Rule: max two sentences, second person, numbers from GameConfig.php.
+window.HUD_TIPS = {
+  res: {
+    food: {
+      body: 'Feeds your people. Every million citizens eat 2 food a day; if it runs out, population shrinks 1.5% a day.',
+      source: 'Farm · scales with farmland'
+    },
+    energy: {
+      body: 'Powers every building. When your buildings need more than you have, all production slows down.',
+      source: 'Power Plant · burns 18 oil a day'
+    },
+    minerals: {
+      body: 'Ore used to construct buildings and train units. Factories turn it into gold.',
+      source: 'Mine · scales with minerals'
+    },
+    gold: {
+      body: 'Your treasury. Pays for buildings, units and trades; every million citizens pay 2 gold a day in tax.',
+      source: 'Tax, Bank, Factory'
+    },
+    oil: {
+      body: 'Fuel for Power Plants and for armor, air force and navy units.',
+      source: 'Oil Rig · scales with oil reserves'
+    },
+    research: {
+      body: 'Progress toward new technology.',
+      source: 'Research Lab'
+    }
+  },
+  grid: {
+    title: 'Power grid',
+    icon: 'plug',
+    tone: 'var(--gold-600)',
+    body: 'Energy available compared with what your buildings need. Below 100%, every building produces less, so build a Power Plant.'
+  },
+  pop: {
+    title: 'Population',
+    icon: 'users-three',
+    tone: 'var(--sky-500)',
+    body: 'Grows 1% a day while your people are fed and below the cap. Each Housing raises the cap by 40M.'
+  },
+  fed: {
+    title: 'Fed',
+    icon: 'grains',
+    tone: 'var(--green-600)',
+    body: 'You produce enough food, so your population is growing.'
+  },
+  starving: {
+    title: 'Starving',
+    icon: 'warning',
+    tone: 'var(--red-600)',
+    body: 'Food has run out and your population is shrinking 1.5% a day. Build Farms or trade for food.'
+  },
+  identity: {
+    title: 'Your leader',
+    icon: 'crown',
+    tone: 'var(--gold-600)',
+    body: 'You play as this country’s real leader. The star marks your capital; lose every land and you’re eliminated.'
+  },
+  day: {
+    title: 'Day clock',
+    icon: 'sun',
+    tone: 'var(--gold-600)',
+    body: 'A new day starts every 20 seconds. Production, construction, battles and AI moves all resolve at the start of each day.'
+  },
+  world: {
+    title: 'World control',
+    icon: 'trophy',
+    tone: 'var(--gold-600)',
+    body: 'How much of the world’s 176 countries each nation holds. Control 60%, or be the last nation standing, to win.'
+  },
+  diplo: {
+    allied: {
+      title: 'Allied',
+      icon: 'handshake',
+      tone: 'var(--green-600)',
+      body: 'Allies never fight each other. Armies moving into allied land just reinforce it.'
+    },
+    war: {
+      title: 'At war',
+      icon: 'sword',
+      tone: 'var(--red-600)',
+      body: 'Open conflict with this nation. Expect attacks on lands that border theirs.'
+    },
+    truce: {
+      title: 'Truce',
+      icon: 'flag',
+      tone: 'var(--sky-500)',
+      body: 'A ceasefire. Either side can declare war again from Diplomacy.'
+    },
+    neutral: {
+      title: 'Neutral',
+      icon: 'minus-circle',
+      tone: 'var(--navy-500)',
+      body: 'No agreement yet. You can propose an alliance, trade or declare war.'
+    }
+  },
+  modes: {
+    research: {
+      body: 'Spend research points and gold to unlock weapons: artillery, air force, missiles and, eventually, nukes.'
+    },
+    build: {
+      body: 'Construct farms, mines, power plants and more in lands you control.'
+    },
+    army: {
+      body: 'Train units and move them into neighbouring countries to conquer them.'
+    },
+    trade: {
+      body: 'Swap resources with other leaders. Accept their offers or make your own.'
+    },
+    diplomacy: {
+      body: 'Form alliances, declare war or offer a truce to other nations.'
+    }
+  },
+  lens: {
+    political: {
+      title: 'Political map',
+      body: 'Shows who controls each country. Your selected country glows teal.'
+    },
+    farmland: {
+      title: 'Farmland lens',
+      body: 'Brighter countries grow more food per Farm.'
+    },
+    minerals: {
+      title: 'Minerals lens',
+      body: 'Brighter countries produce more ore per Mine.'
+    },
+    oil: {
+      title: 'Oil lens',
+      body: 'Brighter countries pump more oil per Oil Rig.'
+    }
+  },
+  zoomIn: {
+    title: 'Zoom in',
+    icon: 'plus',
+    tone: 'var(--navy-500)',
+    body: 'Move closer to the globe. You can also scroll.'
+  },
+  zoomOut: {
+    title: 'Zoom out',
+    icon: 'minus',
+    tone: 'var(--navy-500)',
+    body: 'Pull back to see more of the world. You can also scroll.'
+  },
+  focus: {
+    title: 'Focus capital',
+    icon: 'crosshair',
+    tone: 'var(--teal-600)',
+    body: 'Spin the globe back to your capital.'
+  },
+  attr: {
+    farmland: {
+      title: 'Farmland',
+      icon: 'grains',
+      tone: 'var(--res-food)',
+      body: 'Food potential of this land (0–100). A Farm here makes 100 × farmland ÷ 50 food a day.'
+    },
+    minerals: {
+      title: 'Minerals',
+      icon: 'diamond',
+      tone: 'var(--navy-400)',
+      body: 'Ore richness (0–100). A Mine here makes 85 × minerals ÷ 50 a day.'
+    },
+    oil: {
+      title: 'Oil reserves',
+      icon: 'drop',
+      tone: 'var(--res-oil)',
+      body: 'Oil richness (0–100). An Oil Rig here pumps 70 × oil ÷ 50 a day.'
+    },
+    slots: {
+      title: 'Land slots',
+      icon: 'squares-four',
+      tone: 'var(--sky-500)',
+      body: 'How many buildings this country can hold. When it’s full, build in another land.'
+    }
+  },
+  fog: {
+    title: 'Fog of war',
+    icon: 'eye-slash',
+    tone: 'var(--navy-500)',
+    body: 'You can’t see enemy troops or defences here. Move your forces next to this country, or ally with a neighbour, to scout it.'
+  },
+  route: {
+    land: {
+      title: 'March by land',
+      icon: 'person-simple-run',
+      tone: 'var(--teal-600)',
+      body: 'Troops walk through your own or allied countries, one day per border crossed. Every unit in the stack joins the attack.'
+    },
+    sea: {
+      title: 'Ship by sea',
+      icon: 'boat',
+      tone: 'var(--sky-500)',
+      body: 'Needs at least one Navy unit to carry the stack. Slower, but reaches islands and far coasts.'
+    }
+  },
+  blocked: {
+    title: 'No land route',
+    icon: 'path',
+    tone: 'var(--red-600)',
+    body: 'Troops can only march through your own or allied countries. Ally with the countries in the way, conquer them, ship by sea, or strike from range.'
+  },
+  strike: {
+    artillery: {
+      title: 'Artillery barrage',
+      icon: 'target',
+      tone: 'var(--red-600)',
+      body: 'Shells a country that borders one of your stacks with artillery. Each gun knocks 2 off its defence. Reusable every day.'
+    },
+    air: {
+      title: 'Air strike',
+      icon: 'airplane-tilt',
+      tone: '#8a63c4',
+      body: 'Planes hit anything within 3 300 km of a stack that has them. Each plane knocks 4 off its defence.'
+    },
+    missile: {
+      title: 'Missile strike',
+      icon: 'rocket',
+      tone: 'var(--red-600)',
+      body: 'Hits any country on Earth for 20 defence. Each missile costs 1 500 gold and is used up.'
+    },
+    nuke: {
+      title: 'Nuclear strike',
+      icon: 'radioactive',
+      tone: '#b4520c',
+      body: 'Destroys every troop and building in the country and kills 40% of its people. Every other nation may declare war on you.'
+    }
+  },
+  strikeRule: {
+    title: 'Strikes',
+    icon: 'fire',
+    tone: 'var(--red-600)',
+    body: 'Strikes destroy troops and weaken defences, but they can’t capture land. Follow up with an invasion.'
+  },
+  marker: {
+    body: 'An army stack. The number is total units; the icon shows its strongest unit type. Click to select its country.'
+  },
+  strength: {
+    title: 'Strength',
+    icon: 'sword',
+    tone: 'var(--teal-600)',
+    body: 'Unit count × attack, added up. An attack wins if it’s stronger than the defence.'
+  }
+};
+})(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/game/hud/hudTips.js", error: String((e && e.message) || e) }); }
 
 // ui_kits/game/hud/tweaks-panel.jsx
 try { (() => {
@@ -6851,6 +9757,8 @@ __ds_ns.FeedEvent = __ds_scope.FeedEvent;
 __ds_ns.Spinner = __ds_scope.Spinner;
 
 __ds_ns.Toast = __ds_scope.Toast;
+
+__ds_ns.Tooltip = __ds_scope.Tooltip;
 
 __ds_ns.Field = __ds_scope.Field;
 

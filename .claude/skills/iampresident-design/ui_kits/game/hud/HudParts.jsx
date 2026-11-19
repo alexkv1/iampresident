@@ -108,4 +108,19 @@ const DIPLO = {
   neutral: { label: 'Neutral', icon: 'minus-circle', kind: 'default', color: 'var(--text-muted)' },
 };
 
-Object.assign(window, { HUD_RES, hudNum, hudSurface, Eyebrow, Meter, Ring, Tile, Cost, KeyCap, Silhouette, TabPlates, DIPLO });
+// ---- Explainer tooltips -------------------------------------------------
+// <Tip tip={{title, body, icon, tone, keyHint, stats}} place="bottom" style={…}>…</Tip>
+// Renders a div (pass layout styles through `style`); MatchHud's TipLayer positions the DS Tooltip.
+const HudTipCtx = React.createContext({ show() {}, hide() {} });
+
+function Tip({ tip, place = 'bottom', style, children, ...rest }) {
+  const ctx = React.useContext(HudTipCtx);
+  const ref = React.useRef(null);
+  return (
+    <div ref={ref} onMouseEnter={() => ctx.show(typeof tip === 'function' ? tip() : tip, ref.current, place)} onMouseLeave={ctx.hide} onPointerDown={ctx.hide} style={style} {...rest}>
+      {children}
+    </div>
+  );
+}
+
+Object.assign(window, { HUD_RES, hudNum, hudSurface, Eyebrow, Meter, Ring, Tile, Cost, KeyCap, Silhouette, TabPlates, DIPLO, HudTipCtx, Tip });

@@ -43,15 +43,19 @@ function HotbarSlot({ m, active, count, onClick }) {
       <i className={'ph-fill ph-' + m.icon} style={{ fontSize: 30, color: active ? 'var(--gold-300)' : '#fff', filter: 'drop-shadow(0 2px 0 rgba(0,0,0,.4))' }} />
       <span style={{ font: 'italic 800 15px/1 var(--font-display)', textTransform: 'uppercase', letterSpacing: '.04em', color: active ? '#fff' : 'var(--navy-200)' }}>{m.label}</span>
       <KeyCap k={m.key} style={{ position: 'absolute', top: -9, right: -9 }} />
-      {count ? <span style={{ position: 'absolute', top: -8, left: -8, minWidth: 22, height: 22, padding: '0 6px', borderRadius: 11, background: 'var(--grad-danger)', boxShadow: '0 2px 0 #7a0c27', font: '700 12px/22px var(--font-body)', color: '#fff' }}>{count}</span> : null}
+      {count ? <span style={{ position: 'absolute', top: -9, left: -6, minWidth: 22, height: 22, padding: '0 6px', borderRadius: 11, background: 'var(--grad-danger)', boxShadow: '0 2px 0 #7a0c27', font: '700 12px/22px var(--font-body)', color: '#fff' }}>{count}</span> : null}
     </button>
   );
 }
 
 function Hotbar({ mode, setMode, counts }) {
   return (
-    <div style={{ position: 'absolute', bottom: 22, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 14 }}>
-      {Object.keys(MODE_META).map((k) => <HotbarSlot key={k} m={MODE_META[k]} active={mode === k} count={counts[k]} onClick={() => setMode(k)} />)}
+    <div style={{ position: 'absolute', bottom: 22, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 20 }}>
+      {Object.keys(MODE_META).map((k) => (
+        <Tip key={k} place="top" tip={{ title: MODE_META[k].label, icon: MODE_META[k].icon, tone: 'var(--sky-500)', keyHint: MODE_META[k].key, body: HUD_TIPS.modes[k].body }}>
+          <HotbarSlot m={MODE_META[k]} active={mode === k} count={counts[k]} onClick={() => setMode(k)} />
+        </Tip>
+      ))}
     </div>
   );
 }
@@ -63,29 +67,31 @@ const LENSES = [
   { value: 'oil', icon: 'drop', label: 'Oil', color: 'var(--res-oil)' },
 ];
 
-function RoundBtn({ icon, onClick, title, active, color }) {
+function RoundBtn({ icon, onClick, title, active, color, tip }) {
   const [p, setP] = React.useState(false);
   return (
-    <button type="button" title={title} onClick={onClick} onPointerDown={() => setP(true)} onPointerUp={() => setP(false)} onMouseLeave={() => setP(false)}
+    <Tip tip={tip} place="top">
+    <button type="button" aria-label={title} onClick={onClick} onPointerDown={() => setP(true)} onPointerUp={() => setP(false)} onMouseLeave={() => setP(false)}
       style={{ width: 38, height: 38, borderRadius: 10, border: '1px solid ' + (active ? 'var(--teal-400)' : 'var(--navy-500)'), cursor: 'pointer', display: 'grid', placeItems: 'center', background: active ? 'linear-gradient(180deg,#22485a,#173040)' : 'var(--grad-navy)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.1), 0 ' + (p ? 1 : 3) + 'px 0 var(--navy-950)' + (active ? ', var(--glow-teal)' : ''), transform: p ? 'translateY(2px)' : 'none', transition: 'transform 80ms ease' }}>
       <i className={'ph-fill ph-' + icon} style={{ fontSize: 18, color: active ? (color || 'var(--teal-300)') : '#fff' }} />
     </button>
+    </Tip>
   );
 }
 
 function GlobeControls({ lens, setLens, onZoom, onHome }) {
   return (
     <div style={{ position: 'absolute', right: 14, bottom: 14, width: 340, display: 'flex', alignItems: 'center', gap: 5, padding: 6, borderRadius: 14, background: 'var(--surface-overlay)', backdropFilter: 'blur(8px)', border: '1px solid var(--border-glow)', boxShadow: 'var(--shadow-panel)' }}>
-      {LENSES.map((l) => <RoundBtn key={l.value} icon={l.icon} title={l.label + ' lens'} active={lens === l.value} color={l.color} onClick={() => setLens(l.value)} />)}
+      {LENSES.map((l) => <RoundBtn key={l.value} icon={l.icon} title={l.label + ' lens'} active={lens === l.value} color={l.color} onClick={() => setLens(l.value)} tip={{ ...HUD_TIPS.lens[l.value], icon: l.icon, tone: l.color || 'var(--sky-500)' }} />)}
       <div style={{ flex: 1 }} />
-      <RoundBtn icon="minus" title="Zoom out" onClick={() => onZoom(0.35)} />
-      <RoundBtn icon="plus" title="Zoom in" onClick={() => onZoom(-0.35)} />
-      <RoundBtn icon="crosshair" title="Focus capital" onClick={onHome} />
+      <RoundBtn icon="minus" title="Zoom out" onClick={() => onZoom(0.35)} tip={HUD_TIPS.zoomOut} />
+      <RoundBtn icon="plus" title="Zoom in" onClick={() => onZoom(-0.35)} tip={HUD_TIPS.zoomIn} />
+      <RoundBtn icon="crosshair" title="Focus capital" onClick={onHome} tip={HUD_TIPS.focus} />
     </div>
   );
 }
 
-function HoverTip({ hover, pos, owner, lens }) {
+function HoverTip({ hover, pos, owner, lens, fogged }) {
   if (!hover) return null;
   const p = hover.props;
   const attr = lens !== 'political' ? lens : null;
@@ -100,6 +106,7 @@ function HoverTip({ hover, pos, owner, lens }) {
           <span key={a} style={{ display: 'inline-flex', alignItems: 'center', gap: 3, opacity: attr && attr !== a ? 0.45 : 1 }}><i className={'ph-fill ph-' + HUD_RES[r].icon} style={{ color: HUD_RES[r].color, fontSize: 12 }} />{p[a]}</span>
         ))}
       </div>
+      {fogged ? <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 8, paddingTop: 7, borderTop: '1px solid rgba(255,255,255,.08)', font: '500 11px/1 var(--font-body)', color: 'var(--navy-300)' }}><i className="ph-fill ph-eye-slash" />Troops hidden by fog of war</div> : null}
     </div>
   );
 }

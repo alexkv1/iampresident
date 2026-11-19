@@ -22,7 +22,7 @@ import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DESIGN_ROOT = path.resolve(__dirname, '../../design_handoff_match_hud/design');
+const DESIGN_ROOT = path.resolve(__dirname, '../../iampresident_handoff_v2/design');
 const OUT = path.join(__dirname, 'out');
 const PHP = process.env.PHP_BASE || 'http://127.0.0.1:8000';
 const MAX_PCT = 0.3;          // fail if more than this % of measured pixels differ

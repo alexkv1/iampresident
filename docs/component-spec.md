@@ -1,6 +1,6 @@
 # I Am President — Component Porting Spec (React inline styles → CSS classes + jQuery markup)
 
-Source of truth: `design_handoff_match_hud/design/components/<group>/<Name>.jsx`. Every value below is quoted verbatim from those files. Nothing is rounded or summarized.
+Source of truth: `iampresident_handoff_v2/design/components/<group>/<Name>.jsx`. Every value below is quoted verbatim from those files. Nothing is rounded or summarized.
 
 Markup convention: React `<i className="ph-fill ph-<name>">` → `<i class="ph-fill ph-<name>" aria-hidden="true">`. Keep `ph-fill` vs `ph-bold` exactly as written.
 

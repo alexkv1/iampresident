@@ -11,6 +11,7 @@ $wsUrl = conf()['realtime-ws-url'] ?? '';
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lobby · I Am President</title>
+  <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="/css/app.css">
   <script>
     window.MATCH_ID = <?= $matchId ?>;

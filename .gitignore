@@ -1,0 +1,14 @@
+# secrets / local config
+conf.php
+
+# node
+realtime/node_modules/
+node_modules/
+npm-debug.log*
+
+# os
+.DS_Store
+
+# logs
+*.log
+worker/*.pid

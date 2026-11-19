@@ -1,0 +1,13 @@
+{
+  "name": "iampresident-realtime",
+  "version": "0.1.0",
+  "private": true,
+  "description": "WebSocket relay for I Am President (server-to-client fan-out only)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

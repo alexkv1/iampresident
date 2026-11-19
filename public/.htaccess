@@ -1,0 +1,24 @@
+RewriteEngine On
+RewriteBase /
+
+# Allow extensionless API calls: /api/match/create -> /api/match/create.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/$1.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# Pretty page routes: /lobby -> /pages/lobby/index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/pages%{REQUEST_URI}/index.php -f
+RewriteRule ^(.*)$ pages%{REQUEST_URI}/index.php [L]
+
+# Home page at /
+DirectoryIndex index.php
+
+# Never expose config or server-side code
+<FilesMatch "^conf\.php$">
+  Require all denied
+</FilesMatch>
+
+ErrorDocument 404 /pages/home/index.php

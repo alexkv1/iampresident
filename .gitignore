@@ -13,6 +13,10 @@ npm-debug.log*
 *.log
 worker/*.pid
 
+# visual regression harness (dev-only)
+tools/visual/out/
+tools/visual/node_modules/
+
 # local Claude Code state — ignore everything except the committed design-system skill
 .claude/*
 !.claude/skills/

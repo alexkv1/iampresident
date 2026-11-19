@@ -1,0 +1,17 @@
+{
+  "name": "iampresident-visual",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Dev-only visual regression + interaction tests for the Match HUD (not shipped).",
+  "scripts": {
+    "visual:components": "node compare.mjs components",
+    "visual:hud": "node compare.mjs hud",
+    "test:hud": "node test-hud.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0",
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^7.0.0"
+  }
+}

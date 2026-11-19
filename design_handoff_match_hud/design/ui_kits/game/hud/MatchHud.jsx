@@ -28,13 +28,15 @@ function hudShape(feature) {
 function MatchHud() {
   const { Toast } = window.IAP_DS;
   const H = window.HUD_DATA, D = window.IAP_DATA;
+  const _p = new URLSearchParams(window.location.search);          // visual-test params
+  if (_p.get('scenario')) HUD_TWEAKS.scenario = _p.get('scenario');
   const [t, setTweak] = useTweaks(HUD_TWEAKS);
   const sc = H.scenarios[t.scenario] || H.scenarios.calm;
   const solid = t.panels === 'solid';
 
   const [scale, setScale] = React.useState(1);
   const [geo, setGeo] = React.useState(null);
-  const [mode, setMode] = React.useState('build');
+  const [mode, setMode] = React.useState(_p.get('mode') || 'build');
   const [selected, setSelected] = React.useState('SWE');
   const [lens, setLens] = React.useState('political');
   const [hover, setHover] = React.useState(null);

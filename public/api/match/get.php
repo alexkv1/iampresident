@@ -4,6 +4,8 @@ require __DIR__ . '/../../../utils/bootstrap.php';
 require_once __DIR__ . '/../../../utils/engine/GameConfig.php';
 require_once __DIR__ . '/../../../utils/engine/Training.php';
 require_once __DIR__ . '/../../../utils/engine/Economy.php';
+require_once __DIR__ . '/../../../utils/engine/Research.php';
+require_once __DIR__ . '/../../../utils/engine/Arsenal.php';
 require_once __DIR__ . '/../../../utils/engine/Tick.php';
 
 $auth = require_auth();
@@ -111,6 +113,9 @@ json_ok([
         // upkeep — subtract this `upkeep` per resource to show the net change.
         'manpower'     => $manpower,
         'upkeep'       => ['gold' => $myUpkeep['gold'], 'food' => $myUpkeep['food'], 'oil' => $myUpkeep['oil']],
+        // Tech levels (key=>0|1) and strategic arsenal stock (GAME_RULES §8, §9).
+        'tech'         => Research::levels(db(), $matchId, $myId),
+        'arsenal'      => Arsenal::stocks(db(), $matchId, $myId),
     ],
     'players'     => $players,
     'territories' => $territories,

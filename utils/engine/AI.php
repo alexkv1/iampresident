@@ -11,6 +11,9 @@ final class AI {
         // Answer diplomacy proposals addressed to this AI (GAME_RULES §7).
         self::answerProposals($db, $match, $player, $events);
 
+        // Light research: when idle, start the cheapest tech it qualifies for (§8).
+        self::maybeResearch($db, $match, $player, $events);
+
         // Count buildings (active + under construction) in the capital by type.
         $rows = $db->select(
             "SELECT `type`, COUNT(*) c FROM `buildings`
@@ -90,6 +93,31 @@ final class AI {
             $events[] = ['type' => $accept ? 'proposal_accepted' : 'proposal_declined', 'data' => [
                 'id' => (int)$p['id'], 'type' => $type, 'from' => $from, 'to' => $me,
             ]];
+        }
+    }
+
+    /**
+     * When the AI has no active research project, start the cheapest tech it meets
+     * the requirements and can afford (GAME_RULES §8). Keeps the tree exercised
+     * without steering the AI toward strikes.
+     */
+    private static function maybeResearch(DB $db, array $match, array $player, array &$events): void {
+        $matchId = (int)$match['id'];
+        $pid     = (int)$player['id'];
+        if (Research::activeProject($db, $matchId, $pid)) return;
+
+        foreach (['artillery', 'air', 'srbm', 'mrbm', 'icbm'] as $key) {
+            if (Research::isDone($db, $matchId, $pid, $key)) continue;
+            if (!Research::requirementsMet($db, $matchId, $pid, $key)['ok']) continue;
+            $t = GameConfig::TECH[$key];
+            // Only spend when it won't drain the whole treasury.
+            if ((float)$player['gold'] < (float)$t['gold'] * 1.5) break;
+            if ((float)$player['research'] < (float)$t['research']) break;
+            $res = Research::start($db, $match, $player, $key);
+            if ($res['ok']) {
+                $events[] = ['type' => 'research_started', 'data' => ['player' => $pid, 'tech' => $key]];
+            }
+            break;
         }
     }
 

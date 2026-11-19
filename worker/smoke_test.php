@@ -650,6 +650,207 @@ check('(y) declare-war sets war and clears pending proposals',
 
 line();
 echo "PHASE-4 RESULT: " . ($pass - $p4pass0) . " passed, " . ($fail - $p4fail0) . " failed\n";
+
+// =============================================================================
+// Phase-5: research and strikes (deterministic). GAME_RULES §8, §9.
+// =============================================================================
+require_once __DIR__ . '/../utils/engine/Research.php';
+require_once __DIR__ . '/../utils/engine/Arsenal.php';
+require_once __DIR__ . '/../utils/engine/Strike.php';
+
+$p5pass0 = $pass; $p5fail0 = $fail;
+line();
+echo "PHASE-5: research & strikes (tech / missiles / barrage / air / nuke)\n";
+line();
+
+$db->execute(
+    "INSERT INTO `matches` (`name`,`mode`,`status`,`max_players`,`tick_interval_sec`,`current_tick`,`host_user`)
+     VALUES (?, 'single', 'active', 8, 20, 0, ?)",
+    [$TAG, $uid], 'si'
+);
+$p5 = (int)$db->lastInsertId();
+$db->execute("INSERT INTO `match_players` (`match_id`,`user`,`display_name`,`country_code`,`color`,`slot`,`is_host`,`pop`) VALUES (?,?,?, 'DEU','#e6194b',0,1,?)",
+    [$p5, $uid, 'You (Germany)', 50000000], 'iisi');
+$O = (int)$db->lastInsertId();
+$db->execute("INSERT INTO `match_players` (`match_id`,`is_ai`,`display_name`,`country_code`,`color`,`slot`,`pop`) VALUES (?,1,?, 'FRA','#3cb44b',1,?)",
+    [$p5, 'CPU France', 100000000], 'isi');
+$V = (int)$db->lastInsertId();
+$db->execute("INSERT INTO `match_players` (`match_id`,`is_ai`,`display_name`,`country_code`,`color`,`slot`,`pop`) VALUES (?,1,?, 'POL','#4363d8',2,10000000)",
+    [$p5, 'CPU Poland'], 'is');
+$W = (int)$db->lastInsertId();
+
+$db->execute("INSERT INTO `territories` (`match_id`,`country_code`) SELECT ?, `code` FROM `countries`
+              ON DUPLICATE KEY UPDATE `is_capital`=`is_capital`", [$p5], 'i');
+foreach ([['DEU',$O],['FRA',$V],['POL',$W]] as $cl) {
+    $db->execute("UPDATE `territories` SET `owner`=? WHERE `match_id`=? AND `country_code`=?", [$cl[1], $p5, $cl[0]], 'iis');
+}
+$m5 = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p5], 'i');   // current_tick = 0
+
+$fund = function (int $pid) use ($db) {
+    $db->execute("UPDATE `match_players` SET `gold`=200000,`minerals`=200000,`oil`=100000,`research`=100000,`food`=100000 WHERE `id`=?", [$pid], 'i');
+};
+$fund($O);
+$reO = fn() => $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$O], 'i');
+
+// --- (aa) research: gating, payment, completion --------------------------------
+$meO = $reO();
+$airLocked = Research::start($db, $m5, $meO, 'air');                       // requires artillery -> refused
+$meO = $reO();
+$startArt = Research::start($db, $m5, $meO, 'artillery');                  // ok; pays 300 research + 1500 gold
+$meO = $reO();
+$paidR = 100000 - (float)$meO['research'];
+$paidG = 200000 - (float)$meO['gold'];
+// Complete it: advance research at started+days.
+$m5done = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p5], 'i');
+$m5done['current_tick'] = (int)GameConfig::TECH['artillery']['days'];      // 0 + 4
+$evR5 = [];
+Research::advance($db, $m5done, $evR5);
+$artDone = Research::isDone($db, $p5, $O, 'artillery');
+$gotResComplete = false; foreach ($evR5 as $e) if ($e['type'] === 'research_complete' && ($e['data']['tech'] ?? '') === 'artillery') $gotResComplete = true;
+check('(aa) research gates, pays up front, completes after days',
+    !$airLocked['ok'] && str_contains($airLocked['message'], 'Artillery')
+    && $startArt['ok'] && $paidR == 300 && $paidG == 1500 && $artDone && $gotResComplete,
+    sprintf('airLocked="%s" paidR=%.0f paidG=%.0f done=%d', $airLocked['message'], $paidR, $paidG, $artDone ? 1 : 0));
+
+// --- (bb) arsenal: one-at-a-time build + completion into stock -------------------
+$db->execute("INSERT INTO `player_tech` (`match_id`,`player`,`tech_key`,`level`) VALUES (?,?,'srbm',1)
+              ON DUPLICATE KEY UPDATE `level`=1", [$p5, $O], 'ii');         // grant SRBM tech
+$fund($O);
+$meO = $reO();
+$goldPre = (float)$meO['gold'];
+$b1 = Arsenal::build($db, $m5, $meO, 'srbm');                              // ok; pays 800 gold
+$meO = $reO();
+$paidMissile = $goldPre - (float)$meO['gold'];
+$b2 = Arsenal::build($db, $m5, $meO, 'srbm');                              // refused: already in production
+$m5ars = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p5], 'i');
+$m5ars['current_tick'] = (int)GameConfig::ARSENAL['srbm']['days'];         // 0 + 3
+$evA5 = [];
+Arsenal::advance($db, $m5ars, $evA5);
+$srbmStock = Arsenal::stock($db, $p5, $O, 'srbm');
+check('(bb) arsenal builds one at a time and stocks on completion',
+    $b1['ok'] && $paidMissile == 800 && !$b2['ok'] && str_contains($b2['message'], 'production') && $srbmStock === 1,
+    sprintf('paid=%.0f secondRefused=%d stock=%d', $paidMissile, !$b2['ok'] ? 1 : 0, $srbmStock));
+
+// --- (cc) artillery barrage: border range, cheapest-first kills, cooldown --------
+Diplomacy::set($db, $p5, $O, $V, 'war');
+$db->execute("UPDATE `territories` SET `owner`=? WHERE `match_id`=? AND `country_code`='LUX'", [$V, $p5], 'ii');
+$db->execute("DELETE FROM `armies` WHERE `match_id`=? AND `country_code` IN ('DEU','LUX')", [$p5], 'i');
+$db->execute("INSERT INTO `armies` (`match_id`,`player`,`country_code`,`units`,`origin`) VALUES (?,?,'DEU',?, 'DEU')",
+    [$p5, $O, json_encode(['artillery' => 5])], 'iis');                     // firing stack: 5 guns
+$fireId = (int)$db->lastInsertId();
+$db->execute("INSERT INTO `armies` (`match_id`,`player`,`country_code`,`units`,`origin`) VALUES (?,?,'LUX',?, 'LUX')",
+    [$p5, $V, json_encode(['infantry' => 10, 'artillery' => 4])], 'iis');  // defenders
+$fund($O);
+$meO = $reO();
+$evC = [];
+$noBorder = Strike::execute($db, $m5, $meO, 'artillery', 'CHN', $fireId, $evC);     // DEU doesn't border CHN
+$minPre = (float)$reO()['minerals'];
+$evC2 = [];
+$hit = Strike::execute($db, $m5, $reO(), 'artillery', 'LUX', $fireId, $evC2);       // R = 2*5 = 10
+$minPost = (float)$reO()['minerals'];
+$luxStack = $db->selectOne("SELECT `units` FROM `armies` WHERE `match_id`=? AND `player`=? AND `country_code`='LUX'", [$p5, $V], 'ii');
+$lu = $luxStack ? Combat::units($luxStack) : [];
+$evC3 = [];
+$cooled = Strike::execute($db, $m5, $reO(), 'artillery', 'LUX', $fireId, $evC3);    // same tick -> refused
+// R=10: 4 artillery(def1)=4, then 3 infantry(def2)=6 -> 7 destroyed, infantry 7 left, 0 to garrison.
+check('(cc) artillery: border rule, cheapest-first kills, cost, cooldown',
+    !$noBorder['ok'] && str_contains($noBorder['message'], 'border')
+    && $hit['ok'] && ($hit['data']['units_destroyed'] ?? -1) === 7 && ($lu['infantry'] ?? -1) === 7 && !isset($lu['artillery'])
+    && ($minPre - $minPost) == 5 && !$cooled['ok'] && str_contains($cooled['message'], 'struck'),
+    sprintf('border=%d destroyed=%d infLeft=%d cost=%.0f cooldown=%d',
+        !$noBorder['ok'] ? 1 : 0, $hit['data']['units_destroyed'] ?? -1, $lu['infantry'] ?? -1, $minPre - $minPost, !$cooled['ok'] ? 1 : 0));
+
+// --- (dd) air strike: range + plane loss when base garrison > 20 -----------------
+$db->execute("UPDATE `territories` SET `owner`=? WHERE `match_id`=? AND `country_code`='NPL'", [$O, $p5], 'ii');
+$db->execute("INSERT INTO `armies` (`match_id`,`player`,`country_code`,`units`,`origin`) VALUES (?,?,'NPL',?, 'NPL')",
+    [$p5, $O, json_encode(['air' => 10])], 'iis');                          // 10 planes near India
+$airId = (int)$db->lastInsertId();
+$fund($O);
+$kmNI = Movement::km($db, 'NPL', 'IND');
+$oilPre = (float)$reO()['oil'];
+$evD = [];
+$airHit = Strike::execute($db, $m5, $reO(), 'air', 'IND', $airId, $evD);    // IND neutral garrison 60 (>20)
+$oilPost = (float)$reO()['oil'];
+$airStack = $db->selectOne("SELECT `units` FROM `armies` WHERE `id`=?", [$airId], 'i');
+$au = $airStack ? Combat::units($airStack) : [];
+$indDmg = (int)$db->selectOne("SELECT `damage` FROM `territories` WHERE `match_id`=? AND `country_code`='IND'", [$p5], 'i')['damage'];
+check('(dd) air strike: in range, plane loss, def damage, oil cost',
+    $airHit['ok'] && ($airHit['data']['plane_loss'] ?? -1) === 1 && ($au['air'] ?? -1) === 9 && $indDmg === 30 && ($oilPre - $oilPost) == 20,
+    sprintf('km=%.0f planeLoss=%s airLeft=%d indDmg=%d oil=-%.0f', $kmNI, $airHit['data']['plane_loss'] ?? 'n/a', $au['air'] ?? -1, $indDmg, $oilPre - $oilPost));
+
+// --- (ee) missile (SRBM): range from capital, consumes stock, -12 def ------------
+$fund($O);
+$evE = [];
+$farMissile = Strike::execute($db, $m5, $reO(), 'srbm', 'IND', null, $evE);  // >1000 km from DEU
+$evE2 = [];
+$autMissile = Strike::execute($db, $m5, $reO(), 'srbm', 'AUT', null, $evE2); // AUT neutral, within 1000 km
+$autDmg = (int)$db->selectOne("SELECT `damage` FROM `territories` WHERE `match_id`=? AND `country_code`='AUT'", [$p5], 'i')['damage'];
+$srbmLeft = Arsenal::stock($db, $p5, $O, 'srbm');
+check('(ee) SRBM: out-of-range refused, in-range spends stock for −12 def',
+    !$farMissile['ok'] && str_contains($farMissile['message'], 'range')
+    && $autMissile['ok'] && $autDmg === 12 && $srbmLeft === 0,
+    sprintf('farRefused=%d autDmg=%d stockLeft=%d', !$farMissile['ok'] ? 1 : 0, $autDmg, $srbmLeft));
+
+// --- (ff) nuclear strike + consequences + AI retaliation ------------------------
+$db->execute("INSERT INTO `arsenal` (`match_id`,`player`,`item`,`stock`) VALUES (?,?,'warhead',1),(?,?,'warhead',1)
+              ON DUPLICATE KEY UPDATE `stock`=1", [$p5, $O, $p5, $V], 'iiii');
+$db->execute("INSERT INTO `buildings` (`match_id`,`player`,`country_code`,`type`,`status`,`complete_at_tick`) VALUES (?,?,'FRA','factory','active',0)", [$p5, $V], 'ii');
+$db->execute("INSERT INTO `armies` (`match_id`,`player`,`country_code`,`units`,`origin`) VALUES (?,?,'FRA',?, 'FRA')",
+    [$p5, $V, json_encode(['infantry' => 5])], 'iis');
+$db->execute("UPDATE `match_players` SET `pop`=100000000 WHERE `id`=?", [$V], 'i');
+$db->execute("UPDATE `match_players` SET `pop`=50000000 WHERE `id`=?", [$O], 'i');
+$tick5 = (int)$m5['current_tick'];
+$evN = [];
+$nuke = Strike::execute($db, $m5, $reO(), 'nuclear', 'FRA', null, $evN);
+$fraBuildings = (int)$db->selectOne("SELECT COUNT(*) c FROM `buildings` WHERE `match_id`=? AND `country_code`='FRA'", [$p5], 'i')['c'];
+$fraStacks    = (int)$db->selectOne("SELECT COUNT(*) c FROM `armies` WHERE `match_id`=? AND `country_code`='FRA' AND `moving_to` IS NULL", [$p5], 'i')['c'];
+$vPop  = (int)$db->selectOne("SELECT `pop` FROM `match_players` WHERE `id`=?", [$V], 'i')['pop'];
+$oPop  = (int)$db->selectOne("SELECT `pop` FROM `match_players` WHERE `id`=?", [$O], 'i')['pop'];
+$fraRuin = $db->selectOne("SELECT `ruined_until` FROM `territories` WHERE `match_id`=? AND `country_code`='FRA'", [$p5], 'i')['ruined_until'];
+$deuRuin = $db->selectOne("SELECT `ruined_until` FROM `territories` WHERE `match_id`=? AND `country_code`='DEU'", [$p5], 'i')['ruined_until'];
+$warOW = Diplomacy::atWar($db, $p5, $O, $W);
+$oWar  = Arsenal::stock($db, $p5, $O, 'warhead');
+$vWar  = Arsenal::stock($db, $p5, $V, 'warhead');
+$nukeEvents = 0; foreach ($evN as $e) if ($e['type'] === 'nuclear_strike') $nukeEvents++;
+check('(ff) nuke devastates target, kills 40% pop, ruins land, AI war + retaliation',
+    $nuke['ok'] && $fraBuildings === 0 && $fraStacks === 0 && $vPop === 60000000
+    && (int)$fraRuin === $tick5 + GameConfig::NUKE_RUINED_DAYS && $warOW === true
+    && $oWar === 0 && $vWar === 0 && (int)$deuRuin === $tick5 + GameConfig::NUKE_RUINED_DAYS
+    && $oPop === 30000000 && $nukeEvents >= 2,
+    sprintf('fraBld=%d fraStk=%d vPop=%d oPop=%d fraRuin=%s deuRuin=%s warOW=%d oWar=%d vWar=%d nukeEv=%d',
+        $fraBuildings, $fraStacks, $vPop, $oPop, var_export($fraRuin, true), var_export($deuRuin, true),
+        $warOW ? 1 : 0, $oWar, $vWar, $nukeEvents));
+
+// --- (gg) ruined farmland is excluded from food production -----------------------
+$db->execute("UPDATE `territories` SET `owner`=?, `ruined_until`=NULL WHERE `match_id`=? AND `country_code`='ESP'", [$O, $p5], 'ii');
+$db->execute("DELETE FROM `buildings` WHERE `match_id`=? AND `country_code`='ESP'", [$p5], 'i');
+$db->execute("INSERT INTO `buildings` (`match_id`,`player`,`country_code`,`type`,`status`,`complete_at_tick`) VALUES (?,?,'ESP','farm','active',0)", [$p5, $O], 'ii');
+$ruinQ = "SELECT COUNT(*) c FROM `buildings` b
+            JOIN `countries` c2 ON c2.`code`=b.`country_code`
+            LEFT JOIN `territories` t ON t.`match_id`=b.`match_id` AND t.`country_code`=b.`country_code`
+           WHERE b.`match_id`=? AND b.`player`=? AND b.`status`='active' AND b.`country_code`='ESP'
+             AND NOT (b.`type`='farm' AND t.`ruined_until` IS NOT NULL AND t.`ruined_until` > ?)";
+$farmWhenOk = (int)$db->selectOne($ruinQ, [$p5, $O, 0], 'iii')['c'];              // not ruined -> counted
+$db->execute("UPDATE `territories` SET `ruined_until`=5 WHERE `match_id`=? AND `country_code`='ESP'", [$p5], 'i');
+$farmWhenRuined = (int)$db->selectOne($ruinQ, [$p5, $O, 0], 'iii')['c'];          // ruined -> excluded
+check('(gg) ruined country grows no food (farm excluded from economy)',
+    $farmWhenOk === 1 && $farmWhenRuined === 0,
+    sprintf('ok=%d ruined=%d', $farmWhenOk, $farmWhenRuined));
+
+// --- (hh) strike damage to a garrison recovers over time ------------------------
+$db->execute("UPDATE `territories` SET `owner`=NULL, `damage`=10, `occupied_until`=NULL WHERE `match_id`=? AND `country_code`='PRT'", [$p5], 'i');
+$prtC = $db->selectOne("SELECT * FROM `countries` WHERE `code`='PRT'", [], '');
+$prtBase = GameConfig::neutralGarrison((float)$prtC['start_pop'] * GameConfig::POP_SCALE, (int)$prtC['land_slots']);
+$prtRec = max(1, (int)round($prtBase * GameConfig::DAMAGE_RECOVER));
+$m5proc = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p5], 'i');
+Tick::process($db, $m5proc);
+$prtDmg = (int)$db->selectOne("SELECT `damage` FROM `territories` WHERE `match_id`=? AND `country_code`='PRT'", [$p5], 'i')['damage'];
+check('(hh) garrison damage recovers 10% of base per day',
+    $prtDmg === 10 - $prtRec,
+    sprintf('damage %d -> %d (recover %d of base %d)', 10, $prtDmg, $prtRec, $prtBase));
+
+line();
+echo "PHASE-5 RESULT: " . ($pass - $p5pass0) . " passed, " . ($fail - $p5fail0) . " failed\n";
 echo "CUMULATIVE: " . $pass . " passed, " . $fail . " failed\n";
 
 $db->close();

@@ -12,6 +12,22 @@ Judgment calls made while implementing the phase-2 handoff autonomously. Format:
 - **Retreat** = the outbound `path` reversed, re-costed; if origin==current the stack just stops. Where: `Combat::retreat`.
 - **`plan.php` strike section is shape/lock/range/stock-faithful only**; strike execution lands in P2-5. Where: `public/api/army/plan.php`.
 
+## P2-5
+- **Research completes purely by elapsed time** (`started_tick + days`), paid in full at start. The `player_tech.progress` column is updated each tick for display only; completion keys off time, matching "completes after `days`". Where: `Research::start`, `Research::advance`.
+- **Research/arsenal completion is Tick step 1c** (alongside training, before combat) so a tech/warhead finishing this tick is usable the same tick. Where: `Tick::process`.
+- **Arsenal builds one unit at a time per item** (the single `in_production`/`ready_tick` row model); warheads additionally cap at `max_in_production=1` from config. A second build of an item in production is refused. Where: `Arsenal::build`.
+- **Ruined farmland = farm buildings dropped from the economy query** while `ruined_until > tick`, rather than zeroing the `farmland` scale (which floors at 0.1 and would still yield 10%). Exactly zeroes food from a ruined country, including any rebuilt farm. Where: `Tick` economy building query.
+- **Strike damage order** destroys only defending units with **defence > 0**, cheapest-by-defence first (navy/air def-0 units are skipped so they can't be wiped "for free"); each destroyed unit absorbs its own defence value, and the integer remainder raises `territories.damage`. Where: `Strike::applyDefenceDamage`.
+- **Air plane loss uses the BASE garrison** (pre-strike-damage) and is `max(1, round(planes × 0.05))` so a strike on a garrison > 20 always costs at least one plane. Where: `Strike::execute` (air branch).
+- **Strike cooldown** is per stack via `armies.last_strike_tick` (refuse if `last_strike_tick >= current_tick`); it's stamped only on a successful strike, so a range/cost refusal leaves the stack free to fire. Where: `Strike::execute`.
+- **War/truce rules reuse `Movement::attackBlock`** — neutral targets need no declaration; allied/truce targets are refused with the same wording as movement. Where: `Strike::execute`.
+- **Garrison damage recovers `max(1, round(base × 0.10))`/day** (Tick step 2d) — the `max(1,…)` guarantees a struck country always heals even when the 10% rounds to 0. Where: `Tick::recoverDamage`.
+- **Nuclear cascade is bounded to one level**: the retaliatory strike runs with `allowRetaliation=false`, so it devastates the attacker's capital and may trigger AI war declarations but cannot spawn a third round. AI target-side warhead holders fire automatically; humans get a 1-tick `retaliate_prompt` event. Where: `Strike::nuclear`.
+- **Nuke "every other nation may declare war" is applied to non-allied AI only** (they auto-declare, ignoring truces); human opponents are left to choose. Where: `Strike::nuclear`.
+- **The strike endpoint persists its events to `match_events`** (and emits them) because strikes happen between ticks, unlike tick-generated events; this keeps the nuke alert / retaliate prompt in the client's event feed. Where: `public/api/strike.php`.
+- **Light AI research**: when idle an AI starts the cheapest tech it qualifies for and can comfortably afford (gold ≥ 1.5× cost), so the tree is exercised in sims without pushing the AI toward offensive tech. Where: `AI::maybeResearch`.
+- **`match/get` gained additive `me.tech` and `me.arsenal`.** Where: `public/api/match/get.php`.
+
 ## P2-4
 - **Occupation runs as Tick step 2b** (after `Combat::resolveArrivals`, before economy). Why: unrest depends on which stacks are present, which combat has just settled this tick; integration/revolt should resolve before production/AI act on the new ownership. Where: `Tick::process`, `Occupation::process`.
 - **Occupation uses the pre-increment `current_tick`** consistently with combat's `arrive_at_tick <= tick`. `occupied_until` (= conquest tick + 10) integrates when `tick >= occupied_until`, giving a 10-day occupation. Where: `Occupation`.

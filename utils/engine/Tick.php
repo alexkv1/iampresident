@@ -10,6 +10,8 @@ require_once __DIR__ . '/Diplomacy.php';
 require_once __DIR__ . '/Combat.php';
 require_once __DIR__ . '/Occupation.php';
 require_once __DIR__ . '/Training.php';
+require_once __DIR__ . '/Research.php';
+require_once __DIR__ . '/Arsenal.php';
 require_once __DIR__ . '/AI.php';
 require_once __DIR__ . '/MatchSetup.php';
 
@@ -43,6 +45,10 @@ final class Tick {
         //     units can defend the same tick they arrive).
         Training::complete($db, $match, $events);
 
+        // 1c) Complete research projects and arsenal builds due this tick (§8, §9).
+        Research::advance($db, $match, $events);
+        Arsenal::advance($db, $match, $events);
+
         // 2) Resolve army arrivals / battles.
         Combat::resolveArrivals($db, $match, $events);
 
@@ -51,6 +57,9 @@ final class Tick {
 
         // 2c) Diplomacy upkeep: expire stale proposals, end elapsed truces (§7).
         Diplomacy::maintain($db, $match, $events);
+
+        // 2d) Strike damage to garrisons recovers 10% of base per day (§4).
+        self::recoverDamage($db, $match);
 
         // 3) Economy + population for each active player. Army upkeep is charged
         //    BEFORE production (GAME_RULES §1); desertion/grounding follow.
@@ -66,12 +75,16 @@ final class Tick {
             $player = $db->selectOne("SELECT * FROM `match_players` WHERE `id` = ?", [$player['id']], 'i');
             if (!$player) continue;
 
+            // Ruined countries (recent nuke) grow no food: drop their farm buildings
+            // from the economy until `ruined_until` passes (GAME_RULES §9).
             $buildings = $db->select(
                 "SELECT b.`type`, b.`level`, c.`farmland`, c.`minerals`, c.`oil`
                    FROM `buildings` b
                    JOIN `countries` c ON c.`code` = b.`country_code`
-                  WHERE b.`match_id` = ? AND b.`player` = ? AND b.`status` = 'active'",
-                [$matchId, $player['id']], 'ii'
+                   LEFT JOIN `territories` t ON t.`match_id` = b.`match_id` AND t.`country_code` = b.`country_code`
+                  WHERE b.`match_id` = ? AND b.`player` = ? AND b.`status` = 'active'
+                    AND NOT (b.`type` = 'farm' AND t.`ruined_until` IS NOT NULL AND t.`ruined_until` > ?)",
+                [$matchId, $player['id'], $tick], 'iii'
             ) ?: [];
 
             $home = $db->selectOne("SELECT `start_pop` FROM `countries` WHERE `code` = ?", [$player['country_code']], 's');
@@ -195,6 +208,32 @@ final class Tick {
                 'player' => $pid, 'lost' => $lost,
                 'reason' => $goldShort && $foodShort ? 'gold+food' : ($goldShort ? 'gold' : 'food'),
             ]];
+        }
+    }
+
+    /**
+     * Strike damage to garrisons recovers 10% of the base garrison per day (§4),
+     * at least 1/day so a struck country always heals back over time.
+     */
+    private static function recoverDamage(DB $db, array $match): void {
+        $matchId = (int)$match['id'];
+        $tick    = (int)$match['current_tick'];
+        $rows = $db->select(
+            "SELECT t.`id`, t.`owner`, t.`occupied_until`, t.`damage`, c.`start_pop`, c.`land_slots`
+               FROM `territories` t JOIN `countries` c ON c.`code` = t.`country_code`
+              WHERE t.`match_id` = ? AND t.`damage` > 0",
+            [$matchId], 'i'
+        ) ?: [];
+        foreach ($rows as $r) {
+            $popM  = (float)$r['start_pop'] * GameConfig::POP_SCALE;
+            $slots = (int)$r['land_slots'];
+            $owner = $r['owner'] !== null ? (int)$r['owner'] : null;
+            $occupied = $r['occupied_until'] !== null && (int)$r['occupied_until'] > $tick;
+            $base = $owner === null ? GameConfig::neutralGarrison($popM, $slots)
+                                    : ($occupied ? 0 : GameConfig::militia($popM, $slots));
+            $rec = max(1, (int)round($base * GameConfig::DAMAGE_RECOVER));
+            $newDmg = max(0, (int)$r['damage'] - $rec);
+            $db->execute("UPDATE `territories` SET `damage`=? WHERE `id`=?", [$newDmg, (int)$r['id']], 'ii');
         }
     }
 

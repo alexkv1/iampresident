@@ -1,0 +1,139 @@
+/* I Am President — color tokens.
+   Base hues come from the game's skeleton theme (public/css/app.css + GameConfig.php);
+   the game layer adds a brighter "lobby sky" blue and full ramps for gradients + lips. */
+:root{
+  /* Navy — surfaces & ink (source: --bg, --bg-2, --panel, --panel-2, --border, --muted, --text) */
+  --navy-950:#060a14;
+  --navy-900:#0a0e1a;
+  --navy-850:#0f1526;
+  --navy-800:#121a2e;
+  --navy-750:#19233b;
+  --navy-700:#22304f;
+  --navy-600:#27324f;
+  --navy-500:#3a4a74;
+  --navy-400:#5a6b96;
+  --navy-300:#8a97b8;
+  --navy-200:#b9c3db;
+  --navy-100:#e6ebf5;
+  --white:#ffffff;
+
+  /* Sky — lobby blue, atmosphere, hero backgrounds (source globe glow #3a7bd5, bg glow #15213d) */
+  --sky-200:#b5dcff;
+  --sky-300:#7cc4ff;
+  --sky-400:#3fa2ff;
+  --sky-500:#2a86f0;
+  --sky-600:#3a7bd5;
+  --sky-700:#1d4fa8;
+  --sky-800:#15306a;
+  --sky-900:#15213d;
+
+  /* Gold — hero CTA, victory, currency (source: --accent-2 #f5b942, .btn-gold #f6c35a→#d89a28) */
+  --gold-100:#fff4cf;
+  --gold-200:#ffe9a3;
+  --gold-300:#ffd864;
+  --gold-400:#f6c35a;
+  --gold-500:#f5b942;
+  --gold-600:#d89a28;
+  --gold-700:#a8721a;
+  --gold-800:#6b460c;
+  --gold-900:#2a1c00;
+
+  /* Teal — selection, focus, primary confirm (source: --accent #4fd1c5, .btn-primary #37d0c2→#269b90) */
+  --teal-200:#b4f2ec;
+  --teal-300:#7fe6dc;
+  --teal-400:#4fd1c5;
+  --teal-500:#37d0c2;
+  --teal-600:#269b90;
+  --teal-700:#1a6f67;
+  --teal-900:#052521;
+
+  /* Semantic (source: --danger, --success, .btn-danger, .toast.err/.ok, .badge.ready) */
+  --red-300:#ff9db1;
+  --red-500:#e6194b;
+  --red-600:#b5123a;
+  --red-800:#6e2338;
+  --red-900:#3a1522;
+  --green-300:#9be8ab;
+  --green-500:#3cb44b;
+  --green-600:#2c8a38;
+  --green-800:#2c5a37;
+  --green-900:#13281a;
+
+  /* Resources (source: --food … --research; keep exact) */
+  --res-food:#7bc86c;
+  --res-energy:#f5d14e;
+  --res-minerals:#9aa7bd;
+  --res-gold:#f5b942;
+  --res-oil:#a885d8;
+  --res-research:#4fd1c5;
+
+  /* Player slot colours (source: GameConfig::COLORS, assigned by slot) */
+  --player-1:#e6194b;
+  --player-2:#3cb44b;
+  --player-3:#4363d8;
+  --player-4:#f58231;
+  --player-5:#911eb4;
+  --player-6:#42d4f4;
+  --player-7:#f032e6;
+  --player-8:#bfef45;
+  --player-9:#fabed4;
+  --player-10:#469990;
+  --player-11:#dcbeff;
+  --player-12:#9a6324;
+
+  /* Globe (source globe.js: OCEAN 0x0c182e, NEUTRAL_LAND 0x30415e — game layer brightens) */
+  --globe-ocean:#123a7a;
+  --globe-ocean-deep:#0c182e;
+  --globe-land:#4d6390;
+  --globe-land-source:#30415e;
+  --globe-border:#0a1120;
+  --globe-atmos:#3fa2ff;
+
+  /* ---------- Semantic aliases ---------- */
+  --bg-page:var(--navy-900);
+  --bg-sunken:var(--navy-850);
+  --surface-card:var(--navy-800);
+  --surface-raised:var(--navy-750);
+  --surface-hover:var(--navy-700);
+  --surface-overlay:rgba(18,26,46,.92);
+  --border-default:var(--navy-600);
+  --border-strong:var(--navy-500);
+  --border-glow:rgba(124,196,255,.18);
+
+  --text-strong:var(--white);
+  --text-body:var(--navy-100);
+  --text-muted:var(--navy-300);
+  --text-disabled:var(--navy-400);
+  --text-on-gold:var(--gold-900);
+  --text-on-teal:var(--teal-900);
+
+  --accent:var(--teal-400);
+  --accent-cta:var(--gold-500);
+  --accent-sky:var(--sky-400);
+  --focus-ring:0 0 0 3px rgba(79,209,197,.35); /* @kind shadow */
+  --selected:var(--teal-400);
+  --me-tint:rgba(79,209,197,.08);
+
+  --danger:var(--red-500);
+  --danger-text:var(--red-300);
+  --danger-bg:var(--red-900);
+  --danger-border:var(--red-800);
+  --success:var(--green-500);
+  --success-text:var(--green-300);
+  --success-bg:var(--green-900);
+  --success-border:var(--green-800);
+  --warning:var(--gold-500);
+
+  /* Gradients — vertical light→dark is the core "game plastic" motif */
+  --grad-gold:linear-gradient(180deg,#ffe066 0%,#f6c35a 48%,#d89a28 100%); /* @kind color */
+  --grad-teal:linear-gradient(180deg,#5fe3d6 0%,#37d0c2 48%,#269b90 100%); /* @kind color */
+  --grad-sky:linear-gradient(180deg,#5cb4ff 0%,#2a86f0 55%,#1d4fa8 100%); /* @kind color */
+  --grad-navy:linear-gradient(180deg,#26365a 0%,#19233b 100%); /* @kind color */
+  --grad-danger:linear-gradient(180deg,#ff4d73 0%,#e6194b 55%,#b5123a 100%); /* @kind color */
+  --grad-panel:linear-gradient(180deg,rgba(29,43,74,.94) 0%,rgba(18,26,46,.94) 100%); /* @kind color */
+  --grad-card:linear-gradient(180deg,#1a2747 0%,#121a2e 100%); /* @kind color */
+  --grad-page:radial-gradient(1200px 800px at 70% -10%,#1d3a7a 0%,#15213d 35%,#0a0e1a 75%); /* @kind color */
+  --grad-hero:radial-gradient(900px 600px at 50% 110%,#3fa2ff 0%,#1d4fa8 35%,#15213d 70%,#0a0e1a 100%); /* @kind color */
+  --grad-protect-b:linear-gradient(0deg,rgba(10,14,26,.9) 0%,rgba(10,14,26,0) 100%); /* @kind color */
+  --pattern-stripes:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 14px,transparent 14px 28px); /* @kind color */
+}

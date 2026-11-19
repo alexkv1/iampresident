@@ -1,0 +1,20 @@
+<!-- @dsCard group="Components" viewport="700x220" name="Inputs & fields" subtitle="Text input, room code, select, focus state" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Inputs & fields</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>html,body{margin:0;background:var(--grad-page),var(--bg-page);min-height:100%}#root{padding:20px}.lbl{font:500 11px/1 var(--font-body);color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { Input, Field, Button } = window.IAmPresidentDesignSystem_7cd541;
+function App(){return (<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+<Field label="Your name"><Input placeholder="President…" icon="user" maxLength={32}/></Field>
+<Field label="Room code" hint="6 characters, from your host"><div style={{display:'flex',gap:12}}><Input placeholder="Enter room code" uppercase maxLength={6} defaultValue="K7QX2M"/><Button>Join</Button></div></Field>
+<Field label="Mode"><Input as="select" options={['Online','Private','Single player']}/></Field>
+<Field label="Chat"><div style={{display:'flex',gap:8}}><Input size="sm" placeholder="Message the world…"/><Button size="sm">Send</Button></div></Field>
+</div>);}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script></body></html>

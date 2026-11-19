@@ -13,5 +13,8 @@ npm-debug.log*
 *.log
 worker/*.pid
 
-# local Claude Code state
-.claude/
+# local Claude Code state — ignore everything except the committed design-system skill
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/iampresident-design/

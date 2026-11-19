@@ -1,0 +1,38 @@
+<!-- @dsCard group="Components" viewport="700x300" name="Buttons, badges & pills" subtitle="Button variants + sizes, Badge kinds, Pill plates" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Buttons, badges & pills</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>html,body{margin:0;background:var(--grad-page),var(--bg-page);min-height:100%}#root{padding:20px}.lbl{font:500 11px/1 var(--font-body);color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { Button, Badge, Pill, Icon } = window.IAmPresidentDesignSystem_7cd541;
+function App(){return (<div style={{display:'flex',flexDirection:'column',gap:18}}>
+<div style={{display:'flex',gap:12,alignItems:'center',flexWrap:'wrap'}}>
+<Button variant="gold" icon="play" slanted>Start match</Button>
+<Button variant="primary" icon="check">Ready up</Button>
+<Button>Join</Button>
+<Button variant="danger" icon="x">Surrender</Button>
+<Button variant="ghost" icon="sign-out">Exit</Button>
+</div>
+<div style={{display:'flex',gap:12,alignItems:'center',flexWrap:'wrap'}}>
+<Button size="sm" variant="gold">Join</Button>
+<Button size="sm" variant="primary">Send</Button>
+<Button size="sm">Send</Button>
+<Button size="sm" variant="ghost">Leave</Button>
+<Button size="sm" disabled>Disabled</Button>
+</div>
+<div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+<Badge kind="ai">AI</Badge><Badge kind="ready" icon="check">Ready</Badge><Badge kind="host">Host</Badge><Badge>Neutral</Badge><Badge kind="danger" icon="skull">Defeated</Badge>
+<span style={{width:12}}/>
+<Pill>ONLINE</Pill><Pill icon="key">Code: K7QX2M</Pill><Pill solid tone="gold" icon="sun">Day 14</Pill><Pill solid tone="sky">Lobby</Pill>
+</div>
+<div style={{display:'flex',gap:14,alignItems:'center',color:'var(--text-muted)'}}>
+<Icon name="grains" color="var(--res-food)" size={22}/><Icon name="lightning" color="var(--res-energy)" size={22}/><Icon name="diamond" color="var(--res-minerals)" size={22}/><Icon name="coins" color="var(--res-gold)" size={22}/><Icon name="drop" color="var(--res-oil)" size={22}/><Icon name="flask" color="var(--res-research)" size={22}/><Icon name="caret-down" weight="bold"/><Icon name="magnifying-glass" weight="bold"/>
+</div>
+</div>);}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script></body></html>

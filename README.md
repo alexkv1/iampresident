@@ -164,16 +164,18 @@ guest created on first play).
 
 ## Production deployment
 
-See `deploy/`:
+**CI/CD:** push to `main` → GitHub Actions ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml))
+rsyncs to the VM, **builds `conf.php` on the VM from GitHub secrets** (same pattern
+as yuz), and restarts the services. Full setup — required secrets and one‑time VM
+provisioning — is in **[DEPLOY.md](DEPLOY.md)**.
 
-- **`deploy/apache-vhost.conf`** — serves `public/` and reverse‑proxies `/ws` to the
-  Node relay (so the browser uses `wss://yourhost/ws`).
-- **`deploy/iampresident-tick.service`** — systemd unit for the tick worker.
-- **`deploy/iampresident-realtime.service`** — systemd unit for the Node relay.
+Supporting files in `deploy/`:
+- **`apache-vhost.conf`** — serves `public/` and reverse‑proxies `/ws` to the Node relay.
+- **`iampresident-tick.service`** — systemd unit for the tick worker.
+- **`iampresident-realtime.service`** — systemd unit for the Node relay (reads
+  `INTERNAL_KEY` from `deploy/realtime.env`, which CI writes).
 
-On the VM: point the vhost at `public/`, set a strong `internal-key` in `conf.php`
-and matching `INTERNAL_KEY` env for Node, enable both services. If you'd rather not
-run the daemon, call `/api/tick/run` from cron every minute instead.
+Prefer cron over the daemon? Call `/api/tick/run` (bearer `internal-key`) every minute instead.
 
 ---
 

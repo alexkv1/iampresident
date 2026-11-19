@@ -1,0 +1,78 @@
+name: Deploy
+# Push to main -> rsync the repo to the VM, build conf.php on the VM from
+# GitHub secrets (same pattern as yuz), then restart the services.
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p $HOME/.ssh
+          echo "${{ secrets.SSH_KEY }}" > $HOME/.ssh/id_ed25519
+          chmod 600 $HOME/.ssh/id_ed25519
+          eval $(ssh-agent -s)
+          ssh-add $HOME/.ssh/id_ed25519
+
+      # Upload the whole repo (app lives outside public/, so we deploy all of it).
+      - name: Push code to VM
+        run: |
+          rsync -e 'ssh -o StrictHostKeyChecking=no' --archive --delete \
+            --exclude='.git/' --exclude='.github/' --exclude='conf.php' \
+            --exclude='realtime/node_modules/' --exclude='.DS_Store' \
+            ./ runner@${{ secrets.MAIN_IP }}:/home/runner/iampresident
+
+      # Copy into the web root. Never delete the VM's conf.php or node_modules.
+      - name: Sync into web root
+        run: |
+          ssh -o StrictHostKeyChecking=no runner@${{ secrets.MAIN_IP }} \
+            "sudo rsync --archive --delete --exclude='conf.php' --exclude='realtime/node_modules/' \
+             /home/runner/iampresident/ /var/www/iampresident"
+
+      # Build conf.php directly on the VM from secrets (quoted heredoc = literal values).
+      - name: Write conf.php
+        run: |
+          ssh -o StrictHostKeyChecking=no runner@${{ secrets.MAIN_IP }} << 'EOF'
+          sudo tee /var/www/iampresident/conf.php > /dev/null <<'EOL'
+          <?php
+          return [
+              'servername' => '${{ secrets.DB_HOST }}',
+              'username'   => '${{ secrets.DB_USER }}',
+              'password'   => '${{ secrets.DB_PASS }}',
+              'dbname'     => '${{ secrets.DB_NAME }}',
+              'port'       => 3306,
+              'internal-key'      => '${{ secrets.INTERNAL_KEY }}',
+              'realtime-emit-url' => 'http://127.0.0.1:8081/emit',
+              'realtime-ws-url'   => '${{ secrets.REALTIME_WS_URL }}',
+          ];
+          EOL
+          EOF
+
+      # Env for the Node relay — INTERNAL_KEY must match conf.php above.
+      - name: Write realtime env
+        run: |
+          ssh -o StrictHostKeyChecking=no runner@${{ secrets.MAIN_IP }} << 'EOF'
+          sudo mkdir -p /var/www/iampresident/deploy
+          sudo tee /var/www/iampresident/deploy/realtime.env > /dev/null <<'EOL'
+          PORT=8081
+          HOST=127.0.0.1
+          INTERNAL_KEY=${{ secrets.INTERNAL_KEY }}
+          EOL
+          EOF
+
+      - name: Install Node deps, fix perms, restart services
+        run: |
+          ssh -o StrictHostKeyChecking=no runner@${{ secrets.MAIN_IP }} << 'EOF'
+            set -e
+            cd /var/www/iampresident/realtime && sudo npm install --omit=dev
+            sudo chown -R www-data:www-data /var/www/iampresident
+            # Restart only if the units are installed (no-op on first deploy).
+            sudo systemctl restart iampresident-realtime 2>/dev/null || true
+            sudo systemctl restart iampresident-tick 2>/dev/null || true
+          EOF

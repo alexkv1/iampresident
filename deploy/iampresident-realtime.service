@@ -1,5 +1,6 @@
 # /etc/systemd/system/iampresident-realtime.service
-# WebSocket relay. INTERNAL_KEY must match conf.php 'internal-key'.
+# WebSocket relay. INTERNAL_KEY comes from an env file the deploy pipeline writes,
+# so it always matches conf.php's 'internal-key'.
 #   sudo systemctl enable --now iampresident-realtime
 [Unit]
 Description=I Am President — realtime WS relay
@@ -9,9 +10,8 @@ After=network.target
 Type=simple
 User=www-data
 WorkingDirectory=/var/www/iampresident/realtime
-Environment=PORT=8081
-Environment=HOST=127.0.0.1
-Environment=INTERNAL_KEY=change-me-to-match-conf.php
+# Written by CI (deploy/realtime.env): PORT, HOST, INTERNAL_KEY. '-' = optional.
+EnvironmentFile=-/var/www/iampresident/deploy/realtime.env
 ExecStart=/usr/bin/node /var/www/iampresident/realtime/server.js
 Restart=always
 RestartSec=2

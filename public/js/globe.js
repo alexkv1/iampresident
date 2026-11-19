@@ -20,6 +20,28 @@ function lonLatToVec3(lon, lat, r) {
   ];
 }
 
+const LAND_R = R * 1.003;     // land fill radius (above the ocean sphere)
+const BORDER_R = R * 1.005;   // coastline / border radius
+const MAX_EDGE_DEG = 7;       // subdivide triangles larger than this
+
+function _mid(a, b) { return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; }
+function _edge(a, b) { const dx = a[0] - b[0], dy = a[1] - b[1]; return Math.sqrt(dx * dx + dy * dy); }
+
+// Recursively 4-split a lon/lat triangle until every edge is small. Without this,
+// a big interior triangle of a large country chords straight through the globe and
+// sinks below the ocean sphere — which shows as a hole. Small facets hug the surface.
+function subdivideTri(a, b, c, out) {
+  if (_edge(a, b) <= MAX_EDGE_DEG && _edge(b, c) <= MAX_EDGE_DEG && _edge(c, a) <= MAX_EDGE_DEG) {
+    out.push(a, b, c);
+    return;
+  }
+  const ab = _mid(a, b), bc = _mid(b, c), ca = _mid(c, a);
+  subdivideTri(a, ab, ca, out);
+  subdivideTri(ab, b, bc, out);
+  subdivideTri(ca, bc, c, out);
+  subdivideTri(ab, bc, ca, out);
+}
+
 class Globe {
   constructor(container, opts = {}) {
     this.container = container;
@@ -58,7 +80,7 @@ class Globe {
 
     // Ocean sphere, drawn just under the land fills.
     const ocean = new THREE.Mesh(
-      new THREE.SphereGeometry(R * 0.998, 64, 48),
+      new THREE.SphereGeometry(R * 0.996, 64, 48),
       new THREE.MeshPhongMaterial({ color: OCEAN, shininess: 8, specular: 0x14324f })
     );
     this.world.add(ocean);
@@ -88,28 +110,32 @@ class Globe {
       const polys = feat.geometry.type === 'Polygon' ? [feat.geometry.coordinates] : feat.geometry.coordinates;
 
       const positions = [];
-      const indices = [];
-      let vBase = 0;
+      const normals = [];
 
       for (const poly of polys) {
         // poly = [outerRing, hole1, hole2, ...]
         const flat = earcut.flatten(poly);
         const tris = earcut(flat.vertices, flat.holes, flat.dimensions);
-        const ringVertCount = flat.vertices.length / flat.dimensions;
+        const V = flat.vertices;
 
-        for (let i = 0; i < ringVertCount; i++) {
-          const lon = flat.vertices[i * 2], lat = flat.vertices[i * 2 + 1];
-          const [x, y, z] = lonLatToVec3(lon, lat, R * 1.002);
-          positions.push(x, y, z);
+        for (let i = 0; i < tris.length; i += 3) {
+          const a = [V[tris[i] * 2], V[tris[i] * 2 + 1]];
+          const b = [V[tris[i + 1] * 2], V[tris[i + 1] * 2 + 1]];
+          const c = [V[tris[i + 2] * 2], V[tris[i + 2] * 2 + 1]];
+          const sub = [];
+          subdivideTri(a, b, c, sub);
+          for (const p of sub) {
+            const [x, y, z] = lonLatToVec3(p[0], p[1], LAND_R);
+            positions.push(x, y, z);
+            normals.push(x / LAND_R, y / LAND_R, z / LAND_R); // smooth sphere normal
+          }
         }
-        for (const t of tris) indices.push(vBase + t);
-        vBase += ringVertCount;
 
-        // Borders: outline every ring.
+        // Borders: outline every ring along the coast.
         for (const ring of poly) {
           for (let i = 0; i < ring.length - 1; i++) {
-            const a = lonLatToVec3(ring[i][0], ring[i][1], R * 1.004);
-            const b = lonLatToVec3(ring[i + 1][0], ring[i + 1][1], R * 1.004);
+            const a = lonLatToVec3(ring[i][0], ring[i][1], BORDER_R);
+            const b = lonLatToVec3(ring[i + 1][0], ring[i + 1][1], BORDER_R);
             borderPositions.push(a[0], a[1], a[2], b[0], b[1], b[2]);
           }
         }
@@ -118,8 +144,7 @@ class Globe {
       if (!positions.length) continue;
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-      geo.setIndex(indices);
-      geo.computeVertexNormals();
+      geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
 
       const mat = new THREE.MeshPhongMaterial({ color: NEUTRAL_LAND, shininess: 6, specular: 0x0a0a0a });
       const mesh = new THREE.Mesh(geo, mat);

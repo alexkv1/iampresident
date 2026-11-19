@@ -176,6 +176,53 @@
     setSelected(code) { this.selectedCode = code; this._recolorAll(); return this; }
     getProps(code) { return this.props[code] || null; }
 
+    // ---- overlay helpers (troop markers, routes) — ported from design/ui_kits/game/globe.js
+    lonLatVec(lon, lat, r = 1) { return lonLatToVec3(lon, lat, R * r); }
+
+    // Project a point given in globe-local coords to container pixels.
+    // `vis` is 0..1: 0 behind the horizon, 1 clearly on the visible side.
+    projectLocal(p) {
+      this.world.updateMatrixWorld();
+      const v = new THREE.Vector3(p[0], p[1], p[2]).applyMatrix4(this.world.matrixWorld);
+      const dist = this.camera.position.length();
+      const facing = v.clone().normalize().dot(this.camera.position.clone().normalize());
+      const horizon = R / dist;
+      v.project(this.camera);
+      const el = this.renderer.domElement;
+      return { x: (v.x + 1) / 2 * el.clientWidth, y: (1 - v.y) / 2 * el.clientHeight, vis: Math.max(0, Math.min(1, (facing - horizon) / 0.08)) };
+    }
+
+    // Draw a route as a (dashed) tube with an optional arrowhead. points = [[x,y,z], ...] in globe-local coords.
+    addPath(points, opts = {}) {
+      const { color = '#ffffff', opacity = 0.9, radius = 0.0045, dash = 0, arrow = true } = opts;
+      const g = new THREE.Group();
+      const mat = new THREE.MeshBasicMaterial({ color: new THREE.Color(color), transparent: true, opacity, depthWrite: false });
+      const vecs = points.map((p) => new THREE.Vector3(p[0], p[1], p[2]));
+      const tube = (seg) => {
+        if (seg.length < 2) return;
+        const c = new THREE.CatmullRomCurve3(seg);
+        g.add(new THREE.Mesh(new THREE.TubeGeometry(c, Math.max(4, seg.length * 2), radius, 6, false), mat));
+      };
+      if (!dash) tube(vecs);
+      else for (let i = 0; i + 1 < vecs.length; i += dash * 2) tube(vecs.slice(i, Math.min(vecs.length, i + dash + 1)));
+      if (arrow && vecs.length > 1) {
+        const end = vecs[vecs.length - 1], prev = vecs[vecs.length - 2];
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(radius * 3.2, radius * 9, 10), mat);
+        cone.position.copy(end);
+        cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), end.clone().sub(prev).normalize());
+        g.add(cone);
+      }
+      g.renderOrder = 5;
+      this.world.add(g);
+      return g;
+    }
+
+    removePath(g) {
+      if (!g) return;
+      this.world.remove(g);
+      g.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
+    }
+
     // Globe-controls zoom: camera z +/- delta, clamped to [1.6, 5] (spec §2.9).
     setZoom(delta) { this.camera.position.z = Math.max(1.6, Math.min(5, this.camera.position.z + delta)); return this; }
 

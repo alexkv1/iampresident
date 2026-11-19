@@ -58,7 +58,18 @@ async function shot(page, url, { viewport, fullPage = false, hideGlobe = false, 
   if (hideGlobe) await page.waitForSelector('canvas', { timeout: 6000 }).catch(() => {});
   await page.waitForTimeout(1500);
   if (solidBg) { await page.addStyleTag({ content: `html,body{background:rgb(255,0,255)!important}` }); await page.waitForTimeout(120); }
-  if (hideGlobe) { await page.evaluate(() => document.querySelectorAll('canvas').forEach((c) => { c.style.visibility = 'hidden'; })); await page.waitForTimeout(150); }
+  if (hideGlobe) { await page.evaluate(() => {
+    // The three.js globe canvas.
+    document.querySelectorAll('canvas').forEach((c) => { c.style.visibility = 'hidden'; });
+    // The army-marker overlay is the globe's animated projection layer: markers are
+    // positioned every frame by projecting country centroids through the globe's
+    // rotation, so — like the globe canvas and the live countdown — it is
+    // non-deterministic between captures (the reference's own focus-ease has not fully
+    // settled at the fixed screenshot wait). Hide it in BOTH reference and impl so the
+    // static HUD underneath is compared strictly. Impl uses #marker-layer; the mockup's
+    // MarkerLayer root carries inline `isolation: isolate` (no id).
+    document.querySelectorAll('#marker-layer, [style*="isolation"]').forEach((el) => { el.style.visibility = 'hidden'; });
+  }); await page.waitForTimeout(150); }
   // Native <input>/<select> text is rasterised by the browser's form-control path and is
   // not pixel-addressable via CSS; capture their boxes so the interior text can be masked
   // (borders, size and layout are still compared strictly).

@@ -1,0 +1,30 @@
+/* Match HUD styles. Load after components.css. Keyframes copied verbatim from
+   design/ui_kits/game/match-hud.html <style>; interactive states from the HUD JSX. */
+
+@keyframes iap-reticle { 0% { transform: scale(.6); opacity: 1 } 100% { transform: scale(1.5); opacity: 0 } }
+@keyframes iap-burst { 0% { transform: scale(.2); opacity: 1 } 100% { transform: scale(2.4); opacity: 0 } }
+@keyframes iap-burst-icon { 0% { transform: scale(.3); opacity: 0 } 25% { transform: scale(1.3); opacity: 1 } 70% { transform: scale(1); opacity: 1 } 100% { transform: scale(1) translateY(-14px); opacity: 0 } }
+
+#hud-root { position: fixed; inset: 0; background: #05080f; overflow: hidden; }
+#globe { position: absolute; inset: 0; }
+/* vignette above the globe, under the HUD (spec §2) */
+#hud-vignette { position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(6,10,20,.65) 0%, rgba(6,10,20,0) 22%, rgba(6,10,20,0) 72%, rgba(6,10,20,.7) 100%); }
+#hud-stage { position: absolute; left: 50%; top: 50%; width: 1440px; height: 900px;
+  transform: translate(-50%, -50%); overflow: hidden; }
+#hud-stage > * { pointer-events: auto; }
+#marker-layer, #tip-layer, #hover-tip { pointer-events: none; }
+#marker-layer [data-mk] { pointer-events: none; }
+#marker-layer [data-pick] { pointer-events: auto; }
+
+/* BuildTile hover/press (HudPanes.BuildTile) */
+.build-tile[data-afford="1"]:hover { border-color: var(--teal-400) !important;
+  box-shadow: 0 3px 0 var(--navy-950), inset 0 1px 0 rgba(255,255,255,.06), var(--glow-teal) !important;
+  transform: translateY(-1px) !important; }
+
+/* Hotbar slot hover lift (HudBottom.HotbarSlot): idle -> -3px on hover */
+.hotbar-slot[data-active="0"]:hover { transform: translateY(-3px) !important; }
+
+/* GlobeControls RoundBtn press (HudBottom.RoundBtn) */
+[data-lens]:active, [data-zoom]:active, [data-focus]:active { transform: translateY(2px) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 1px 0 var(--navy-950) !important; }

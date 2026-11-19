@@ -54,8 +54,10 @@ final class MatchSetup {
 
             // Seed stockpiles, population and colour. Starting food scales with
             // population so a big nation gets the same reaction window as a small one.
+            // Gold/minerals/energy/oil scale with GDP (GAME_RULES §5): START × s.
             $color = $p['color'] !== '#cccccc' ? $p['color'] : GameConfig::COLORS[$slot % count(GameConfig::COLORS)];
             $popM = (float)$country['start_pop'] * GameConfig::POP_SCALE;
+            $s = GameConfig::startScale((float)$country['gdp_md']);
             $startFood = max(
                 GameConfig::START['food'],
                 ceil($popM * GameConfig::FOOD_PER_POP * GameConfig::FOOD_GRACE_TICKS)
@@ -69,8 +71,11 @@ final class MatchSetup {
                   WHERE `id` = ?",
                 [
                     (int)$country['start_pop'],
-                    $startFood, GameConfig::START['energy'], GameConfig::START['minerals'],
-                    GameConfig::START['gold'], GameConfig::START['oil'],
+                    $startFood,
+                    GameConfig::START['energy']   * $s,
+                    GameConfig::START['minerals'] * $s,
+                    GameConfig::START['gold']     * $s,
+                    GameConfig::START['oil']      * $s,
                     $color, $persona['name'], $persona['title'], $p['id'],
                 ],
                 'idddddsssi'   // pop(i) food energy minerals gold oil(5×d) color display_name leader_title(3×s) id(i)
@@ -87,7 +92,6 @@ final class MatchSetup {
 
             // Starting army in the capital (GAME_RULES §5): infantry round(5 + 1.5·√popM),
             // armor round(2·s) with s = startScale(gdp_md). Stored as a units-JSON stack.
-            $s = GameConfig::startScale((float)$country['gdp_md']);
             $infantry = (int)round(5 + 1.5 * sqrt(max(0.0, $popM)));
             $armor    = (int)round(2 * $s);
             $units = [];

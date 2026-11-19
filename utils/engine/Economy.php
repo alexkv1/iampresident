@@ -78,4 +78,37 @@ final class Economy {
             'efficiency' => $efficiency,
         ];
     }
+
+    /**
+     * Total per-tick army upkeep for a player (GAME_RULES §1, §5), summed over the
+     * units of every stack they own (stationed or in transit). Pure computation.
+     * @param array $armies rows from `armies` (only `units` is read)
+     * @return array {gold, food, oil}
+     */
+    public static function upkeep(array $armies): array {
+        $up = ['gold' => 0.0, 'food' => 0.0, 'oil' => 0.0];
+        foreach ($armies as $army) {
+            $units = Combat::units($army);
+            foreach ($units as $type => $count) {
+                $cfg = GameConfig::unit((string)$type);
+                if (!$cfg) continue;
+                foreach (($cfg['upkeep'] ?? []) as $res => $amt) {
+                    $up[$res] = ($up[$res] ?? 0.0) + $amt * (int)$count;
+                }
+            }
+        }
+        return $up;
+    }
+
+    /**
+     * A player is "grounded" (GAME_RULES §1) when they have no oil: armor/navy/air
+     * can't move or strike, but still defend. Reads the live stockpile.
+     */
+    public static function isGrounded(DB $db, int $matchId, int $player): bool {
+        $row = $db->selectOne(
+            "SELECT `oil` FROM `match_players` WHERE `match_id` = ? AND `id` = ?",
+            [$matchId, $player], 'ii'
+        );
+        return $row !== null && (float)$row['oil'] <= 0.0;
+    }
 }

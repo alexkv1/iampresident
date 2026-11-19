@@ -12,6 +12,14 @@ Judgment calls made while implementing the phase-2 handoff autonomously. Format:
 - **Retreat** = the outbound `path` reversed, re-costed; if origin==current the stack just stops. Where: `Combat::retreat`.
 - **`plan.php` strike section is shape/lock/range/stock-faithful only**; strike execution lands in P2-5. Where: `public/api/army/plan.php`.
 
+## P2-3
+- **`count` in `/api/army/train` = number of batches, not raw units** (each batch = `TRAIN_BATCH` 5 units). Default 1. Why: §1a trains in fixed batches; exposing batches keeps slot/manpower checks honest per batch. Partial success allowed — if a later batch fails after ≥1 started, returns ok with what started; first-batch failure is a `json_err`. Where: `public/api/army/train.php`, `Training::start`.
+- **Displayed resource deltas stay GROSS of upkeep.** The dry-run `Economy::step` path is untouched; `match/get` instead returns `me.upkeep{gold,food,oil}` for the client to subtract. Why: keeps the pure economy preview stable; upkeep is a separate tick stage. Where: `Economy::upkeep`, `match/get.php`.
+- **`grounded_no_oil` emits only when oil hits 0 AND the player owes oil upkeep** (fields armor/navy/air). Why: avoid spurious events for infantry-only nations. Where: `Tick::chargeUpkeep`.
+- **Training-start emits `training_started`** (chose event over silence, mirrors `build` events). Where: `Training::start`.
+- **`Tick::worldShares` is `public`** so `match/get` reuses it for per-player `share` without a second query path; world totals come from `countries.pop_est/area_km2/gdp_md`. Where: `Tick`, `match/get.php`.
+- **Grounding enforcement on move/strike is deferred to P2-2/P2-5 endpoints** — P2-3 only provides `Economy::isGrounded` as the hook; combat logic untouched. Where: `Economy::isGrounded`.
+
 ## P2-1
 - **Updated `db/schema.sql` to v2 in addition to writing `db/migrations/002_rules_v2.sql`.** Why: fresh installs (local dev, `smoke_test`'s drop/recreate) need the v2 columns/tables without applying migrations; the migration upgrades existing/deployed DBs. Both verified (fresh load + idempotent re-run + proven to re-add dropped columns). Where: `db/schema.sql`, `db/migrations/002_rules_v2.sql`.
 - **Kept legacy `armies.type`/`count` as nullable rather than dropping them.** Why: non-destructive; `armies.units` JSON is now authoritative but old rows stay readable. Where: schema + migration.

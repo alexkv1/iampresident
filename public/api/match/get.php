@@ -2,6 +2,9 @@
 // GET /api/match/get?match_id=&since_event=  -> full match state for the client.
 require __DIR__ . '/../../../utils/bootstrap.php';
 require_once __DIR__ . '/../../../utils/engine/GameConfig.php';
+require_once __DIR__ . '/../../../utils/engine/Training.php';
+require_once __DIR__ . '/../../../utils/engine/Economy.php';
+require_once __DIR__ . '/../../../utils/engine/Tick.php';
 
 $auth = require_auth();
 $matchId = (int)in('match_id', 0);
@@ -17,10 +20,14 @@ foreach (db()->select("SELECT `owner`, COUNT(*) c FROM `territories` WHERE `matc
     $counts[(int)$r['owner']] = (int)$r['c'];
 }
 
+// Weighted world shares per player (GAME_RULES §5).
+$shares = Tick::worldShares(db(), $matchId);
+
 $players = [];
 foreach (db()->select("SELECT * FROM `match_players` WHERE `match_id` = ? ORDER BY `slot`", [$matchId], 'i') ?: [] as $p) {
     $pub = player_public($p, true);
     $pub['territories'] = $counts[(int)$p['id']] ?? 0;
+    $pub['share'] = round($shares[(int)$p['id']] ?? 0.0, 4);
     $players[] = $pub;
 }
 
@@ -43,6 +50,15 @@ $events = db()->select(
 foreach ($events as &$e) { $e['data'] = $e['data'] ? json_decode($e['data'], true) : null; }
 unset($e);
 
+// Army economy for the requester (GAME_RULES §1): manpower in use vs limit, and the
+// per-tick upkeep the client should subtract from the displayed resource deltas.
+$myArmies = db()->select("SELECT `units` FROM `armies` WHERE `match_id` = ? AND `player` = ?", [$matchId, $me['id']], 'ii') ?: [];
+$myUpkeep = Economy::upkeep($myArmies);
+$manpower = [
+    'used'  => Training::manpowerUsed(db(), $matchId, (int)$me['id']),
+    'limit' => GameConfig::manpowerLimit((float)$me['pop']),
+];
+
 json_ok([
     'match' => [
         'id'                => (int)$match['id'],
@@ -63,6 +79,11 @@ json_ok([
         'country_code' => $me['country_code'],
         'is_ready'     => (int)$me['is_ready'],
         'color'        => $me['color'],
+        // Manpower {used,limit} and per-tick army upkeep {gold,food,oil}. The
+        // economy deltas the client derives from building output are GROSS of
+        // upkeep — subtract this `upkeep` per resource to show the net change.
+        'manpower'     => $manpower,
+        'upkeep'       => ['gold' => $myUpkeep['gold'], 'food' => $myUpkeep['food'], 'oil' => $myUpkeep['oil']],
     ],
     'players'     => $players,
     'territories' => $territories,

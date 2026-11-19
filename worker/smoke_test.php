@@ -13,7 +13,7 @@ function line() { echo str_repeat('-', 78) . "\n"; }
 // --- cleanup any previous run ------------------------------------------------
 foreach ($db->select("SELECT id FROM `matches` WHERE `name` = ?", [$TAG], 's') ?: [] as $m) {
     $id = (int)$m['id'];
-    foreach (['armies','buildings','territories','match_players','match_events','diplomacy','trades','chat_messages'] as $t) {
+    foreach (['armies','buildings','territories','match_players','match_events','diplomacy','trades','chat_messages','training','arsenal'] as $t) {
         $db->execute("DELETE FROM `$t` WHERE `match_id` = ?", [$id], 'i');
     }
     $db->execute("DELETE FROM `matches` WHERE `id` = ?", [$id], 'i');
@@ -271,6 +271,206 @@ Combat::setRng(null); // restore randomness
 
 line();
 echo "PHASE-2 RESULT: $pass passed, $fail failed\n";
+
+// =============================================================================
+// Phase-3: economy of war — upkeep, desertion, training, manpower, start scale,
+// weighted victory shares (deterministic). GAME_RULES §1, §1a, §5.
+// =============================================================================
+require_once __DIR__ . '/../utils/engine/Training.php';
+require_once __DIR__ . '/../utils/engine/Economy.php';
+
+line();
+echo "PHASE-3: economy of war (upkeep / desertion / training / shares)\n";
+line();
+
+// --- Fresh phase-3 match (same __SMOKE__ tag so cleanup wipes it next run) ----
+$db->execute(
+    "INSERT INTO `matches` (`name`,`mode`,`status`,`max_players`,`tick_interval_sec`,`current_tick`,`host_user`)
+     VALUES (?, 'single', 'active', 4, 20, 0, ?)",
+    [$TAG, $uid], 'si'
+);
+$p3 = (int)$db->lastInsertId();
+
+// Use real countries so area/gdp/pop seed the share maths. SWE (human), USA (big AI).
+$db->execute("INSERT INTO `match_players` (`match_id`,`user`,`display_name`,`country_code`,`color`,`slot`,`is_host`,`pop`) VALUES (?,?,?, 'SWE','#e6194b',0,1,?)",
+    [$p3, $uid, 'You (Sweden)', 10600000], 'iisi');
+$S = (int)$db->lastInsertId();                              // Sweden (human)
+$db->execute("INSERT INTO `match_players` (`match_id`,`is_ai`,`display_name`,`country_code`,`color`,`slot`,`pop`) VALUES (?,1,?, 'USA','#3cb44b',1,?)",
+    [$p3, 'CPU USA', 331000000], 'isi');
+$Uusa = (int)$db->lastInsertId();                          // USA (AI)
+
+// Board: one neutral territory per country, then claim SWE and USA.
+$db->execute("INSERT INTO `territories` (`match_id`,`country_code`) SELECT ?, `code` FROM `countries`
+              ON DUPLICATE KEY UPDATE `is_capital`=`is_capital`", [$p3], 'i');
+$db->execute("UPDATE `territories` SET `owner`=? WHERE `match_id`=? AND `country_code`='SWE'", [$S, $p3], 'ii');
+$db->execute("UPDATE `territories` SET `owner`=? WHERE `match_id`=? AND `country_code`='USA'", [$Uusa, $p3], 'ii');
+
+$match3 = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p3], 'i');
+
+// --- (g) startScale applied to starting stockpiles (MatchSetup) ----------------
+// Run a tiny isolated MatchSetup-style check: s = startScale(gdp_md); START*s.
+$sweCountry = $db->selectOne("SELECT * FROM `countries` WHERE `code`='SWE'", [], '');
+$sSwe = GameConfig::startScale((float)$sweCountry['gdp_md']);
+$expGold = GameConfig::START['gold'] * $sSwe;
+// Drive the real MatchSetup path on a throwaway lobby to confirm it writes START*s.
+$db->execute("INSERT INTO `matches` (`name`,`mode`,`status`,`max_players`,`tick_interval_sec`,`host_user`,`settings`)
+              VALUES (?, 'single','lobby',2,20,?,?)", [$TAG, $uid, json_encode([])], 'sis');
+$lob = (int)$db->lastInsertId();
+$db->execute("INSERT INTO `match_players` (`match_id`,`user`,`display_name`,`country_code`,`color`,`slot`,`is_host`,`is_ready`) VALUES (?,?,?, 'SWE','#e6194b',0,1,1)",
+    [$lob, $uid, 'Setup SWE'], 'iis');
+$setupId = (int)$db->lastInsertId();
+$lobRow = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$lob], 'i');
+MatchSetup::start($db, $lobRow);
+$seed = $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$setupId], 'i');
+check('(g) startScale applied to starting gold',
+    abs((float)$seed['gold'] - $expGold) < 1.0 && abs($sSwe - sqrt((float)$sweCountry['gdp_md'] / 500000)) < 1e-6,
+    sprintf('s=%.4f gold=%.0f (expected %.0f = START %d × s)', $sSwe, (float)$seed['gold'], $expGold, GameConfig::START['gold']));
+// Clean the throwaway lobby's board/players so it doesn't skew the p3 share totals.
+foreach (['armies','buildings','territories','match_players','match_events'] as $t) $db->execute("DELETE FROM `$t` WHERE `match_id`=?", [$lob], 'i');
+$db->execute("DELETE FROM `matches` WHERE `id`=?", [$lob], 'i');
+
+// --- (h) upkeep deducted before production ------------------------------------
+// Give Sweden a known stack and fat stockpiles, no buildings -> net change = -upkeep.
+$db->execute("INSERT INTO `armies` (`match_id`,`player`,`country_code`,`units`,`origin`) VALUES (?,?,'SWE',?, 'SWE')",
+    [$p3, $S, json_encode(['infantry' => 10, 'armor' => 5])], 'iis');
+$db->execute("UPDATE `match_players` SET `gold`=10000,`food`=10000,`oil`=10000,`energy`=0,`minerals`=0,`research`=0 WHERE `id`=?", [$S], 'i');
+$armiesS = $db->select("SELECT `units` FROM `armies` WHERE `match_id`=? AND `player`=?", [$p3, $S], 'ii');
+$expUp = Economy::upkeep($armiesS);  // infantry 10×(g1,f1) + armor 5×(g3,f1,o1) = g25,f15,o5
+$goldBefore = 10000.0; $foodBefore = 10000.0; $oilBefore = 10000.0;
+$match3 = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p3], 'i');
+Tick::process($db, $match3);
+$sAfter = $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$S], 'i');
+// No buildings, so the only resource movement is upkeep (minus tiny pop tax on gold).
+$goldDrop = $goldBefore - (float)$sAfter['gold'];
+$oilDrop  = $oilBefore  - (float)$sAfter['oil'];
+check('(h) upkeep deducted before production',
+    $expUp['gold'] == 25 && $expUp['oil'] == 5 && $oilDrop == $expUp['oil'] && $goldDrop >= 0,
+    sprintf('upkeep g=%.0f f=%.0f o=%.0f; oilDrop=%.0f goldDrop=%.1f', $expUp['gold'], $expUp['food'], $expUp['oil'], $oilDrop, $goldDrop));
+
+// --- (i) desertion when broke (no gold/food to pay upkeep) --------------------
+$db->execute("UPDATE `match_players` SET `gold`=0,`food`=0,`oil`=0 WHERE `id`=?", [$S], 'i');
+// Reset the stack to a clean 10 infantry + 5 armor so losses are predictable.
+$db->execute("DELETE FROM `armies` WHERE `match_id`=? AND `player`=?", [$p3, $S], 'ii');
+$db->execute("INSERT INTO `armies` (`match_id`,`player`,`country_code`,`units`,`origin`) VALUES (?,?,'SWE',?, 'SWE')",
+    [$p3, $S, json_encode(['infantry' => 100, 'armor' => 40]), ], 'iis');
+$match3 = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p3], 'i');
+$evDes = Tick::process($db, $match3);
+$stackAfter = $db->selectOne("SELECT `units` FROM `armies` WHERE `match_id`=? AND `player`=? AND `moving_to` IS NULL", [$p3, $S], 'ii');
+$ua = $stackAfter ? Combat::units($stackAfter) : [];
+// 5% desertion: floor(100*0.95)=95 inf, floor(40*0.95)=38 armor.
+$gotDesEvent = false; foreach ($evDes as $e) if ($e['type'] === 'desertion') $gotDesEvent = true;
+check('(i) desertion when gold & food are zero',
+    ($ua['infantry'] ?? 0) === 95 && ($ua['armor'] ?? 0) === 38 && $gotDesEvent,
+    sprintf('inf=%d (exp 95) armor=%d (exp 38) event=%s', $ua['infantry'] ?? -1, $ua['armor'] ?? -1, $gotDesEvent ? 'yes' : 'no'));
+
+// --- (j) oil grounding flag ----------------------------------------------------
+// After (i) oil is 0, Sweden fields armor -> isGrounded true.
+check('(j) isGrounded true when oil is 0 (armor/navy/air cannot move)',
+    Economy::isGrounded($db, $p3, $S) === true,
+    'oil=' . (float)$db->selectOne("SELECT `oil` FROM `match_players` WHERE `id`=?", [$S], 'i')['oil']);
+
+// --- (k) manpower-cap refusal --------------------------------------------------
+// Reset Sweden: fund it, pop 10.6M -> limit floor(10.6M*0.01/1000)=106. Fill to 105
+// used, then a batch of 5 (-> 110) must be refused.
+$db->execute("UPDATE `match_players` SET `gold`=100000,`minerals`=100000,`oil`=100000,`food`=100000,`pop`=10600000 WHERE `id`=?", [$S], 'i');
+$db->execute("DELETE FROM `armies` WHERE `match_id`=? AND `player`=?", [$p3, $S], 'ii');
+$db->execute("DELETE FROM `training` WHERE `match_id`=? AND `player`=?", [$p3, $S], 'ii');
+$db->execute("INSERT INTO `armies` (`match_id`,`player`,`country_code`,`units`,`origin`) VALUES (?,?,'SWE',?, 'SWE')",
+    [$p3, $S, json_encode(['infantry' => 105]), ], 'iis');
+$limit = GameConfig::manpowerLimit(10600000);
+$meRow = $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$S], 'i');
+$match3 = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p3], 'i');
+$resCap = Training::start($db, $match3, $meRow, 'SWE', 'infantry');
+check('(k) manpower-cap refusal (105 used + 5 > 106 limit)',
+    $limit === 106 && !$resCap['ok'] && str_contains($resCap['message'], 'manpower'),
+    sprintf('limit=%d msg="%s"', $limit, $resCap['message']));
+
+// --- (l) tech-locked unit refused ---------------------------------------------
+$db->execute("DELETE FROM `armies` WHERE `match_id`=? AND `player`=?", [$p3, $S], 'ii');  // free manpower
+$meRow = $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$S], 'i');
+$resTech = Training::start($db, $match3, $meRow, 'SWE', 'artillery');   // needs tech 'artillery'
+check('(l) tech-locked unit refused (no artillery tech)',
+    !$resTech['ok'] && str_contains(strtolower($resTech['message']), 'research'),
+    'msg="' . $resTech['message'] . '"');
+
+// --- (m) a batch of 5 trains and completes into the stack ---------------------
+// Clean slate: Sweden owns SWE, no army, funded. Train infantry (build_days 2).
+$db->execute("DELETE FROM `training` WHERE `match_id`=? AND `player`=?", [$p3, $S], 'ii');
+$db->execute("DELETE FROM `armies` WHERE `match_id`=? AND `player`=?", [$p3, $S], 'ii');
+$meRow = $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$S], 'i');
+$goldPre = (float)$meRow['gold'];
+$resTrain = Training::start($db, $match3, $meRow, 'SWE', 'infantry');
+$meAfterStart = $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$S], 'i');
+$costPaid = $goldPre - (float)$meAfterStart['gold'];   // 40 gold × 5 = 200
+$expReady = (int)$match3['current_tick'] + (int)GameConfig::UNITS['infantry']['build_days'];
+$startOk = $resTrain['ok'] && $resTrain['count'] === 5 && $resTrain['ready_tick'] === $expReady && $costPaid == 200;
+// Advance until the batch completes; it should merge into a SWE stack of 5 infantry.
+$completed = false; $joined = 0;
+for ($i = 0; $i < 4 && !$completed; $i++) {
+    $match3 = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p3], 'i');
+    $evT = Tick::process($db, $match3);
+    foreach ($evT as $e) if ($e['type'] === 'training_complete' && ($e['data']['player'] ?? 0) === $S) $completed = true;
+}
+$trained = $db->selectOne("SELECT `units` FROM `armies` WHERE `match_id`=? AND `player`=? AND `country_code`='SWE' AND `moving_to` IS NULL", [$p3, $S], 'ii');
+$joined = $trained ? (Combat::units($trained)['infantry'] ?? 0) : 0;
+$noTrainingLeft = (int)($db->selectOne("SELECT COUNT(*) c FROM `training` WHERE `match_id`=? AND `player`=?", [$p3, $S], 'ii')['c'] ?? 0);
+check('(m) batch of 5 trains, completes, joins the stack',
+    $startOk && $completed && $joined === 5 && $noTrainingLeft === 0,
+    sprintf('startOk=%d cost=%.0f ready@%d completed=%d joined=%d rowsLeft=%d',
+        $startOk ? 1 : 0, $costPaid, $expReady, $completed ? 1 : 0, $joined, $noTrainingLeft));
+
+// --- (n) slot limit with factories --------------------------------------------
+// Base = 1 slot. One batch busy -> second batch refused. Add 2 active factories ->
+// 3 slots, so two more batches start, then the 4th is refused.
+$db->execute("DELETE FROM `training` WHERE `match_id`=? AND `player`=?", [$p3, $S], 'ii');
+$db->execute("DELETE FROM `armies` WHERE `match_id`=? AND `player`=?", [$p3, $S], 'ii');
+$db->execute("DELETE FROM `buildings` WHERE `match_id`=? AND `player`=?", [$p3, $S], 'ii');
+$db->execute("UPDATE `match_players` SET `gold`=100000,`minerals`=100000 WHERE `id`=?", [$S], 'i');
+$match3 = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p3], 'i');
+$me0 = $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$S], 'i');
+$b1 = Training::start($db, $match3, $me0, 'SWE', 'infantry');                 // ok (1/1)
+$me0 = $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$S], 'i');
+$b2 = Training::start($db, $match3, $me0, 'SWE', 'infantry');                 // refuse (slot full)
+// Add two active factories in SWE -> slots become 3.
+$db->execute("INSERT INTO `buildings` (`match_id`,`player`,`country_code`,`type`,`status`,`complete_at_tick`) VALUES (?,?,'SWE','factory','active',0),(?,?,'SWE','factory','active',0)",
+    [$p3, $S, $p3, $S], 'iiii');
+$me0 = $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$S], 'i');
+$b3 = Training::start($db, $match3, $me0, 'SWE', 'infantry');                 // ok (2/3)
+$me0 = $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$S], 'i');
+$b4 = Training::start($db, $match3, $me0, 'SWE', 'infantry');                 // ok (3/3)
+$me0 = $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$S], 'i');
+$b5 = Training::start($db, $match3, $me0, 'SWE', 'infantry');                 // refuse (3/3 full)
+check('(n) slot limit: 1 base + 1 per factory',
+    $b1['ok'] && !$b2['ok'] && str_contains($b2['message'], 'slot')
+    && $b3['ok'] && $b4['ok'] && !$b5['ok'] && str_contains($b5['message'], 'slot'),
+    sprintf('base:1ok/2refused=%d,%d  +2factories:3ok/4ok/5refused=%d,%d,%d',
+        $b1['ok']?1:0, $b2['ok']?1:0, $b3['ok']?1:0, $b4['ok']?1:0, $b5['ok']?1:0));
+
+// --- (o) weighted victory shares sum ~1 across all owned land -----------------
+// Claim the WHOLE board for the two p3 players so every country is owned; the sum of
+// weighted shares over owners must be ~1.0 (full world owned).
+$db->execute("UPDATE `territories` SET `owner`=? WHERE `match_id`=? AND `owner` IS NULL", [$S, $p3], 'ii');
+$shares3 = Tick::worldShares($db, $p3);
+$sumShares = array_sum($shares3);
+check('(o) weighted world shares sum to ~1 when the whole world is owned',
+    abs($sumShares - 1.0) < 1e-6,
+    sprintf('Σshares=%.6f over %d owners', $sumShares, count($shares3)));
+
+// --- (p) victory fires at DOMINATION_SHARE ------------------------------------
+// Sweden now owns every country -> share = 1.0 >= 0.60 -> match ends with Sweden.
+$db->execute("UPDATE `territories` SET `owner`=? WHERE `match_id`=?", [$S, $p3], 'ii');
+$db->execute("UPDATE `match_players` SET `status`='defeated' WHERE `id`=?", [$Uusa], 'i');
+$evVic = [];
+// Re-run just the victory check via a fresh tick.
+$match3 = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p3], 'i');
+Tick::process($db, $match3);
+$ended = $db->selectOne("SELECT `status`,`winner_player` FROM `matches` WHERE `id`=?", [$p3], 'i');
+check('(p) victory at DOMINATION_SHARE (Sweden owns the world)',
+    $ended['status'] === 'ended' && (int)$ended['winner_player'] === $S,
+    sprintf('status=%s winner=%s (Sweden=%d)', $ended['status'], var_export($ended['winner_player'], true), $S));
+
+line();
+echo "PHASE-3 RESULT: " . ($pass) . " passed, " . ($fail) . " failed (cumulative with phase-2)\n";
 
 $db->close();
 echo "\nSmoke test complete.\n";

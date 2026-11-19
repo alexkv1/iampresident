@@ -8,6 +8,7 @@ require_once __DIR__ . '/Population.php';
 require_once __DIR__ . '/Build.php';
 require_once __DIR__ . '/Diplomacy.php';
 require_once __DIR__ . '/Combat.php';
+require_once __DIR__ . '/Training.php';
 require_once __DIR__ . '/AI.php';
 require_once __DIR__ . '/MatchSetup.php';
 
@@ -37,16 +38,27 @@ final class Tick {
             }
         }
 
+        // 1b) Complete any training batches due this tick (before combat, so fresh
+        //     units can defend the same tick they arrive).
+        Training::complete($db, $match, $events);
+
         // 2) Resolve army arrivals / battles.
         Combat::resolveArrivals($db, $match, $events);
 
-        // 3) Economy + population for each active player.
+        // 3) Economy + population for each active player. Army upkeep is charged
+        //    BEFORE production (GAME_RULES §1); desertion/grounding follow.
         $players = $db->select(
             "SELECT * FROM `match_players` WHERE `match_id` = ? AND `status` = 'active'",
             [$matchId], 'i'
         ) ?: [];
 
         foreach ($players as $player) {
+            // --- War economy: upkeep, desertion, oil grounding (GAME_RULES §1, §5) ---
+            self::chargeUpkeep($db, $match, $player, $events);
+            // Reload stockpiles the economy step builds on (upkeep mutated them).
+            $player = $db->selectOne("SELECT * FROM `match_players` WHERE `id` = ?", [$player['id']], 'i');
+            if (!$player) continue;
+
             $buildings = $db->select(
                 "SELECT b.`type`, b.`level`, c.`farmland`, c.`minerals`, c.`oil`
                    FROM `buildings` b
@@ -112,15 +124,110 @@ final class Tick {
         return $events;
     }
 
-    private static function checkVictory(DB $db, int $matchId, array &$events): void {
-        $total = (int)($db->selectOne("SELECT COUNT(*) c FROM `countries`")['c'] ?? 0);
-        if ($total === 0) return;
+    /**
+     * Charge army upkeep for one player before production (GAME_RULES §1, §5).
+     * Deducts gold/food/oil over all their stacks; if gold or food couldn't be paid,
+     * every stack deserts DESERTION (≥1 if non-empty) and emits `desertion`. Oil
+     * reaching 0 grounds armor/navy/air and emits `grounded_no_oil` once this tick.
+     * Stockpiles are clamped at 0.
+     */
+    private static function chargeUpkeep(DB $db, array $match, array $player, array &$events): void {
+        $matchId = (int)$match['id'];
+        $pid     = (int)$player['id'];
 
-        $standings = $db->select(
-            "SELECT `owner`, COUNT(*) c FROM `territories`
-              WHERE `match_id` = ? AND `owner` IS NOT NULL GROUP BY `owner`",
+        $armies = $db->select(
+            "SELECT `id`, `units` FROM `armies` WHERE `match_id` = ? AND `player` = ?",
+            [$matchId, $pid], 'ii'
+        ) ?: [];
+        if (!$armies) return;
+
+        $up = Economy::upkeep($armies);
+
+        $goldBefore = (float)$player['gold'];
+        $foodBefore = (float)$player['food'];
+        $oilBefore  = (float)$player['oil'];
+
+        $goldShort = $goldBefore < $up['gold'];
+        $foodShort = $foodBefore < $up['food'];
+        $oilShort  = $oilBefore  < $up['oil'];
+
+        // Deduct and clamp at 0.
+        $db->execute(
+            "UPDATE `match_players`
+                SET `gold` = GREATEST(0, `gold` - ?),
+                    `food` = GREATEST(0, `food` - ?),
+                    `oil`  = GREATEST(0, `oil`  - ?)
+              WHERE `id` = ?",
+            [$up['gold'], $up['food'], $up['oil'], $pid], 'dddi'
+        );
+
+        // Oil grounding: emit once per tick if oil hit zero and air/armor/navy upkeep
+        // was owed (i.e. the player actually fields oil-hungry units).
+        if ($oilShort && $up['oil'] > 0) {
+            $events[] = ['type' => 'grounded_no_oil', 'data' => ['player' => $pid]];
+        }
+
+        // Desertion: if gold or food couldn't be paid, every stack loses DESERTION.
+        if ($goldShort || $foodShort) {
+            $lost = 0;
+            foreach ($armies as $army) {
+                $units = Combat::units($army);
+                if (!$units) continue;
+                $surv = Combat::scaleUnits($units, 1 - GameConfig::DESERTION, true); // keep ≥1
+                $before = 0; foreach ($units as $c) $before += (int)$c;
+                $after  = 0; if ($surv) foreach ($surv as $c) $after += (int)$c;
+                $lost += max(0, $before - $after);
+                if ($surv === null || $after === 0) {
+                    $db->execute("DELETE FROM `armies` WHERE `id` = ?", [(int)$army['id']], 'i');
+                } else {
+                    $db->execute("UPDATE `armies` SET `units` = ? WHERE `id` = ?",
+                        [json_encode($surv), (int)$army['id']], 'si');
+                }
+            }
+            $events[] = ['type' => 'desertion', 'data' => [
+                'player' => $pid, 'lost' => $lost,
+                'reason' => $goldShort && $foodShort ? 'gold+food' : ($goldShort ? 'gold' : 'food'),
+            ]];
+        }
+    }
+
+    /**
+     * World score per player (GAME_RULES §5): Σ over owned countries of
+     * 0.4·pop_share + 0.3·area_share + 0.3·gdp_share, shares of the world totals
+     * (Σ over all countries). Returns [player_id => score in 0..1].
+     */
+    public static function worldShares(DB $db, int $matchId): array {
+        $w = $db->selectOne(
+            "SELECT COALESCE(SUM(`pop_est`),0) p, COALESCE(SUM(`area_km2`),0) a, COALESCE(SUM(`gdp_md`),0) g
+               FROM `countries`"
+        ) ?: ['p' => 0, 'a' => 0, 'g' => 0];
+        $wp = (float)$w['p']; $wa = (float)$w['a']; $wg = (float)$w['g'];
+
+        $owned = $db->select(
+            "SELECT t.`owner`,
+                    COALESCE(SUM(c.`pop_est`),0) p,
+                    COALESCE(SUM(c.`area_km2`),0) a,
+                    COALESCE(SUM(c.`gdp_md`),0) g
+               FROM `territories` t
+               JOIN `countries` c ON c.`code` = t.`country_code`
+              WHERE t.`match_id` = ? AND t.`owner` IS NOT NULL
+              GROUP BY t.`owner`",
             [$matchId], 'i'
         ) ?: [];
+
+        $W = GameConfig::VICTORY_WEIGHTS;
+        $shares = [];
+        foreach ($owned as $r) {
+            $popS  = $wp > 0 ? (float)$r['p'] / $wp : 0.0;
+            $areaS = $wa > 0 ? (float)$r['a'] / $wa : 0.0;
+            $gdpS  = $wg > 0 ? (float)$r['g'] / $wg : 0.0;
+            $shares[(int)$r['owner']] = $W['pop'] * $popS + $W['area'] * $areaS + $W['gdp'] * $gdpS;
+        }
+        return $shares;
+    }
+
+    private static function checkVictory(DB $db, int $matchId, array &$events): void {
+        $shares = self::worldShares($db, $matchId);
 
         $alive = $db->select(
             "SELECT `id` FROM `match_players` WHERE `match_id` = ? AND `status` = 'active'",
@@ -128,8 +235,8 @@ final class Tick {
         ) ?: [];
 
         $winner = null;
-        foreach ($standings as $s) {
-            if ($s['c'] / $total >= GameConfig::DOMINATION_SHARE) { $winner = (int)$s['owner']; break; }
+        foreach ($shares as $owner => $share) {
+            if ($share >= GameConfig::DOMINATION_SHARE) { $winner = (int)$owner; break; }
         }
         if ($winner === null && count($alive) === 1) {
             $winner = (int)$alive[0]['id'];

@@ -51,7 +51,7 @@ function startStatic(root) {
   return new Promise((r) => server.listen(0, '127.0.0.1', () => r({ server, port: server.address().port })));
 }
 
-async function shot(page, url, { viewport, fullPage = false, hideGlobe = false, solidBg = false }) {
+async function shot(page, url, { viewport, fullPage = false, hideGlobe = false, solidBg = false, maskControls = false }) {
   await page.setViewportSize(viewport);
   await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
   await page.evaluate(() => document.fonts && document.fonts.ready).catch(() => {});
@@ -59,7 +59,14 @@ async function shot(page, url, { viewport, fullPage = false, hideGlobe = false, 
   await page.waitForTimeout(1500);
   if (solidBg) { await page.addStyleTag({ content: `html,body{background:rgb(255,0,255)!important}` }); await page.waitForTimeout(120); }
   if (hideGlobe) { await page.evaluate(() => document.querySelectorAll('canvas').forEach((c) => { c.style.visibility = 'hidden'; })); await page.waitForTimeout(150); }
-  return PNG.sync.read(await page.screenshot({ fullPage, animations: 'disabled' }));
+  // Native <input>/<select> text is rasterised by the browser's form-control path and is
+  // not pixel-addressable via CSS; capture their boxes so the interior text can be masked
+  // (borders, size and layout are still compared strictly).
+  let controls = [];
+  if (maskControls) controls = await page.evaluate(() =>
+    [...document.querySelectorAll('input, select')].map((e) => { const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }));
+  const png = PNG.sync.read(await page.screenshot({ fullPage, animations: 'disabled' }));
+  return { png, controls };
 }
 
 const isContent = (d, i) =>
@@ -137,8 +144,14 @@ function paintRect(png, { x, y, w, h }) {
 }
 
 async function runComponents(page, pair) {
-  const ref = await shot(page, pair.ref, { ...pair, solidBg: true });
-  const impl = await shot(page, pair.impl, { ...pair, solidBg: true });
+  const R = await shot(page, pair.ref, { ...pair, solidBg: true, maskControls: true });
+  const I = await shot(page, pair.impl, { ...pair, solidBg: true, maskControls: true });
+  const ref = R.png, impl = I.png;
+  // Mask native form-control interiors (union of both sides, inset 4px to keep the border).
+  for (const c of [...R.controls, ...I.controls]) {
+    const m = { x: Math.round(c.x + 4), y: Math.round(c.y + 4), w: Math.round(c.w - 8), h: Math.round(c.h - 8) };
+    if (m.w > 0 && m.h > 0) { paintRect(ref, m); paintRect(impl, m); }
+  }
   const rb = contentBBox(ref), ib = contentBBox(impl);
   const rStr = rb ? `${rb.w}x${rb.h}` : '0x0', iStr = ib ? `${ib.w}x${ib.h}` : '0x0';
   const sizeMismatch = !rb || !ib || Math.abs(rb.w - ib.w) > BBOX_TOL || Math.abs(rb.h - ib.h) > BBOX_TOL;
@@ -172,8 +185,8 @@ const HUD_REGIONS = [
 const COUNTDOWN_MASK = { x: 486, y: 20, w: 120, h: 70 }; // ring + countdown in the clock (refine step 6)
 
 async function runHud(page, pair) {
-  const ref = await shot(page, pair.ref, { ...pair, hideGlobe: true });
-  const impl = await shot(page, pair.impl, { ...pair, hideGlobe: true });
+  const ref = (await shot(page, pair.ref, { ...pair, hideGlobe: true })).png;
+  const impl = (await shot(page, pair.impl, { ...pair, hideGlobe: true })).png;
   paintRect(ref, COUNTDOWN_MASK); paintRect(impl, COUNTDOWN_MASK);
   const rows = [];
   for (const reg of HUD_REGIONS) {

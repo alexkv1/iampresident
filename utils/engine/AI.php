@@ -14,6 +14,11 @@ final class AI {
         // Light research: when idle, start the cheapest tech it qualifies for (§8).
         self::maybeResearch($db, $match, $player, $events);
 
+        // Military: keep training infantry, and march an idle stack at a winnable
+        // neighbour (expands into neutrals; declares war on weaker players) (§1a, §2-3).
+        self::maybeTrain($db, $match, $player, $events);
+        self::maybeAttack($db, $match, $player, $events);
+
         // Count buildings (active + under construction) in the capital by type.
         $rows = $db->select(
             "SELECT `type`, COUNT(*) c FROM `buildings`
@@ -118,6 +123,92 @@ final class AI {
                 $events[] = ['type' => 'research_started', 'data' => ['player' => $pid, 'tech' => $key]];
             }
             break;
+        }
+    }
+
+    /**
+     * Train one infantry batch at the capital when the AI can afford it and has
+     * manpower + a free slot (GAME_RULES §1a). Keeps armies growing over a match.
+     */
+    private static function maybeTrain(DB $db, array $match, array $player, array &$events): void {
+        $matchId = (int)$match['id'];
+        $pid     = (int)$player['id'];
+        $cap     = $player['country_code'];
+        if (!$cap) return;
+
+        $cfg = GameConfig::unit('infantry');
+        $batchCost = (float)($cfg['cost']['gold'] ?? 0) * GameConfig::TRAIN_BATCH;
+        $reserve = [250, 150, 80][max(0, min(2, (int)$player['ai_level'] - 1))];
+        if ((float)$player['gold'] - $batchCost < $reserve) return;
+
+        $used  = Training::manpowerUsed($db, $matchId, $pid);
+        $limit = GameConfig::manpowerLimit((float)$player['pop']);
+        if ($used + GameConfig::TRAIN_BATCH > $limit) return;
+
+        $res = Training::start($db, $match, $player, $cap, 'infantry');
+        if ($res['ok']) {
+            $events[] = ['type' => 'ai_train', 'data' => ['player' => $pid, 'country' => $cap]];
+        }
+    }
+
+    /**
+     * March one idle stack to the weakest attackable neighbour it can comfortably
+     * beat (GAME_RULES §2-3). Expands into neutrals freely; declares war first on a
+     * weaker player. One march per tick.
+     */
+    private static function maybeAttack(DB $db, array $match, array $player, array &$events): void {
+        $matchId = (int)$match['id'];
+        $pid     = (int)$player['id'];
+        $tick    = (int)$match['current_tick'];
+
+        $stacks = $db->select(
+            "SELECT * FROM `armies` WHERE `match_id`=? AND `player`=? AND `moving_to` IS NULL",
+            [$matchId, $pid], 'ii'
+        ) ?: [];
+        foreach ($stacks as $st) {
+            $units = Combat::units($st);
+            if (!$units) continue;
+            $atk = Combat::attackStrength($units);
+            if ($atk <= 0) continue;
+            $from = $st['country_code'];
+
+            $best = null; $bestD = null; $bestOwner = null;
+            foreach (Movement::neighbors($db, $from) as $nb) {
+                $owner = Movement::ownerOf($db, $matchId, $nb);
+                if ($owner === $pid) continue;
+                if ($owner !== null && Diplomacy::areAllied($db, $matchId, $pid, $owner)) continue;
+                if ($owner !== null && Diplomacy::truceLeft($db, $matchId, $pid, $owner, $tick) > 0) continue;
+
+                $terr    = $db->selectOne("SELECT * FROM `territories` WHERE `match_id`=? AND `country_code`=?", [$matchId, $nb], 'is');
+                $country = $db->selectOne("SELECT * FROM `countries` WHERE `code`=?", [$nb], 's');
+                if (!$terr || !$country) continue;
+
+                $garr = Combat::garrisonOf($db, $terr, $country, $tick);
+                $defU = 0.0;
+                foreach ($db->select("SELECT `units`,`player` FROM `armies` WHERE `match_id`=? AND `country_code`=? AND `moving_to` IS NULL AND `player`<>?", [$matchId, $nb, $pid], 'isi') ?: [] as $d) {
+                    if ($owner !== null && Diplomacy::areAllied($db, $matchId, $pid, (int)$d['player'])) continue;
+                    $defU += Combat::defenceStrength(Combat::units($d));
+                }
+                $D = ($garr + $defU) * GameConfig::DEFENDER_BONUS * GameConfig::terrainMult($country['terrain'] ?? 'plains');
+                if ($atk > $D * 1.3 && ($bestD === null || $D < $bestD)) {
+                    $best = $nb; $bestD = $D; $bestOwner = $owner;
+                }
+            }
+            if ($best === null) continue;
+
+            if ($bestOwner !== null && !Diplomacy::atWar($db, $matchId, $pid, $bestOwner)) {
+                Diplomacy::declareWar($db, $matchId, $pid, $bestOwner, $tick);
+            }
+            $codes  = [$from, $best];
+            $km     = Movement::pathKm($db, $codes);
+            $days   = Movement::days($km, Movement::stackSpeed($units));
+            $arrive = $tick + $days;
+            $db->execute(
+                "UPDATE `armies` SET `moving_to`=?, `path`=?, `kind`='land', `origin`=?, `depart_tick`=?, `arrive_at_tick`=? WHERE `id`=?",
+                [$best, json_encode($codes), $from, $tick, $arrive, (int)$st['id']], 'sssiii'
+            );
+            $events[] = ['type' => 'ai_march', 'data' => ['player' => $pid, 'from' => $from, 'to' => $best]];
+            return;   // one march per tick
         }
     }
 

@@ -12,6 +12,11 @@ Judgment calls made while implementing the phase-2 handoff autonomously. Format:
 - **Retreat** = the outbound `path` reversed, re-costed; if origin==current the stack just stops. Where: `Combat::retreat`.
 - **`plan.php` strike section is shape/lock/range/stock-faithful only**; strike execution lands in P2-5. Where: `public/api/army/plan.php`.
 
+## P2-8 (sim + AI)
+- **Added lightweight *offensive* AI** (`AI::maybeTrain`, `AI::maybeAttack`) beyond the phase-1 economy/diplomacy AI. Why: P2-8 asks for AI-only matches with "first conquest / winner" metrics, which are meaningless if the AI never trains or fights. The AI trains an infantry batch when it can afford it + has manpower, and marches one idle stack per tick at the weakest neighbour it can beat by a 1.3× margin (expanding into neutrals freely; declaring war first on a weaker player). Deliberately modest — the balance report notes it as the limiter on deep expansion. Where: `utils/engine/AI.php`.
+- **Sim seeds `mt_srand(seed + matchIndex)`** before each match; `Combat` uses `mt_rand` by default so this makes combat deterministic per seed, while keeping each of the N matches distinct. Where: `tools/sim/run.php`.
+- **Balance numbers left unapplied.** The sim surfaced (1) large-nation starvation, (2) tiny armies vs manpower, (3) no 120-day winner, (4) no AI nukes. Per the handoff I did not tune `GameConfig`; `docs/balance-v2.md` records findings and proposals and asks before changing anything. The only suggested change is an AI build-priority tweak (behaviour, not balance).
+
 ## P2-6
 - **Vision includes allied stacks, not just my own** (GAME_RULES §10 "allies share vision" / §7): the seed is lands + stacks of my whole *side* (me + current allies), then one border beyond their union. The literal §10 wording says "where **you** have a stack", but §7's shared vision makes allied stacks part of my sight; I chose the inclusive reading. Where: `Vision::visible`, `Vision::side`.
 - **An in-transit enemy stack is visible if its origin OR destination is in vision** (its `country_code` stays the departure country until arrival; `moving_to` is the destination). Where: `Vision::canSeeArmy`.

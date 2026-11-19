@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../../utils/engine/Training.php';
 require_once __DIR__ . '/../../../utils/engine/Economy.php';
 require_once __DIR__ . '/../../../utils/engine/Research.php';
 require_once __DIR__ . '/../../../utils/engine/Arsenal.php';
+require_once __DIR__ . '/../../../utils/engine/Vision.php';
 require_once __DIR__ . '/../../../utils/engine/Tick.php';
 
 $auth = require_auth();
@@ -88,6 +89,28 @@ foreach (db()->select(
     ];
 }
 
+// Fog of war (GAME_RULES §10): only armies the requester may see, a defence map
+// (null = fogged enemy country), and the set of visible country codes.
+$curTick = (int)$match['current_tick'];
+$visibleArmies = [];
+foreach (Vision::armies(db(), $matchId, $myId) as $a) {
+    $visibleArmies[] = [
+        'id'             => (int)$a['id'],
+        'player'         => (int)$a['player'],
+        'country_code'   => $a['country_code'],
+        'units'          => Combat::units($a),
+        'moving_to'      => $a['moving_to'],
+        'origin'         => $a['origin'],
+        'kind'           => $a['kind'],
+        'path'           => $a['path'] ? json_decode($a['path'], true) : null,
+        'depart_tick'    => $a['depart_tick'] !== null ? (int)$a['depart_tick'] : null,
+        'arrive_at_tick' => $a['arrive_at_tick'] !== null ? (int)$a['arrive_at_tick'] : null,
+        'mine'           => (int)$a['player'] === $myId,
+    ];
+}
+$defence = Vision::defenceMap(db(), $matchId, $myId, $curTick);
+$vision  = array_keys(Vision::visible(db(), $matchId, $myId));
+
 json_ok([
     'match' => [
         'id'                => (int)$match['id'],
@@ -120,6 +143,9 @@ json_ok([
     'players'     => $players,
     'territories' => $territories,
     'buildings'   => $buildings,
+    'armies'      => $visibleArmies,
+    'defence'     => $defence,
+    'vision'      => $vision,
     'events'      => $events,
     'diplomacy'   => $relations,
     'proposals'   => $proposals,

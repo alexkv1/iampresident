@@ -12,6 +12,13 @@ Judgment calls made while implementing the phase-2 handoff autonomously. Format:
 - **Retreat** = the outbound `path` reversed, re-costed; if origin==current the stack just stops. Where: `Combat::retreat`.
 - **`plan.php` strike section is shape/lock/range/stock-faithful only**; strike execution lands in P2-5. Where: `public/api/army/plan.php`.
 
+## P2-6
+- **Vision includes allied stacks, not just my own** (GAME_RULES §10 "allies share vision" / §7): the seed is lands + stacks of my whole *side* (me + current allies), then one border beyond their union. The literal §10 wording says "where **you** have a stack", but §7's shared vision makes allied stacks part of my sight; I chose the inclusive reading. Where: `Vision::visible`, `Vision::side`.
+- **An in-transit enemy stack is visible if its origin OR destination is in vision** (its `country_code` stays the departure country until arrival; `moving_to` is the destination). Where: `Vision::canSeeArmy`.
+- **Fog filtering lives in `Vision` (not inline in the endpoint)** so `match/get` and the smoke test share the exact predicate: `Vision::armies` (own/ally always, others only within vision) and `Vision::defenceMap` (neutral garrisons always known; enemy-owned countries outside vision → `null`). Where: `utils/engine/Vision.php`.
+- **`match/get` now returns `armies` (fog-filtered), `defence` (code→int|null), and `vision` (visible codes).** Armies were not previously surfaced at all; P2-7's globe/markers need them, and §10 requires them stripped. Visible enemy stacks show full composition (once seen, you see them); only the country-level `defence` is nulled when fogged. Where: `public/api/match/get.php`.
+- **Defence value = garrison + friendly stationed defenders** (owner's + owner's-allies' stacks), raw (no ×1.5/terrain multipliers) — a display figure, not the combat `D`. Where: `Vision::defenceMap`.
+
 ## P2-5
 - **Research completes purely by elapsed time** (`started_tick + days`), paid in full at start. The `player_tech.progress` column is updated each tick for display only; completion keys off time, matching "completes after `days`". Where: `Research::start`, `Research::advance`.
 - **Research/arsenal completion is Tick step 1c** (alongside training, before combat) so a tech/warhead finishing this tick is usable the same tick. Where: `Tick::process`.

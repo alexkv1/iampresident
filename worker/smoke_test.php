@@ -851,6 +851,79 @@ check('(hh) garrison damage recovers 10% of base per day',
 
 line();
 echo "PHASE-5 RESULT: " . ($pass - $p5pass0) . " passed, " . ($fail - $p5fail0) . " failed\n";
+
+// =============================================================================
+// Phase-6: fog of war (deterministic). GAME_RULES §10.
+// =============================================================================
+require_once __DIR__ . '/../utils/engine/Vision.php';
+
+$p6pass0 = $pass; $p6fail0 = $fail;
+line();
+echo "PHASE-6: fog of war (vision / hidden stacks / defence fogging)\n";
+line();
+
+$db->execute(
+    "INSERT INTO `matches` (`name`,`mode`,`status`,`max_players`,`tick_interval_sec`,`current_tick`,`host_user`)
+     VALUES (?, 'single', 'active', 8, 20, 0, ?)",
+    [$TAG, $uid], 'si'
+);
+$p6 = (int)$db->lastInsertId();
+$db->execute("INSERT INTO `match_players` (`match_id`,`user`,`display_name`,`country_code`,`color`,`slot`,`is_host`,`pop`) VALUES (?,?,?, 'DEU','#e6194b',0,1,10000000)",
+    [$p6, $uid, 'You (Germany)'], 'iis');
+$O6 = (int)$db->lastInsertId();                 // viewer
+$db->execute("INSERT INTO `match_players` (`match_id`,`is_ai`,`display_name`,`country_code`,`color`,`slot`,`pop`) VALUES (?,1,?, 'FRA','#3cb44b',1,10000000)",
+    [$p6, 'CPU France'], 'is');
+$V6 = (int)$db->lastInsertId();                 // enemy
+$db->execute("INSERT INTO `match_players` (`match_id`,`is_ai`,`display_name`,`country_code`,`color`,`slot`,`pop`) VALUES (?,1,?, 'POL','#4363d8',2,10000000)",
+    [$p6, 'CPU Poland'], 'is');
+$A6 = (int)$db->lastInsertId();                 // ally
+
+$db->execute("INSERT INTO `territories` (`match_id`,`country_code`) SELECT ?, `code` FROM `countries`
+              ON DUPLICATE KEY UPDATE `is_capital`=`is_capital`", [$p6], 'i');
+foreach ([['DEU',$O6],['FRA',$V6],['AUS',$V6],['POL',$A6]] as $cl) {
+    $db->execute("UPDATE `territories` SET `owner`=? WHERE `match_id`=? AND `country_code`=?", [$cl[1], $p6, $cl[0]], 'iis');
+}
+Diplomacy::set($db, $p6, $O6, $A6, 'allied');    // O and Poland share vision
+Diplomacy::set($db, $p6, $O6, $V6, 'war');
+
+// Stacks: O in DEU (own), ally in POL, enemy in FRA (borders DEU -> visible),
+// enemy in AUS (far -> hidden).
+$db->execute("INSERT INTO `armies` (`match_id`,`player`,`country_code`,`units`,`origin`) VALUES
+    (?,?,'DEU',?, 'DEU'), (?,?,'POL',?, 'POL'), (?,?,'FRA',?, 'FRA'), (?,?,'AUS',?, 'AUS')",
+    [$p6, $O6, json_encode(['infantry' => 8]),
+     $p6, $A6, json_encode(['infantry' => 5]),
+     $p6, $V6, json_encode(['infantry' => 10]),
+     $p6, $V6, json_encode(['infantry' => 20])], 'iisiisiisiis');
+
+// --- (ii) hidden enemy stacks never appear; visible ones do ---------------------
+$seenCodes = array_map(fn($a) => $a['country_code'], Vision::armies($db, $p6, $O6));
+$hidesAUS = !in_array('AUS', $seenCodes, true);
+$showsFRA = in_array('FRA', $seenCodes, true);
+$showsPOL = in_array('POL', $seenCodes, true);
+$showsDEU = in_array('DEU', $seenCodes, true);
+check('(ii) fog hides the far enemy stack, shows own/ally/bordering-enemy stacks',
+    $hidesAUS && $showsFRA && $showsPOL && $showsDEU,
+    sprintf('AUS hidden=%d FRA=%d POL=%d DEU=%d  seen=[%s]',
+        $hidesAUS ? 1 : 0, $showsFRA ? 1 : 0, $showsPOL ? 1 : 0, $showsDEU ? 1 : 0, implode(',', $seenCodes)));
+
+// --- (jj) defence map: visible enemy int, fogged enemy null, neutral always known
+$dm = Vision::defenceMap($db, $p6, $O6, 0);
+$ausFogged = array_key_exists('AUS', $dm) && $dm['AUS'] === null;
+check('(jj) defence fogs hidden enemy (null), reveals visible + neutral',
+    is_int($dm['FRA'] ?? null) && $ausFogged && is_int($dm['BRA'] ?? null),
+    sprintf('FRA=%s AUS=%s BRA=%s',
+        var_export($dm['FRA'] ?? 'missing', true),
+        array_key_exists('AUS', $dm) ? var_export($dm['AUS'], true) : 'missing',
+        var_export($dm['BRA'] ?? 'missing', true)));
+
+// --- (kk) vision set: own + ally + border in; far enemy out ---------------------
+$vis = Vision::visible($db, $p6, $O6);
+check('(kk) vision = own + allied lands + one border; excludes the far enemy',
+    isset($vis['DEU']) && isset($vis['POL']) && isset($vis['FRA']) && !isset($vis['AUS']),
+    sprintf('DEU=%d POL=%d FRA=%d AUS=%d', isset($vis['DEU'])?1:0, isset($vis['POL'])?1:0, isset($vis['FRA'])?1:0, isset($vis['AUS'])?1:0));
+
+line();
+echo "PHASE-6 RESULT: " . ($pass - $p6pass0) . " passed, " . ($fail - $p6fail0) . " failed\n";
 echo "CUMULATIVE: " . $pass . " passed, " . $fail . " failed\n";
 
 $db->close();

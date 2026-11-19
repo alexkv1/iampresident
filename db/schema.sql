@@ -53,8 +53,11 @@ CREATE TABLE IF NOT EXISTS `countries` (
   `minerals`   TINYINT      NOT NULL DEFAULT 20,  -- ore richness
   `oil`        TINYINT      NOT NULL DEFAULT 10,  -- oil richness
   `start_pop`  BIGINT UNSIGNED NOT NULL DEFAULT 1000000,
-  `lon`        DECIMAL(9,5)      DEFAULT NULL,    -- centroid for globe labels / army icons
+  `lon`        DECIMAL(9,5)      DEFAULT NULL,    -- centroid (hudGeo overrides for RUS/USA/CAN/NOR/FRA/CHL/IDN)
   `lat`        DECIMAL(9,5)      DEFAULT NULL,
+  `area_km2`   INT               DEFAULT NULL,    -- geodesic area (GAME_RULES §5 victory weight)
+  `coastal`    TINYINT      NOT NULL DEFAULT 0,   -- can be a sea-route endpoint (GAME_RULES §2)
+  `terrain`    ENUM('plains','forest','mountains') NOT NULL DEFAULT 'plains', -- combat mult (§3)
   PRIMARY KEY (`code`),
   KEY `ix_countries_continent` (`continent`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -148,8 +151,13 @@ CREATE TABLE IF NOT EXISTS `territories` (
   `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `match_id`     INT UNSIGNED NOT NULL,
   `country_code` CHAR(3)      NOT NULL,
-  `owner`        INT UNSIGNED      DEFAULT NULL,  -- match_players.id, NULL = neutral
-  `is_capital`   TINYINT(1)   NOT NULL DEFAULT 0,
+  `owner`          INT UNSIGNED    DEFAULT NULL,  -- match_players.id, NULL = neutral
+  `is_capital`     TINYINT(1)  NOT NULL DEFAULT 0,
+  `occupied_until` INT             DEFAULT NULL,  -- tick when occupation ends (GAME_RULES §6)
+  `unrest`         TINYINT     NOT NULL DEFAULT 0,
+  `damage`         SMALLINT    NOT NULL DEFAULT 0, -- temporary garrison reduction (strikes)
+  `prev_owner`     INT UNSIGNED    DEFAULT NULL,  -- for revolt
+  `ruined_until`   INT             DEFAULT NULL,  -- nuke: farmland output 0 until this tick
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_territory` (`match_id`, `country_code`),
   KEY `ix_territory_owner` (`match_id`, `owner`)
@@ -175,11 +183,17 @@ CREATE TABLE IF NOT EXISTS `armies` (
   `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `match_id`      INT UNSIGNED NOT NULL,
   `player`        INT UNSIGNED NOT NULL,
-  `country_code`  CHAR(3)      NOT NULL,           -- current location
-  `type`          ENUM('infantry','armor','air','navy') NOT NULL DEFAULT 'infantry',
-  `count`         INT          NOT NULL DEFAULT 0,
+  `country_code`  CHAR(3)      NOT NULL,           -- current (or destination) location
+  `units`         JSON              DEFAULT NULL,  -- {"infantry":24,"armor":6,...} (GAME_RULES §1)
+  `type`          ENUM('infantry','artillery','armor','air','navy') DEFAULT NULL, -- legacy; units JSON is authoritative
+  `count`         INT               DEFAULT NULL,
   `moving_to`     CHAR(3)           DEFAULT NULL,
+  `path`          JSON              DEFAULT NULL,  -- list of country codes for the march
+  `kind`          ENUM('land','sea') DEFAULT NULL,
+  `origin`        CHAR(3)           DEFAULT NULL,  -- where survivors return
+  `depart_tick`   INT               DEFAULT NULL,
   `arrive_at_tick` INT              DEFAULT NULL,
+  `last_strike_tick` INT            DEFAULT NULL,
   `date_created`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `ix_armies_match` (`match_id`),
@@ -191,8 +205,9 @@ CREATE TABLE IF NOT EXISTS `player_tech` (
   `match_id` INT UNSIGNED NOT NULL,
   `player`   INT UNSIGNED NOT NULL,
   `tech_key` VARCHAR(48)  NOT NULL,
-  `level`    SMALLINT     NOT NULL DEFAULT 0,
+  `level`    SMALLINT     NOT NULL DEFAULT 0,       -- 0 researching, 1 done
   `progress` DECIMAL(10,2) NOT NULL DEFAULT 0,
+  `started_tick` INT           DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_player_tech` (`match_id`, `player`, `tech_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -206,6 +221,9 @@ CREATE TABLE IF NOT EXISTS `diplomacy` (
   `player_a`     INT UNSIGNED NOT NULL,            -- always the lower player id
   `player_b`     INT UNSIGNED NOT NULL,
   `state`        ENUM('neutral','allied','war','truce') NOT NULL DEFAULT 'neutral',
+  `truce_until`  INT               DEFAULT NULL,    -- tick a truce ends (GAME_RULES §7)
+  `access_ab`    TINYINT      NOT NULL DEFAULT 0,   -- a granted b military access (directional)
+  `access_ba`    TINYINT      NOT NULL DEFAULT 0,
   `date_updated` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_diplo_pair` (`match_id`, `player_a`, `player_b`)
@@ -244,6 +262,49 @@ CREATE TABLE IF NOT EXISTS `match_events` (
   `date_created` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `ix_events_match` (`match_id`, `id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------------------------
+-- Phase-2: proposals, training queue, strategic arsenal (GAME_RULES §7, §1a, §9)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `diplomacy_proposals` (
+  `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `match_id`     INT UNSIGNED NOT NULL,
+  `from_player`  INT UNSIGNED NOT NULL,
+  `to_player`    INT UNSIGNED NOT NULL,
+  `type`         ENUM('alliance','truce','access') NOT NULL,
+  `expires_tick` INT          NOT NULL,
+  `status`       ENUM('pending','accepted','declined','expired') NOT NULL DEFAULT 'pending',
+  `date_created` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ix_prop_match` (`match_id`, `status`),
+  KEY `ix_prop_to` (`match_id`, `to_player`, `status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `training` (
+  `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `match_id`     INT UNSIGNED NOT NULL,
+  `player`       INT UNSIGNED NOT NULL,
+  `country_code` CHAR(3)      NOT NULL,
+  `unit`         VARCHAR(16)  NOT NULL,
+  `count`        INT          NOT NULL,
+  `ready_tick`   INT          NOT NULL,
+  `date_created` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ix_training_match` (`match_id`, `player`),
+  KEY `ix_training_ready` (`match_id`, `ready_tick`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `arsenal` (
+  `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `match_id`      INT UNSIGNED NOT NULL,
+  `player`        INT UNSIGNED NOT NULL,
+  `item`          ENUM('srbm','mrbm','icbm','warhead') NOT NULL,
+  `stock`         INT NOT NULL DEFAULT 0,
+  `in_production` INT NOT NULL DEFAULT 0,
+  `ready_tick`    INT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_arsenal` (`match_id`, `player`, `item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;

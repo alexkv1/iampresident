@@ -45,6 +45,67 @@ const FARM = {
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const esc = s => String(s).replace(/'/g, "''");
 
+// ---- phase-2 geography tables (mirror of client hud/hudGeo.js) -------------
+// Keep these in sync with the client illustration so gameplay and HUD agree.
+const TERRAIN = {
+  mountains: ['CHE', 'AUT', 'NPL', 'BTN', 'AFG', 'BOL', 'PER', 'NOR', 'GEO', 'ARM', 'KGZ', 'TJK'],
+  forest: ['BRA', 'COD', 'COG', 'GAB', 'CMR', 'IDN', 'PNG', 'FIN', 'SWE', 'CAN'],
+};
+// Readable "staging" points for countries whose largest-polygon centroid sits far from where the action is.
+const CENTROID_OVERRIDE = { RUS: [44, 57], USA: [-98, 39], CAN: [-100, 56], NOR: [10, 61.5], FRA: [2.5, 46.6], CHL: [-71, -33], IDN: [113, -1] };
+// Safety net in case simplified borders don't share an exact vertex.
+const EXTRA_LINKS = [['SWE', 'FIN'], ['SWE', 'NOR'], ['FIN', 'NOR'], ['FIN', 'RUS'], ['NOR', 'RUS'], ['EST', 'RUS'], ['EST', 'LVA'], ['LVA', 'LTU'], ['LVA', 'RUS'], ['LVA', 'BLR'], ['LTU', 'BLR'], ['LTU', 'POL'], ['LTU', 'RUS'], ['DNK', 'DEU'], ['DEU', 'POL'], ['DEU', 'NLD'], ['DEU', 'BEL'], ['DEU', 'FRA'], ['FRA', 'BEL'], ['FRA', 'ESP'], ['RUS', 'MNG'], ['RUS', 'KAZ'], ['RUS', 'CHN'], ['RUS', 'PRK'], ['PRK', 'KOR'], ['PRK', 'CHN']];
+
+const terrainOf = code =>
+  TERRAIN.mountains.includes(code) ? 'mountains'
+  : TERRAIN.forest.includes(code) ? 'forest'
+  : 'plains';
+
+// Area-weighted centroid of the largest polygon, antimeridian-aware.
+// Ported verbatim from hud/hudGeo.js centroidOf().
+function centroidOf(geom) {
+  const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+  let best = null, bestA = 0;
+  for (const p of polys) {
+    const ring = p[0];
+    const lons = ring.map((c) => c[0]);
+    const wrap = Math.max(...lons) - Math.min(...lons) > 180;
+    const r = ring.map((c) => [wrap && c[0] < 0 ? c[0] + 360 : c[0], c[1]]);
+    let a = 0, cx = 0, cy = 0;
+    for (let i = 0; i < r.length - 1; i++) {
+      const cr = r[i][0] * r[i + 1][1] - r[i + 1][0] * r[i][1];
+      a += cr; cx += (r[i][0] + r[i + 1][0]) * cr; cy += (r[i][1] + r[i + 1][1]) * cr;
+    }
+    a /= 2;
+    if (Math.abs(a) > bestA && a !== 0) { bestA = Math.abs(a); best = [cx / (6 * a), cy / (6 * a)]; }
+  }
+  if (!best) best = polys[0][0][0];
+  let lon = best[0]; if (lon > 180) lon -= 360;
+  return [lon, best[1]];
+}
+
+// Geodesic spherical polygon area in km^2 (sum outer rings, subtract holes).
+function geodesicAreaKm2(geom) {
+  const R = 6371, rad = Math.PI / 180;
+  const ringArea = ring => {
+    let a = 0;
+    for (let i = 0; i < ring.length - 1; i++) {
+      const lon1 = ring[i][0] * rad, lat1 = ring[i][1] * rad;
+      const lon2 = ring[i + 1][0] * rad, lat2 = ring[i + 1][1] * rad;
+      a += (lon2 - lon1) * (2 + Math.sin(lat1) + Math.sin(lat2));
+    }
+    return Math.abs(a) * R * R / 2;
+  };
+  const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+  let total = 0;
+  for (const p of polys) {
+    for (let ri = 0; ri < p.length; ri++) {
+      total += ri === 0 ? ringArea(p[ri]) : -ringArea(p[ri]);
+    }
+  }
+  return Math.max(0, Math.round(total));
+}
+
 // flatten a geometry into an array of rings (each ring = [[lon,lat],...])
 function ringsOf(geom) {
   if (!geom) return [];
@@ -137,6 +198,32 @@ for (const r of rows) {
   seen.add(c);
 }
 
+// ---- phase-2 computed geography (centroid, area, terrain, gdp fallback) -----
+// Codes are now final (post-dedup), matching the emitted geo.json the client
+// illustration consumes, so terrain/coastal/links line up with hud/hudGeo.js.
+for (const r of rows) {
+  const cen = CENTROID_OVERRIDE[r.code] || centroidOf(r.geometry);
+  r.lon = +cen[0].toFixed(5);
+  r.lat = +cen[1].toFixed(5);
+  r.area_km2 = geodesicAreaKm2(r.geometry);
+  r.terrain = terrainOf(r.code);
+  // gdp_md fallback: ~$10k per-capita in millions USD when real GDP is missing.
+  if (!r.gdp_md) r.gdp_md = Math.round(r.pop_est / 100);
+}
+
+// coastal: a vertex-grid cell owned by exactly one country marks it coastal.
+const cell = {};
+for (const r of rows) {
+  const polys = r.geometry.type === 'Polygon' ? [r.geometry.coordinates] : r.geometry.coordinates;
+  for (const p of polys) for (const ring of p) for (const c of ring) {
+    const k = Math.round(c[0] * 20) + ',' + Math.round(c[1] * 20);
+    (cell[k] = cell[k] || new Set()).add(r.code);
+  }
+}
+const coast = new Set();
+for (const s of Object.values(cell)) if (s.size === 1) coast.add([...s][0]);
+for (const r of rows) r.coastal = coast.has(r.code) ? 1 : 0;
+
 // ---- land adjacency via vertex proximity -----------------------------------
 const THRESH = 0.8;           // degrees ~ 88km, catches shared land borders
 const STEP = 3;               // sample every Nth vertex for speed
@@ -165,16 +252,35 @@ for (let i = 0; i < rows.length; i++) {
   }
 }
 
+// safety net: add every hudGeo.js EXTRA_LINKS pair (both directions), de-duped.
+const validCode = new Set(rows.map(r => r.code));
+for (const [a, b] of EXTRA_LINKS) {
+  if (validCode.has(a) && validCode.has(b)) {
+    neighbors.push([a, b]);
+    neighbors.push([b, a]);
+  }
+}
+const nseen = new Set();
+const dedupedNeighbors = [];
+for (const [a, b] of neighbors) {
+  const k = a + '\x00' + b;
+  if (nseen.has(k)) continue;
+  nseen.add(k);
+  dedupedNeighbors.push([a, b]);
+}
+neighbors.length = 0;
+neighbors.push(...dedupedNeighbors);
+
 // ---- emit SQL ---------------------------------------------------------------
 let sql = '-- GENERATED by worker/gen_countries.js — do not edit by hand.\n';
 sql += 'SET NAMES utf8mb4;\n';
 sql += 'DELETE FROM `country_neighbors`;\nDELETE FROM `countries`;\n\n';
 
-sql += 'INSERT INTO `countries` (`code`,`code2`,`name`,`continent`,`region`,`subregion`,`pop_est`,`gdp_md`,`land_slots`,`farmland`,`minerals`,`oil`,`start_pop`,`lon`,`lat`) VALUES\n';
+sql += 'INSERT INTO `countries` (`code`,`code2`,`name`,`continent`,`region`,`subregion`,`pop_est`,`gdp_md`,`land_slots`,`farmland`,`minerals`,`oil`,`start_pop`,`lon`,`lat`,`area_km2`,`coastal`,`terrain`) VALUES\n';
 sql += rows.map(r =>
   `('${r.code}',${r.code2 ? `'${r.code2}'` : 'NULL'},'${esc(r.name)}',` +
   `${r.continent ? `'${esc(r.continent)}'` : 'NULL'},${r.region ? `'${esc(r.region)}'` : 'NULL'},${r.subregion ? `'${esc(r.subregion)}'` : 'NULL'},` +
-  `${r.pop_est},${r.gdp_md},${r.land_slots},${r.farmland},${r.minerals},${r.oil},${r.start_pop},${r.lon},${r.lat})`
+  `${r.pop_est},${r.gdp_md},${r.land_slots},${r.farmland},${r.minerals},${r.oil},${r.start_pop},${r.lon},${r.lat},${r.area_km2},${r.coastal},'${r.terrain}')`
 ).join(',\n') + ';\n\n';
 
 if (neighbors.length) {
@@ -196,6 +302,7 @@ const fc = {
       farmland: r.farmland, minerals: r.minerals, oil: r.oil,
       land_slots: r.land_slots, pop: r.start_pop,
       continent: r.continent,
+      area_km2: r.area_km2, coastal: r.coastal, terrain: r.terrain,
     },
     geometry: r.geometry,
   })),

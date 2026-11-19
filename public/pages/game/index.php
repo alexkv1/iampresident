@@ -36,9 +36,12 @@ $v = fn($p) => '/js/' . $p . '?v=' . (@filemtime(__DIR__ . '/../../js/' . $p) ?:
 </head>
 <body>
   <div id="hud-root">
-    <div id="globe"></div>
-    <div id="hud-vignette"></div>
-    <div id="hud-stage"></div>
+    <!-- Globe + vignette live inside the scaled stage so markers stay pinned to countries
+         at any viewport size (matches the mockup). hud.js builds the HUD panels/layers here. -->
+    <div id="hud-stage">
+      <div id="globe"></div>
+      <div id="hud-vignette"></div>
+    </div>
   </div>
 
   <script src="/js/three.min.js"></script>

@@ -6,14 +6,23 @@
 @keyframes iap-burst-icon { 0% { transform: scale(.3); opacity: 0 } 25% { transform: scale(1.3); opacity: 1 } 70% { transform: scale(1); opacity: 1 } 100% { transform: scale(1) translateY(-14px); opacity: 0 } }
 
 #hud-root { position: fixed; inset: 0; background: #05080f; overflow: hidden; }
+/* The globe and vignette live INSIDE the stage (as in the mockup) so the globe, the
+   army-marker overlay and the panels share one coordinate system and scale together —
+   markers stay pinned to their countries at any viewport size. */
 #globe { position: absolute; inset: 0; }
 /* vignette above the globe, under the HUD (spec §2) */
-#hud-vignette { position: absolute; inset: 0; pointer-events: none;
+#hud-vignette { position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(6,10,20,.65) 0%, rgba(6,10,20,0) 22%, rgba(6,10,20,0) 72%, rgba(6,10,20,.7) 100%); }
+/* Fixed 1440×900 design canvas, scaled to fit the viewport by fitStage() in hud.js
+   (which also sets window.__hudScale). pointer-events:none so the empty areas between
+   panels pass clicks/drags through to the globe beneath; the globe, panels and pickable
+   markers opt back in below. (The harness runs at exactly 1440×900, scale 1, unaffected.) */
 #hud-stage { position: absolute; left: 50%; top: 50%; width: 1440px; height: 900px;
-  transform: translate(-50%, -50%); overflow: hidden; }
+  transform: translate(-50%, -50%); transform-origin: center; overflow: hidden;
+  pointer-events: none; }
 #hud-stage > * { pointer-events: auto; }
-#marker-layer, #tip-layer, #hover-tip { pointer-events: none; }
+#globe { pointer-events: auto; }
+#hud-vignette, #marker-layer, #tip-layer, #hover-tip { pointer-events: none; }
 #marker-layer [data-mk] { pointer-events: none; }
 #marker-layer [data-pick] { pointer-events: auto; }
 

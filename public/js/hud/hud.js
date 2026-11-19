@@ -941,11 +941,25 @@
     });
   }
 
+  // Scale the fixed 1440×900 design stage to fit the viewport (contain), exactly as the
+  // mockup does (MatchHud.jsx: min(innerWidth/1440, innerHeight/900)). Publishes
+  // window.__hudScale for the tooltip/cursor math. At the harness's 1440×900 viewport
+  // k === 1, so the transform is identity and the visual diffs are unaffected.
+  function fitStage() {
+    const k = Math.min(window.innerWidth / 1440, window.innerHeight / 900);
+    window.__hudScale = k;
+    const stage = document.getElementById('hud-stage');
+    if (stage) stage.style.transform = 'translate(-50%,-50%) scale(' + k + ')';
+  }
+
   // ---- bootstrap ----
   function boot() {
     const params = new URLSearchParams(location.search);
     BROKE = params.get('broke') === '1';
     // (scenario/mode query params are accepted but ignored, matching the mockup.)
+
+    fitStage();
+    window.addEventListener('resize', fitStage);
 
     globe = new window.Globe(document.getElementById('globe'), { autoRotate: false });
     globe.setSelectable(true);

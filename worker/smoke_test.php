@@ -472,5 +472,185 @@ check('(p) victory at DOMINATION_SHARE (Sweden owns the world)',
 line();
 echo "PHASE-3 RESULT: " . ($pass) . " passed, " . ($fail) . " failed (cumulative with phase-2)\n";
 
+// =============================================================================
+// Phase-4: occupation and diplomacy (deterministic). GAME_RULES §6, §7.
+// =============================================================================
+require_once __DIR__ . '/../utils/engine/Occupation.php';
+require_once __DIR__ . '/../utils/engine/Diplomacy.php';
+
+$p4pass0 = $pass; $p4fail0 = $fail;
+line();
+echo "PHASE-4: occupation & diplomacy (unrest / revolt / proposals / truce)\n";
+line();
+
+// --- Fresh phase-4 match (same __SMOKE__ tag so cleanup wipes it next run) -----
+$db->execute(
+    "INSERT INTO `matches` (`name`,`mode`,`status`,`max_players`,`tick_interval_sec`,`current_tick`,`host_user`)
+     VALUES (?, 'single', 'active', 8, 20, 0, ?)",
+    [$TAG, $uid], 'si'
+);
+$p4 = (int)$db->lastInsertId();
+
+$mkP = function (string $country, string $name, int $slot, bool $ai = true) use ($db, $p4, $uid) {
+    if ($ai) {
+        $db->execute("INSERT INTO `match_players` (`match_id`,`is_ai`,`display_name`,`country_code`,`color`,`slot`,`pop`) VALUES (?,1,?,?, '#888888',?,10000000)",
+            [$p4, $name, $country, $slot], 'issi');
+    } else {
+        $db->execute("INSERT INTO `match_players` (`match_id`,`user`,`display_name`,`country_code`,`color`,`slot`,`is_host`,`pop`) VALUES (?,?,?,?, '#e6194b',?,1,10000000)",
+            [$p4, $uid, $name, $country, $slot], 'iissi');
+    }
+    return (int)$db->lastInsertId();
+};
+$O     = $mkP('DEU', 'You (Germany)', 0, false);   // occupier / human / proposer
+$V     = $mkP('FRA', 'CPU France',    1);           // victim / responder
+$C     = $mkP('ESP', 'CPU Spain',     2);           // expiry-test target
+$Mally = $mkP('ITA', 'CPU Italy',     3);           // AI that should accept an alliance
+$Mdecl = $mkP('POL', 'CPU Poland',    4);           // AI that should decline
+$E     = $mkP('UKR', 'CPU Ukraine',   5);           // common enemy
+
+$db->execute("INSERT INTO `territories` (`match_id`,`country_code`) SELECT ?, `code` FROM `countries`
+              ON DUPLICATE KEY UPDATE `is_capital`=`is_capital`", [$p4], 'i');
+foreach ([['DEU',$O],['FRA',$V],['ESP',$C],['ITA',$Mally],['POL',$Mdecl],['UKR',$E]] as $cl) {
+    $db->execute("UPDATE `territories` SET `owner`=? WHERE `match_id`=? AND `country_code`=?", [$cl[1], $p4, $cl[0]], 'iis');
+}
+$m4 = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p4], 'i');
+
+// Base neutral garrison of LUX for the occupation maths.
+$luxC = $db->selectOne("SELECT * FROM `countries` WHERE `code`='LUX'", [], '');
+$luxPopM = (float)$luxC['start_pop'] * GameConfig::POP_SCALE;
+$luxGarr = GameConfig::neutralGarrison($luxPopM, (int)$luxC['land_slots']);
+
+$resetLux = function (int $unrest, ?int $prev) use ($db, $p4, $O) {
+    $db->execute("DELETE FROM `armies` WHERE `match_id`=? AND `country_code`='LUX'", [$p4], 'i');
+    $db->execute(
+        "UPDATE `territories` SET `owner`=?, `occupied_until`=?, `unrest`=?, `damage`=0, `prev_owner`=?
+          WHERE `match_id`=? AND `country_code`='LUX'",
+        [$O, 10 /*until*/, $unrest, $prev, $p4], 'iiiii'
+    );
+};
+
+// --- (q) unrest: +8 with no stack, −10 with a strong garrison -------------------
+$m4['current_tick'] = 0;
+$resetLux(20, $V);                                   // occupied, no stack
+$evQ = [];
+Occupation::process($db, $m4, $evQ);
+$unrestNoStack = (int)$db->selectOne("SELECT `unrest` FROM `territories` WHERE `match_id`=? AND `country_code`='LUX'", [$p4], 'i')['unrest'];
+
+$resetLux(20, $V);                                   // occupied, strong stack (>= half garrison)
+$db->execute("INSERT INTO `armies` (`match_id`,`player`,`country_code`,`units`,`origin`) VALUES (?,?, 'LUX', ?, 'LUX')",
+    [$p4, $O, json_encode(['infantry' => max(2, $luxGarr)])], 'iis');
+$evQ2 = [];
+Occupation::process($db, $m4, $evQ2);
+$unrestStrong = (int)$db->selectOne("SELECT `unrest` FROM `territories` WHERE `match_id`=? AND `country_code`='LUX'", [$p4], 'i')['unrest'];
+check('(q) unrest +8 no-stack, −10 strong garrison',
+    $unrestNoStack === 28 && $unrestStrong === 10,
+    sprintf('noStack=%d (exp 28) strong=%d (exp 10) garr=%d', $unrestNoStack, $unrestStrong, $luxGarr));
+
+// --- (r) revolt at 100: prev owner reclaims, weak occupier stack driven out -----
+$resetLux(99, $V);                                   // unrest 99, prev owner = V (alive)
+$db->execute("INSERT INTO `armies` (`match_id`,`player`,`country_code`,`units`,`origin`) VALUES (?,?, 'LUX', ?, 'LUX')",
+    [$p4, $O, json_encode(['infantry' => 1])], 'iis');   // weak (< half garrison) -> +2 -> 100
+$evR = [];
+Occupation::process($db, $m4, $evR);
+$luxAfter = $db->selectOne("SELECT * FROM `territories` WHERE `match_id`=? AND `country_code`='LUX'", [$p4], 'i');
+$occStackGone = (int)($db->selectOne("SELECT COUNT(*) c FROM `armies` WHERE `match_id`=? AND `player`=? AND `country_code`='LUX'", [$p4, $O], 'ii')['c'] ?? 0);
+$gotRevolt = false; foreach ($evR as $e) if ($e['type'] === 'revolt' && $e['data']['country'] === 'LUX') $gotRevolt = true;
+check('(r) revolt returns land to prev owner, occupier stack removed',
+    (int)$luxAfter['owner'] === $V && $luxAfter['occupied_until'] === null && $occStackGone === 0 && $gotRevolt,
+    sprintf('owner=%s occupied_until=%s stackGone=%d event=%s',
+        var_export($luxAfter['owner'], true), var_export($luxAfter['occupied_until'], true), $occStackGone === 0 ? 1 : 0, $gotRevolt ? 'yes' : 'no'));
+
+// --- (s) integration: occupied_until reached -> integrated, unrest cleared ------
+$db->execute("DELETE FROM `armies` WHERE `match_id`=? AND `country_code`='LUX'", [$p4], 'i');
+$db->execute("UPDATE `territories` SET `owner`=?, `occupied_until`=5, `unrest`=40, `prev_owner`=? WHERE `match_id`=? AND `country_code`='LUX'", [$O, $V, $p4], 'iii');
+$m4['current_tick'] = 5;                             // tick >= occupied_until
+$evS = [];
+Occupation::process($db, $m4, $evS);
+$luxInt = $db->selectOne("SELECT * FROM `territories` WHERE `match_id`=? AND `country_code`='LUX'", [$p4], 'i');
+$gotIntegrated = false; foreach ($evS as $e) if ($e['type'] === 'integrated' && $e['data']['country'] === 'LUX') $gotIntegrated = true;
+check('(s) integration after occupied_until',
+    $luxInt['occupied_until'] === null && (int)$luxInt['unrest'] === 0 && (int)$luxInt['owner'] === $O && $gotIntegrated,
+    sprintf('occupied_until=%s unrest=%d event=%s', var_export($luxInt['occupied_until'], true), (int)$luxInt['unrest'], $gotIntegrated ? 'yes' : 'no'));
+
+// --- (t) alliance proposal: propose + accept -> state allied --------------------
+$pr = Diplomacy::propose($db, $p4, $O, $V, 'alliance', 0);
+$resp = $pr['ok'] ? Diplomacy::respond($db, $p4, (int)$pr['id'], $V, true, 0) : ['ok' => false];
+$stateT = Diplomacy::state($db, $p4, $O, $V);
+$propRow = $db->selectOne("SELECT `status` FROM `diplomacy_proposals` WHERE `id`=?", [(int)($pr['id'] ?? 0)], 'i');
+check('(t) alliance proposal accepted -> allied',
+    $pr['ok'] && $resp['ok'] && $stateT === 'allied' && ($propRow['status'] ?? '') === 'accepted',
+    sprintf('state=%s propStatus=%s', $stateT, $propRow['status'] ?? 'none'));
+
+// Reset O–V to neutral for the truce test.
+Diplomacy::set($db, $p4, $O, $V, 'neutral');
+
+// --- (u) truce: accept -> state truce; declare-war refused; attackBlock wording --
+$prU = Diplomacy::propose($db, $p4, $O, $V, 'truce', 0);
+Diplomacy::respond($db, $p4, (int)$prU['id'], $V, true, 0);
+$stateU = Diplomacy::state($db, $p4, $O, $V);
+$truceLeft = Diplomacy::truceLeft($db, $p4, $O, $V, 0);
+$war = Diplomacy::declareWar($db, $p4, $O, $V, 0);                  // must be refused
+$block = Movement::attackBlock($db, $p4, $O, 'FRA', 0);            // FRA is V's land
+check('(u) truce blocks war + attack for 10 days',
+    $stateU === 'truce' && $truceLeft === GameConfig::TRUCE_DAYS && !$war['ok']
+    && str_contains($war['message'], 'Truce') && is_string($block) && str_contains($block, 'Truce'),
+    sprintf('state=%s left=%d warRefused=%d block="%s"', $stateU, $truceLeft, !$war['ok'] ? 1 : 0, is_string($block) ? $block : var_export($block, true)));
+
+// --- (v) access: accept -> directional access only ------------------------------
+$prV = Diplomacy::propose($db, $p4, $O, $V, 'access', 0);          // O wants to cross V's land
+Diplomacy::respond($db, $p4, (int)$prV['id'], $V, true, 0);        // V grants O
+$accessOtoV = Diplomacy::hasAccess($db, $p4, $V, $O);             // owner V granted mover O -> true
+$accessVtoO = Diplomacy::hasAccess($db, $p4, $O, $V);             // reverse -> false
+$passO = Movement::passableFn($db, $p4, $O);
+$canCrossFRA = $passO('FRA');
+check('(v) access is directional (V grants O only)',
+    $accessOtoV === true && $accessVtoO === false && $canCrossFRA === true,
+    sprintf('O-through-V=%d V-through-O=%d passFRA=%d', $accessOtoV ? 1 : 0, $accessVtoO ? 1 : 0, $canCrossFRA ? 1 : 0));
+
+// --- (w) proposal expiry after 3 ticks ------------------------------------------
+$prW = Diplomacy::propose($db, $p4, $O, $C, 'alliance', 0);       // expires_tick = 0 + 3
+$m4exp = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p4], 'i');
+$m4exp['current_tick'] = GameConfig::PROPOSAL_EXPIRE;             // tick 3 -> expires_tick <= tick
+$evW = [];
+Diplomacy::maintain($db, $m4exp, $evW);
+$wStatus = $db->selectOne("SELECT `status` FROM `diplomacy_proposals` WHERE `id`=?", [(int)$prW['id']], 'i')['status'];
+$lateResp = Diplomacy::respond($db, $p4, (int)$prW['id'], $C, true, GameConfig::PROPOSAL_EXPIRE);
+check('(w) proposal expires after 3 ticks and can’t be accepted late',
+    $wStatus === 'expired' && !$lateResp['ok'],
+    sprintf('status=%s lateAcceptRefused=%d', $wStatus, !$lateResp['ok'] ? 1 : 0));
+
+// --- (x) AI answers proposals: accept with a shared enemy, decline without -------
+// Shared enemy E is at war with both O and the ally-accepting AI.
+Diplomacy::set($db, $p4, $O, $E, 'war');
+Diplomacy::set($db, $p4, $Mally, $E, 'war');
+$prAcc = Diplomacy::propose($db, $p4, $O, $Mally, 'alliance', 0);
+$prDec = Diplomacy::propose($db, $p4, $O, $Mdecl, 'alliance', 0); // Mdecl shares no enemy
+$m4ai = $db->selectOne("SELECT * FROM `matches` WHERE `id`=?", [$p4], 'i');
+$evAI = [];
+$allyRow  = $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$Mally], 'i');
+$declRow  = $db->selectOne("SELECT * FROM `match_players` WHERE `id`=?", [$Mdecl], 'i');
+AI::act($db, $m4ai, $allyRow, $evAI);
+AI::act($db, $m4ai, $declRow, $evAI);
+$stateAcc = Diplomacy::state($db, $p4, $O, $Mally);
+$stateDec = Diplomacy::state($db, $p4, $O, $Mdecl);
+$accStatus = $db->selectOne("SELECT `status` FROM `diplomacy_proposals` WHERE `id`=?", [(int)$prAcc['id']], 'i')['status'];
+$decStatus = $db->selectOne("SELECT `status` FROM `diplomacy_proposals` WHERE `id`=?", [(int)$prDec['id']], 'i')['status'];
+check('(x) AI accepts alliance with a shared enemy, declines without',
+    $stateAcc === 'allied' && $accStatus === 'accepted' && $stateDec !== 'allied' && $decStatus === 'declined',
+    sprintf('shared=%s/%s noShared=%s/%s', $stateAcc, $accStatus, $stateDec, $decStatus));
+
+// --- (y) declare-war is unilateral and clears pending proposals -----------------
+$prPend = Diplomacy::propose($db, $p4, $Mdecl, $O, 'truce', 0);    // Mdecl -> O pending
+$dw = Diplomacy::declareWar($db, $p4, $O, $Mdecl, 0);
+$stateY = Diplomacy::state($db, $p4, $O, $Mdecl);
+$pendStatus = $db->selectOne("SELECT `status` FROM `diplomacy_proposals` WHERE `id`=?", [(int)$prPend['id']], 'i')['status'];
+check('(y) declare-war sets war and clears pending proposals',
+    $dw['ok'] && $stateY === 'war' && $pendStatus === 'declined',
+    sprintf('state=%s pending=%s', $stateY, $pendStatus));
+
+line();
+echo "PHASE-4 RESULT: " . ($pass - $p4pass0) . " passed, " . ($fail - $p4fail0) . " failed\n";
+echo "CUMULATIVE: " . $pass . " passed, " . $fail . " failed\n";
+
 $db->close();
 echo "\nSmoke test complete.\n";

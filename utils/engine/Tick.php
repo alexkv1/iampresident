@@ -8,6 +8,7 @@ require_once __DIR__ . '/Population.php';
 require_once __DIR__ . '/Build.php';
 require_once __DIR__ . '/Diplomacy.php';
 require_once __DIR__ . '/Combat.php';
+require_once __DIR__ . '/Occupation.php';
 require_once __DIR__ . '/Training.php';
 require_once __DIR__ . '/AI.php';
 require_once __DIR__ . '/MatchSetup.php';
@@ -44,6 +45,12 @@ final class Tick {
 
         // 2) Resolve army arrivals / battles.
         Combat::resolveArrivals($db, $match, $events);
+
+        // 2b) Occupation lifecycle: unrest, revolt, integration (GAME_RULES §6).
+        Occupation::process($db, $match, $events);
+
+        // 2c) Diplomacy upkeep: expire stale proposals, end elapsed truces (§7).
+        Diplomacy::maintain($db, $match, $events);
 
         // 3) Economy + population for each active player. Army upkeep is charged
         //    BEFORE production (GAME_RULES §1); desertion/grounding follow.

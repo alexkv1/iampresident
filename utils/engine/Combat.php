@@ -289,7 +289,7 @@ final class Combat {
     }
 
     /** Mark a player defeated once they hold no territories. */
-    private static function checkDefeat(DB $db, int $matchId, int $player, array &$events): void {
+    public static function checkDefeat(DB $db, int $matchId, int $player, array &$events): void {
         $held = (int)($db->selectOne(
             "SELECT COUNT(*) c FROM `territories` WHERE `match_id` = ? AND `owner` = ?",
             [$matchId, $player], 'ii'

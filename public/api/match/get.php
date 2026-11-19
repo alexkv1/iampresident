@@ -59,6 +59,33 @@ $manpower = [
     'limit' => GameConfig::manpowerLimit((float)$me['pop']),
 ];
 
+// Diplomacy relations touching the requester, plus proposals in flight (GAME_RULES §7).
+$myId = (int)$me['id'];
+$relations = [];
+foreach (db()->select("SELECT * FROM `diplomacy` WHERE `match_id`=? AND (`player_a`=? OR `player_b`=?)", [$matchId, $myId, $myId], 'iii') ?: [] as $d) {
+    $a = (int)$d['player_a']; $b = (int)$d['player_b'];
+    $mineIsA = ($a === $myId);
+    $relations[] = [
+        'player'          => $mineIsA ? $b : $a,
+        'state'           => $d['state'],
+        'truce_until'     => $d['truce_until'] !== null ? (int)$d['truce_until'] : null,
+        'access_granted'  => ($mineIsA ? (int)$d['access_ab'] : (int)$d['access_ba']) === 1, // I let them through
+        'access_received' => ($mineIsA ? (int)$d['access_ba'] : (int)$d['access_ab']) === 1, // I may cross theirs
+    ];
+}
+$proposals = [];
+foreach (db()->select(
+    "SELECT * FROM `diplomacy_proposals`
+      WHERE `match_id`=? AND `status`='pending' AND `expires_tick` > ? AND (`to_player`=? OR `from_player`=?)
+      ORDER BY `id`",
+    [$matchId, (int)$match['current_tick'], $myId, $myId], 'iiii') ?: [] as $p) {
+    $proposals[] = [
+        'id' => (int)$p['id'], 'from' => (int)$p['from_player'], 'to' => (int)$p['to_player'],
+        'type' => $p['type'], 'expires_tick' => (int)$p['expires_tick'],
+        'incoming' => (int)$p['to_player'] === $myId,
+    ];
+}
+
 json_ok([
     'match' => [
         'id'                => (int)$match['id'],
@@ -89,5 +116,7 @@ json_ok([
     'territories' => $territories,
     'buildings'   => $buildings,
     'events'      => $events,
+    'diplomacy'   => $relations,
+    'proposals'   => $proposals,
     'catalog'     => GameConfig::BUILDINGS,
 ]);

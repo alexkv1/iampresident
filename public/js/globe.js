@@ -22,24 +22,50 @@ function lonLatToVec3(lon, lat, r) {
 
 const LAND_R = R * 1.003;     // land fill radius (above the ocean sphere)
 const BORDER_R = R * 1.005;   // coastline / border radius
-const MAX_EDGE_DEG = 7;       // subdivide triangles larger than this
+const MAX_EDGE_DEG = 7;       // target max triangle edge length (degrees)
 
-function _mid(a, b) { return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; }
-function _edge(a, b) { const dx = a[0] - b[0], dy = a[1] - b[1]; return Math.sqrt(dx * dx + dy * dy); }
+// Conforming refinement: split big triangles until every edge is small, but do it
+// through a SHARED midpoint cache so neighbouring triangles always split a shared
+// edge identically. That leaves no hanging nodes (T-junctions) — which is what
+// caused the thin ocean-coloured cracks across large countries. Mutates `V`
+// (array of [lon,lat]) in place and returns the refined index triples.
+function refineTriangles(V, baseTris) {
+  const key = (a, b) => (a < b ? a + '_' + b : b + '_' + a);
+  const mid = new Map();
+  const edge = (a, b) => { const dx = V[a][0] - V[b][0], dy = V[a][1] - V[b][1]; return Math.sqrt(dx * dx + dy * dy); };
+  const getMid = (a, b) => {
+    const k = key(a, b);
+    let m = mid.get(k);
+    if (m !== undefined) return m;
+    m = V.length;
+    V.push([(V[a][0] + V[b][0]) / 2, (V[a][1] + V[b][1]) / 2]);
+    mid.set(k, m);
+    return m;
+  };
+  let tris = [];
+  for (let t = 0; t < baseTris.length; t += 3) tris.push([baseTris[t], baseTris[t + 1], baseTris[t + 2]]);
 
-// Recursively 4-split a lon/lat triangle until every edge is small. Without this,
-// a big interior triangle of a large country chords straight through the globe and
-// sinks below the ocean sphere — which shows as a hole. Small facets hug the surface.
-function subdivideTri(a, b, c, out) {
-  if (_edge(a, b) <= MAX_EDGE_DEG && _edge(b, c) <= MAX_EDGE_DEG && _edge(c, a) <= MAX_EDGE_DEG) {
-    out.push(a, b, c);
-    return;
+  let changed = true, guard = 0;
+  while (changed && guard++ < 500) {
+    changed = false;
+    const next = [];
+    for (const [i, j, k] of tris) {
+      const E = [[i, j, k], [j, k, i], [k, i, j]];  // [a, b, opposite]
+      let ch = null;
+      for (const [a, b, opp] of E) { if (mid.has(key(a, b))) { ch = [a, b, opp]; break; } } // resolve hanging node
+      if (!ch) {
+        let bl = 0, best = null;
+        for (const [a, b, opp] of E) { const d = edge(a, b); if (d > bl) { bl = d; best = [a, b, opp]; } }
+        if (bl > MAX_EDGE_DEG) ch = best;
+      }
+      if (!ch) { next.push([i, j, k]); continue; }
+      const [a, b, opp] = ch, m = getMid(a, b);
+      next.push([a, m, opp], [m, b, opp]);
+      changed = true;
+    }
+    tris = next;
   }
-  const ab = _mid(a, b), bc = _mid(b, c), ca = _mid(c, a);
-  subdivideTri(a, ab, ca, out);
-  subdivideTri(ab, b, bc, out);
-  subdivideTri(ca, bc, c, out);
-  subdivideTri(ab, bc, ca, out);
+  return tris;
 }
 
 class Globe {
@@ -111,25 +137,24 @@ class Globe {
 
       const positions = [];
       const normals = [];
+      const indices = [];
 
       for (const poly of polys) {
         // poly = [outerRing, hole1, hole2, ...]
         const flat = earcut.flatten(poly);
-        const tris = earcut(flat.vertices, flat.holes, flat.dimensions);
-        const V = flat.vertices;
+        const baseTris = earcut(flat.vertices, flat.holes, flat.dimensions);
+        const V = [];
+        for (let i = 0; i < flat.vertices.length; i += 2) V.push([flat.vertices[i], flat.vertices[i + 1]]);
 
-        for (let i = 0; i < tris.length; i += 3) {
-          const a = [V[tris[i] * 2], V[tris[i] * 2 + 1]];
-          const b = [V[tris[i + 1] * 2], V[tris[i + 1] * 2 + 1]];
-          const c = [V[tris[i + 2] * 2], V[tris[i + 2] * 2 + 1]];
-          const sub = [];
-          subdivideTri(a, b, c, sub);
-          for (const p of sub) {
-            const [x, y, z] = lonLatToVec3(p[0], p[1], LAND_R);
-            positions.push(x, y, z);
-            normals.push(x / LAND_R, y / LAND_R, z / LAND_R); // smooth sphere normal
-          }
+        const tris = refineTriangles(V, baseTris);   // V extended in place; conforming
+
+        const base = positions.length / 3;
+        for (const [lon, lat] of V) {
+          const [x, y, z] = lonLatToVec3(lon, lat, LAND_R);
+          positions.push(x, y, z);
+          normals.push(x / LAND_R, y / LAND_R, z / LAND_R); // smooth sphere normal
         }
+        for (const [i, j, k] of tris) indices.push(base + i, base + j, base + k);
 
         // Borders: outline every ring along the coast.
         for (const ring of poly) {
@@ -145,6 +170,7 @@ class Globe {
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
       geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+      geo.setIndex(indices);
 
       const mat = new THREE.MeshPhongMaterial({ color: NEUTRAL_LAND, shininess: 6, specular: 0x0a0a0a });
       const mesh = new THREE.Mesh(geo, mat);

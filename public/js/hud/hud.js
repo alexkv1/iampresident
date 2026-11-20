@@ -660,7 +660,10 @@
   // visual, so they live in their own layer and self-remove when the burst finishes.
   const fxLayer = { items: [] };
   let fxSeq = 0;
-  const STRIKE_COLOR = { artillery: '#ffd166', air: '#8be9ff', srbm: '#8be9ff', mrbm: '#8be9ff', icbm: '#b78bff', nuclear: '#ff7a3c' };
+  const STRIKE_COLOR = { artillery: '#ffcf5a', air: '#6fe9ff', srbm: '#6fe9ff', mrbm: '#7fd0ff', icbm: '#c9a3ff', nuclear: '#ff8a3c' };
+  // Trajectory arc height per kind. Kept low enough to read as a missile arc near the surface
+  // (0.4+ balloons it off-frame); nuclear arcs a little higher for drama.
+  const STRIKE_LIFT = { artillery: 0.05, air: 0.1, srbm: 0.12, mrbm: 0.16, icbm: 0.2, nuclear: 0.24 };
   function strikeFx(payload) {
     if (!globe || !S.geoReady || !payload) return;
     const kind = payload.kind || 'nuclear';   // the nuclear_strike event carries no `kind`
@@ -683,10 +686,13 @@
       fxLayer.items.push({ id, el, impacted: true, boomStart: performance.now(), toCode, kind, path: null });
       return;
     }
-    const lift = nuke ? 0.5 : (kind === 'artillery' ? 0.07 : kind === 'air' ? 0.13 : 0.4);
-    const route = GEO.pathPoints(globe, [fromCode, toCode], { lift, step: 0.4 });
-    const path = globe.addPath(route, { color, opacity: 0.85, radius: nuke ? 0.006 : 0.0035, dash: 0, arrow: false });
-    el.innerHTML = `<div style="transform:translate(-50%,-50%)"><i class="ph-fill ph-${nuke ? 'radioactive' : 'rocket'}" style="font-size:${nuke ? 22 : 17}px;color:${color};filter:drop-shadow(0 0 6px ${color}) drop-shadow(0 1px 2px rgba(0,0,0,.85))"></i></div>`;
+    const lift = STRIKE_LIFT[kind] != null ? STRIKE_LIFT[kind] : 0.18;
+    const route = GEO.pathPoints(globe, [fromCode, toCode], { lift, step: 0.35 });
+    const path = globe.addPath(route, { color, opacity: 0.95, radius: nuke ? 0.011 : 0.006, dash: 0, arrow: false });
+    // Glowing orb behind a white rocket/radioactive glyph so the projectile reads clearly over land.
+    el.innerHTML = `<div style="transform:translate(-50%,-50%);position:relative;display:grid;place-items:center">`
+      + `<div style="position:absolute;width:${nuke ? 30 : 22}px;height:${nuke ? 30 : 22}px;border-radius:50%;background:radial-gradient(circle, ${color}, transparent 70%);opacity:.95"></div>`
+      + `<i class="ph-fill ph-${nuke ? 'radioactive' : 'rocket'}" style="position:relative;font-size:${nuke ? 24 : 19}px;color:#fff;filter:drop-shadow(0 0 7px ${color}) drop-shadow(0 0 3px ${color})"></i></div>`;
     const dur = nuke ? 2200 : (kind === 'artillery' || kind === 'air' ? 1000 : 1700);
     fxLayer.items.push({ id, el, route, start: performance.now(), dur, kind, toCode, path, impacted: false });
   }

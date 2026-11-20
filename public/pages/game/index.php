@@ -27,7 +27,9 @@ $v = fn($p) => '/js/' . $p . '?v=' . (@filemtime(__DIR__ . '/../../js/' . $p) ?:
   <script>
     window.MATCH_ID = <?= (int)$matchId ?>;
     window.MY_USER = <?= $mock ? 0 : (int)$auth->user ?>;
-    window.WS_URL = <?= json_encode($wsUrl) ?>;
+    // Always use the domain/origin the page was served from (correct scheme + host),
+    // proxied to the realtime relay at /ws — never a hardcoded VM IP.
+    window.WS_URL = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws';
     window.HUD_MOCK = <?= $mock ? 'true' : 'false' ?>;
   </script>
 <?php if (!$mock): /* jQuery only needed by the live API layer; mock mode is pure vanilla so the page reaches networkidle fast (keeps the globe-ease timing in step with the mockup). */ ?>

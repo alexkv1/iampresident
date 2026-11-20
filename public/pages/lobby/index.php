@@ -22,7 +22,9 @@ $v = fn($p) => '/js/' . $p . '?v=' . (@filemtime(__DIR__ . '/../../js/' . $p) ?:
   <script>
     window.MATCH_ID = <?= (int)$matchId ?>;
     window.MY_USER = <?= $mock ? 0 : (int)$auth->user ?>;
-    window.WS_URL = <?= json_encode($wsUrl) ?>;
+    // Always use the domain/origin the page was served from (correct scheme + host),
+    // proxied to the realtime relay at /ws — never a hardcoded VM IP.
+    window.WS_URL = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws';
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" crossorigin="anonymous"></script>
 </head>

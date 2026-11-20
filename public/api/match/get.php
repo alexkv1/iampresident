@@ -88,7 +88,8 @@ foreach ($myDelta as $k => $v) $myDelta[$k] = (int)round($v);
 
 // In-progress research project (player_tech row at level 0) so the HUD can show a progress
 // bar + "ready Day X" and mark the other techs as waiting instead of silently failing.
-$rp = Research::activeProject(db(), $matchId, $myId);
+// ($myId is assigned further down; use $me['id'] here since this runs earlier.)
+$rp = Research::activeProject(db(), $matchId, (int)$me['id']);
 $researchActive = null;
 if ($rp) {
     $rt = GameConfig::TECH[$rp['tech_key']] ?? null;

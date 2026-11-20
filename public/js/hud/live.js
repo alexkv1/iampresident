@@ -35,20 +35,23 @@ window.HUD_UNITS_TIPS = {
 (function () {
   const matchId = window.MATCH_ID;
   const RES = ['food', 'energy', 'minerals', 'gold', 'oil', 'research'];
+  // Reject with the server's JSON (which carries .message) so the HUD can show the real
+  // reason ("No free training slot…", "Not enough gold", …) instead of "Something went wrong."
+  const req = (url, method, data) => $.ajax({ url, method, data }).then((r) => r, (xhr) => { throw (xhr && xhr.responseJSON) || { success: false, message: 'Network error.' }; });
   const api = {
-    get: (since) => $.ajax({ url: '/api/match/get', method: 'GET', data: { match_id: matchId, since_event: since || 0 } }),
-    plan: (target) => $.ajax({ url: '/api/army/plan', method: 'GET', data: { match_id: matchId, target } }),
-    move: (army_id, target, kind) => $.ajax({ url: '/api/army/move', method: 'POST', data: { army_id, target, kind: kind || 'land' } }),
-    train: (country_code, type, count) => $.ajax({ url: '/api/army/train', method: 'POST', data: { match_id: matchId, country_code, type, count: count || 1 } }),
-    build: (country_code, type) => $.ajax({ url: '/api/build/queue', method: 'POST', data: { match_id: matchId, country_code, type } }),
-    strike: (p) => $.ajax({ url: '/api/strike', method: 'POST', data: Object.assign({ match_id: matchId }, p) }),
-    research: (key) => $.ajax({ url: '/api/research/start', method: 'POST', data: { match_id: matchId, key } }),
-    arsenal: (item) => $.ajax({ url: '/api/arsenal/build', method: 'POST', data: { match_id: matchId, item } }),
-    propose: (player, type) => $.ajax({ url: '/api/diplomacy/propose', method: 'POST', data: { match_id: matchId, player, type } }),
-    respond: (id, accept) => $.ajax({ url: '/api/diplomacy/respond', method: 'POST', data: { match_id: matchId, id, accept: accept ? 1 : 0 } }),
-    declareWar: (player) => $.ajax({ url: '/api/diplomacy/declare-war', method: 'POST', data: { match_id: matchId, player } }),
-    chatSend: (body, scope) => $.ajax({ url: '/api/chat/send', method: 'POST', data: { match_id: matchId, body, scope: scope || 'all' } }),
-    chatList: (since) => $.ajax({ url: '/api/chat/list', method: 'GET', data: { match_id: matchId, since_id: since || 0 } }),
+    get: (since) => req('/api/match/get', 'GET', { match_id: matchId, since_event: since || 0 }),
+    plan: (target) => req('/api/army/plan', 'GET', { match_id: matchId, target }),
+    move: (army_id, target, kind) => req('/api/army/move', 'POST', { army_id, target, kind: kind || 'land' }),
+    train: (country_code, type, count) => req('/api/army/train', 'POST', { match_id: matchId, country_code, type, count: count || 1 }),
+    build: (country_code, type) => req('/api/build/queue', 'POST', { match_id: matchId, country_code, type }),
+    strike: (p) => req('/api/strike', 'POST', Object.assign({ match_id: matchId }, p)),
+    research: (key) => req('/api/research/start', 'POST', { match_id: matchId, key }),
+    arsenal: (item) => req('/api/arsenal/build', 'POST', { match_id: matchId, item }),
+    propose: (player, type) => req('/api/diplomacy/propose', 'POST', { match_id: matchId, player, type }),
+    respond: (id, accept) => req('/api/diplomacy/respond', 'POST', { match_id: matchId, id, accept: accept ? 1 : 0 }),
+    declareWar: (player) => req('/api/diplomacy/declare-war', 'POST', { match_id: matchId, player }),
+    chatSend: (body, scope) => req('/api/chat/send', 'POST', { match_id: matchId, body, scope: scope || 'all' }),
+    chatList: (since) => req('/api/chat/list', 'GET', { match_id: matchId, since_id: since || 0 }),
   };
 
   const DIPLO_STATE = (rel) => {
@@ -73,15 +76,20 @@ window.HUD_UNITS_TIPS = {
       lands: landsOf[p.id] || [], share: p.share,
     }));
     const meP = players.find((p) => p.me);
-    // live resources + net delta (gross building delta minus upkeep is not returned per-resource
-    // here; show stocks and the upkeep-adjusted sign using available data).
+    if (meP && r.me.pop_cap != null) meP.popCap = r.me.pop_cap;   // real capacity from land + housing
+    // live resources + the real net per-tick delta the server computes (production − consumption
+    // − upkeep). Falls back to upkeep-only if an older server didn't send `delta`.
     const meRow = (r.players || []).find((p) => p.id === myId) || {};
     const res = {}; RES.forEach((k) => { res[k] = meRow[k] != null ? meRow[k] : 0; });
     const delta = {}; RES.forEach((k) => { delta[k] = 0; });
-    const upk = r.me.upkeep || {};
-    delta.gold -= upk.gold || 0; delta.food -= upk.food || 0; delta.oil -= upk.oil || 0;
-    const fed = res.food > 0;
-    const scenario = { res, delta, efficiency: 1, fed, alert: null };
+    if (r.me.delta) {
+      RES.forEach((k) => { delta[k] = r.me.delta[k] != null ? r.me.delta[k] : 0; });
+    } else {
+      const upk = r.me.upkeep || {};
+      delta.gold -= upk.gold || 0; delta.food -= upk.food || 0; delta.oil -= upk.oil || 0;
+    }
+    const fed = res.food > 0;   // fed as long as there's food in the stockpile this tick
+    const scenario = { res, delta, efficiency: r.me.efficiency != null ? r.me.efficiency : 1, fed, alert: null };
 
     const armies = (r.armies || []).map((a) => {
       const base = { id: 'srv' + a.id, srvId: a.id, owner: a.player, units: a.units || {}, at: a.country_code };
@@ -91,14 +99,35 @@ window.HUD_UNITS_TIPS = {
 
     const TECH_META = window.HUD_DATA_TECH_META;
     const techLevels = r.me.tech || {};
-    const tech = TECH_META.map((t) => Object.assign({}, t, { status: techLevels[t.key] ? 'done' : 'locked', startDay: r.match.current_tick }));
+    const ra = r.me.research_active;   // in-progress project (key, started_tick, days) or null
+    const tech = TECH_META.map((t) => {
+      const done = techLevels[t.key] === 1;
+      const active = ra && ra.key === t.key;
+      // 'active' drives the progress bar + "ready Day X"; 'locked' is just a placeholder the
+      // HUD's techState() re-derives (ready/queued/poor) from requirements, cost and whether
+      // another project is already under way.
+      return Object.assign({}, t, {
+        status: done ? 'done' : (active ? 'active' : 'locked'),
+        startDay: active ? ra.started_tick : r.match.current_tick,
+        days: active ? ra.days : t.days,
+        progress: 0,
+      });
+    });
 
     const defence = r.defence || {};
     const vision = r.vision || [];
-    const buildings = (r.buildings || []).map((b) => ({ type: b.type, status: b.status === 'active' ? 'active' : 'building', country: b.country_code, complete_at: b.complete_at_tick, started: r.match.current_tick }));
+    const buildings = (r.buildings || []).map((b) => {
+      // Progress fills from started→complete_at; derive started from the real build length
+      // (complete_at − build_ticks) instead of "now", else every bar sits at 0%.
+      const bt = (window.IAP_DATA.BUILDINGS[b.type] || {}).build_ticks || 3;
+      return { type: b.type, status: b.status === 'active' ? 'active' : 'building', country: b.country_code, complete_at: b.complete_at_tick, started: (b.complete_at_tick != null ? b.complete_at_tick - bt : r.match.current_tick) };
+    });
+
+    // In-progress training batches → the HUD's {at, u, ready} shape (slot usage + ready Day).
+    const training = (r.me.training || []).map((t) => ({ at: t.country_code, u: t.unit, ready: t.ready_tick, count: t.count }));
 
     return {
-      players, scenarios: { live: scenario }, buildingsHere: buildings,
+      players, scenarios: { live: scenario }, buildingsHere: buildings, training,
       UNITS: window.HUD_UNITS, UNITS_TIPS: window.HUD_UNITS_TIPS,
       TECH: tech, STRIKES: window.HUD_DATA_STRIKES, ARSENAL: r.me.arsenal || {}, ACCESS: {}, TRUCE_UNTIL: {},
       armies, incoming: [], trades: [], events: (r.events || []), chat: chat || [],

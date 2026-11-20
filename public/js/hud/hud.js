@@ -56,7 +56,7 @@
     chat: D.chat.slice(),
     armies: [],
     tech: D.TECH.map((x) => Object.assign({}, x, { startDay: D.DAY })),
-    training: [],
+    training: (D.training || []).slice(),
     proposals: {},
     occupied: {},
     scars: {},
@@ -581,7 +581,7 @@
     const country = showCountry ? CountryHeader(code, used) : '';
     return `<section class="panel" id="context-panel" data-mode="${S.mode}" style="position:absolute;top:186px;right:14px;bottom:80px;width:340px;display:flex;flex-direction:column">`
       + `<div class="panel__body" style="padding:12px;display:flex;flex-direction:column;min-height:0;flex:1">${header}${country}`
-      + `<div style="flex:1;min-height:0;overflow:auto;margin-top:${showCountry ? 12 : 0}px;margin-right:-6px;padding-right:6px">${body}</div></div></section>`;
+      + `<div id="ctx-scroll" style="flex:1;min-height:0;overflow:auto;margin-top:${showCountry ? 12 : 0}px;margin-right:-6px;padding-right:6px">${body}</div></div></section>`;
   }
 
   function Comms() {
@@ -652,9 +652,16 @@
   }
 
   const markerLayer = { els: {}, items: [], raf: null };
-  function renderMarkers() {
+  let lastMarkerSig = '';
+  function renderMarkers(force) {
     const m = me(), players = allPlayers(), vis = vision();
     const visibleArmies = S.armies.filter((a) => a.owner === m.id || alliedIds().has(a.owner) || (a.route ? seen(a.from, vis) || seen(a.to, vis) : seen(a.at, vis)));
+    // Rebuild the marker DOM only when the visible set or an army's state changes. Otherwise
+    // the markerLoop rAF keeps moving the existing nodes — rebuilding every tick would reset
+    // them to opacity:0 at the origin for a frame (the "troops flash then vanish" bug).
+    const sig = JSON.stringify(visibleArmies.map((a) => [a.id, a.route ? 1 : 0, a.at, a.to, a.arriveDay]));
+    if (!force && sig === lastMarkerSig && document.getElementById('marker-layer') && document.getElementById('marker-layer').childElementCount) return;
+    lastMarkerSig = sig;
     // reticles: preview target + visible marching destinations
     const reticles = [];
     visibleArmies.filter((a) => a.route).forEach((a) => { if (!reticles.find((r) => r.code === a.to)) reticles.push({ code: a.to, color: a.owner === m.id ? '#7fe6dc' : '#ff4d73' }); });
@@ -737,9 +744,14 @@
     if (!stage) return;
     ensureLayers();
     const alert = deriveAlert();
+    // Preserve scroll positions across the innerHTML rebuild so a live refresh (every tick)
+    // doesn't fling the build list / chat back to the top while the player is reading.
+    const scrolls = {};
+    ['ctx-scroll', 'comms-list'].forEach((id) => { const el = document.getElementById(id); if (el) scrolls[id] = el.scrollTop; });
     document.getElementById('hud-panels').innerHTML =
       IdentityPlate() + WorldClock() + Treasury() + AlertRibbon(alert)
       + Standings() + ContextPanel() + Comms() + Hotbar() + GlobeControls() + Toasts(alert);
+    Object.keys(scrolls).forEach((id) => { const el = document.getElementById(id); if (el) el.scrollTop = scrolls[id]; });
     wire();
   }
 
@@ -791,10 +803,13 @@
   // hover-intent tooltip (300ms show, instant hide, clamp 8px inside screen)
   const TIP_W = 260;
   let tipTimer = null;
+  let tipShown = false;      // a tooltip is currently on screen (defer panel rebuilds while it is)
+  let pendingRender = false;  // a liveRefresh wanted to render() but a tooltip was open
   function showTip(tip, el, place) {
     clearTimeout(tipTimer);
     if (!tip || !el) return;
     tipTimer = setTimeout(() => {
+      tipShown = true;
       const stage = document.getElementById('hud-stage');
       const st = stage.getBoundingClientRect(), b = el.getBoundingClientRect(), k = window.__hudScale || 1;
       const r = { x: (b.left - st.left) / k, y: (b.top - st.top) / k, w: b.width / k, h: b.height / k };
@@ -812,7 +827,7 @@
       layer.innerHTML = `<div style="position:absolute;z-index:60;pointer-events:none;${style}">${UI.tooltip(Object.assign({}, tip, { placement: place, arrowOffset }))}</div>`;
     }, 300);
   }
-  function hideTip() { clearTimeout(tipTimer); const l = document.getElementById('tip-layer'); if (l) l.innerHTML = ''; }
+  function hideTip() { clearTimeout(tipTimer); tipShown = false; const l = document.getElementById('tip-layer'); if (l) l.innerHTML = ''; if (pendingRender) { pendingRender = false; render(); } }
 
   // ---- actions ----
   const LIVE = window.HUD_LIVE || null;
@@ -829,7 +844,7 @@
   }
   function onTrain(u) {
     const at = S.selected, U = D.UNITS[u];
-    if (LIVE) { LIVE.api.train(at, u, 1).then(() => { toast('Training 5 ' + U.name.toLowerCase() + ' in ' + cname(at) + '.', 'ok'); liveRefresh(); }).catch(fail); return; }
+    if (LIVE) { LIVE.api.train(at, u, 1).then((resp) => { const rd = resp && resp.started && resp.started[0] && resp.started[0].ready_tick; toast('Training 5 ' + U.name.toLowerCase() + ' in ' + cname(at) + (rd ? ' · ready Day ' + rd : '') + '.', 'ok'); liveRefresh(); }).catch(fail); return; }
     const busy = S.training.filter((x) => x.at === at).length;
     if (busy >= slotsAt(at)) return toast('All ' + slotsAt(at) + ' training slots in ' + cname(at) + ' are busy. Build a Factory for another slot.', 'err');
     const ready = Math.floor(dayNow()) + U.build_ticks;
@@ -877,12 +892,33 @@
         snap.armies.map((a) => [a.owner, a.at, a.to, a.arriveDay, JSON.stringify(a.units)]),
         snap.scenarios.live.res, snap.buildingsHere.map((b) => [b.type, b.status, b.country]),
         (snap.TECH || []).map((t) => t.status), snap.ARSENAL, (snap.chat || []).length,
+        (snap.training || []).map((t) => [t.at, t.u, t.ready]),
       ]);
       if (sig === lastSig) return;
       lastSig = sig;
 
       S.players = snap.players.map((p) => Object.assign({}, p, { lands: p.lands.slice() }));
-      S.armies = snap.armies; S.events = snap.events; S.tech = snap.TECH; S.chat = snap.chat || [];   // mapSnapshot returns TECH (uppercase)
+      // Rebuild route geometry for marching armies (the snapshot carries codes but no three.js
+      // geometry). Preserve the running animation of a march already in flight — same destination
+      // and arrival — so the marker keeps gliding instead of snapping back to its origin each tick
+      // (the "I never see the troops march, it vanishes next tick" bug).
+      const prev = {}; S.armies.forEach((a) => { prev[a.id] = a; });
+      S.armies = snap.armies.map((a) => {
+        const b = Object.assign({}, a);
+        if (b.codes && b.codes.length > 1 && globe && S.geoReady) {
+          const old = prev[b.id];
+          if (old && old.route && old.to === b.to && old.arriveDay === b.arriveDay) {
+            b.route = old.route; b.start = old.start; b.dur = old.dur;
+          } else {
+            b.route = GEO.pathPoints(globe, b.codes, { lift: ROUTE_LIFT[b.kind] || 0, step: 0.5 });
+            b.start = performance.now();
+            b.dur = Math.max(500, ((b.arriveDay || S.day) - dayNow()) * clock.dayMs);
+          }
+        }
+        return b;
+      });
+      S.events = snap.events; S.tech = snap.TECH; S.chat = snap.chat || [];   // mapSnapshot returns TECH (uppercase)
+      S.training = (snap.training || []).slice();
       S.queue = snap.buildingsHere.slice(); D.scenarios.live = snap.scenarios.live; D.ARSENAL = snap.ARSENAL;
       D._defence = snap._defence; D._vision = snap._vision;
       // Keep the day in step with the server: re-anchor the local clock if it has drifted
@@ -891,7 +927,10 @@
         clock.day0 = snap.DAY; clock.t0 = performance.now(); clock.into = 0; S.day = snap.DAY;
       }
       computeShares(S.geo ? S.geo.props : {});
-      recolor(); renderRoutes(); render(); renderMarkers();
+      recolor(); renderRoutes(); renderMarkers();
+      // Don't tear down the panels (and the hovered tooltip) mid-hover — defer the rebuild until
+      // the tooltip closes, so info dialogs stop flashing/closing every tick.
+      if (tipShown) pendingRender = true; else render();
     }).catch(() => {});
   }
 
@@ -1030,7 +1069,7 @@
         recolor();
         renderRoutes();
         render();
-        renderMarkers();
+        renderMarkers(true);
       });
       globe.focus('SWE'); globe._targetRotX = Math.min(globe._targetRotX, 0.92);
       // The globe free-runs its focus ease (same 0.08/frame as the mockup) so the army-marker overlay's

@@ -50,6 +50,21 @@ final class Training {
         return 1 + $factories;
     }
 
+    /** A player's in-progress training batches (for the HUD: slot usage + ready timers). */
+    public static function listForPlayer(DB $db, int $matchId, int $player): array {
+        $rows = $db->select(
+            "SELECT `country_code`, `unit`, `count`, `ready_tick` FROM `training`
+              WHERE `match_id` = ? AND `player` = ? ORDER BY `ready_tick`, `id`",
+            [$matchId, $player], 'ii'
+        ) ?: [];
+        return array_map(fn($r) => [
+            'country_code' => $r['country_code'],
+            'unit'         => $r['unit'],
+            'count'        => (int)$r['count'],
+            'ready_tick'   => (int)$r['ready_tick'],
+        ], $rows);
+    }
+
     /** Batches already training in a country (one occupies one slot). */
     public static function busySlots(DB $db, int $matchId, int $player, string $code): int {
         return (int)($db->selectOne(

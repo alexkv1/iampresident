@@ -183,10 +183,20 @@ window.HUD_UNITS_TIPS = {
     // In-progress training batches → the HUD's {at, u, ready} shape (slot usage + ready Day).
     const training = (r.me.training || []).map((t) => ({ at: t.country_code, u: t.unit, ready: t.ready_tick, count: t.count }));
 
+    // Arsenal: the server returns {item: {stock, in_production, ready_tick}} (or 0). The HUD's
+    // strike logic reads ARSENAL[item] as a plain stock count, so flatten to counts and keep the
+    // production info separately for the build UI.
+    const ARSENAL = {}, ARSENAL_INFO = {};
+    Object.keys(r.me.arsenal || {}).forEach((k) => {
+      const v = (r.me.arsenal || {})[k];
+      if (v && typeof v === 'object') { ARSENAL[k] = v.stock || 0; ARSENAL_INFO[k] = { in_production: v.in_production || 0, ready_tick: v.ready_tick != null ? v.ready_tick : null }; }
+      else { ARSENAL[k] = v || 0; ARSENAL_INFO[k] = { in_production: 0, ready_tick: null }; }
+    });
+
     return {
       players, scenarios: { live: scenario }, buildingsHere: buildings, training,
       UNITS: window.HUD_UNITS, UNITS_TIPS: window.HUD_UNITS_TIPS,
-      TECH: tech, STRIKES: window.HUD_DATA_STRIKES, ARSENAL: r.me.arsenal || {}, ACCESS, TRUCE_UNTIL, PROPOSALS,
+      TECH: tech, STRIKES: window.HUD_DATA_STRIKES, ARSENAL, ARSENAL_INFO, ACCESS, TRUCE_UNTIL, PROPOSALS,
       armies, incoming: [], trades: (r.trades || []).map((t) => ({ id: t.id, dir: t.dir, from: t.from, to: t.to, give: t.give || {}, receive: t.receive || {} })),
       events: mapEvents(r.events || [], players, feats || {}, myId), chat: chat || [],
       TOTAL: (r.players || []).reduce((s, p) => s + (p.territories || 0), 0) || 176, VICTORY: 0.6,
@@ -200,6 +210,13 @@ window.HUD_UNITS_TIPS = {
     srbm: { tech: 'srbm', damage: 12, rangeKm: 1000, name: 'Short-range missile' },
     mrbm: { tech: 'mrbm', damage: 18, rangeKm: 5500, name: 'Medium-range missile' },
     icbm: { tech: 'icbm', damage: 25, rangeKm: 40000, name: 'ICBM' }, nuke: { tech: 'nuclear' },
+  };
+  // Buildable strategic arsenal (mirrors GameConfig::ARSENAL) for the build UI.
+  window.HUD_ARSENAL = {
+    srbm:    { name: 'Short-range missile',  icon: 'rocket',        cost: { gold: 800 },                   days: 3,  tech: 'srbm' },
+    mrbm:    { name: 'Medium-range missile', icon: 'rocket',        cost: { gold: 1500 },                  days: 5,  tech: 'mrbm' },
+    icbm:    { name: 'ICBM',                 icon: 'rocket-launch', cost: { gold: 4000 },                  days: 8,  tech: 'icbm' },
+    warhead: { name: 'Nuclear warhead',      icon: 'radioactive',   cost: { gold: 15000, minerals: 2000 }, days: 10, tech: 'nuclear' },
   };
   window.HUD_DATA_TECH_META = [
     { key: 'artillery', name: 'Artillery', icon: 'target', cost: { research: 300, gold: 1500 }, days: 4, unlocks: 'Artillery unit. Shell any country that borders a stack with guns.' },

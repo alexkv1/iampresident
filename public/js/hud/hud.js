@@ -335,7 +335,11 @@
     const ready = inRange.find((k) => D.ARSENAL[k] > 0);
     strike.push(!tiers.length ? { kind: 'missile', ok: false, locked: true, reason: 'Research Short-range missiles' } : noStrike ? { kind: 'missile', ok: false, reason: noStrike } : ready ? { kind: 'missile', ok: true, sKind: ready, from: m.country, to: target, damage: Sk[ready].damage, detail: Sk[ready].name + ' · ' + D.ARSENAL[ready] + ' in stock' } : { kind: 'missile', ok: false, reason: !inRange.length ? 'Out of range (' + Math.round(dist) + ' km). Research longer-range missiles.' : 'No ' + Sk[inRange[0]].name.toLowerCase() + 's built.' });
     lk = lockFor('nuclear');
-    strike.push(lk ? { kind: 'nuke', ok: false, locked: true, reason: lk + ' · 60 000 gold · 5 Labs' } : { kind: 'nuke', ok: false, reason: 'No warhead built (15 000 gold, 10 days).' });
+    const nukeReady = (D.ARSENAL.warhead || 0) > 0;
+    strike.push(lk ? { kind: 'nuke', ok: false, locked: true, reason: lk + ' · 60 000 gold · 5 Labs' }
+      : noStrike ? { kind: 'nuke', ok: false, reason: noStrike }
+      : nukeReady ? { kind: 'nuke', ok: true, sKind: 'nuclear', from: m.country, to: target, detail: 'Warhead · ' + D.ARSENAL.warhead + ' in stock' }
+      : { kind: 'nuke', ok: false, reason: 'No warhead built (15 000 gold, 10 days).' });
     return { invade, strike };
   }
 
@@ -393,7 +397,7 @@
       + `<span class="iap-tip" data-tip="strike:${s.kind}" data-place="left" style="cursor:help">${Tile(t.icon, nuke ? 'linear-gradient(180deg,#ff9f43,#b4520c)' : t.tone, 30)}</span>`
       + `<div style="flex:1;min-width:0"><div style="font:600 13px/1.15 var(--font-body);color:${nuke ? 'var(--gold-300)' : '#fff'}">${t.title}</div>`
       + `<div style="margin-top:3px;display:flex;align-items:center;gap:4px;font:400 11px/1.3 var(--font-body);color:${s.ok ? 'var(--text-muted)' : s.locked ? 'var(--navy-300)' : 'var(--red-300)'}">${s.locked ? '<i class="ph-fill ph-lock"></i>' : ''}${esc(s.ok ? s.detail : s.reason)}</div></div>`
-      + `${s.ok ? `<span style="font:italic 800 16px/1 var(--font-display);color:var(--gold-300)">−${s.damage}</span>` : ''}${btn}</div>`;
+      + `${s.ok ? `<span style="font:italic 800 16px/1 var(--font-display);color:var(--gold-300)">${nuke ? '<i class="ph-fill ph-radioactive" style="font-size:18px"></i>' : '−' + s.damage}</span>` : ''}${btn}</div>`;
   }
 
   function ArmyPane() {
@@ -510,7 +514,32 @@
       const prog = x.status === 'active' ? Math.min(1, x.progress + (dayFloat - x.startDay) / x.days) : 0;
       html += TechCard(x, st, prog, Math.max(1, Math.ceil((1 - prog) * x.days)), i === S.tech.length - 1, s);
     });
+    if (LIVE) html += ArsenalSection(s);   // build missiles/warheads (live gameplay; mock stays design-exact)
     html += '</div>';
+    return html;
+  }
+  // Build & stockpile strategic weapons (missiles + nuclear warheads). Shows only items whose
+  // tech is researched; each has a Build button, cost, build time, stock, and in-production state.
+  function ArsenalSection(s) {
+    const AR = window.HUD_ARSENAL || {};
+    const techDone = new Set(S.tech.filter((x) => x.status === 'done').map((x) => x.key));
+    const items = Object.keys(AR).filter((k) => techDone.has(AR[k].tech));
+    if (!items.length) return '';
+    let html = SectionHead('<span style="display:block;margin-top:14px">Arsenal</span>', `<span style="font:400 11px/1 var(--font-body);color:var(--text-muted)">build & stockpile</span>`);
+    items.forEach((k) => {
+      const a = AR[k], info = (D.ARSENAL_INFO || {})[k] || {}, stock = D.ARSENAL[k] || 0;
+      const afford = Object.keys(a.cost).every((r) => (s.res[r] || 0) >= a.cost[r]);
+      const building = (info.in_production || 0) > 0;
+      const nuke = k === 'warhead';
+      const status = building
+        ? `<span style="color:var(--sky-300);display:inline-flex;align-items:center;gap:3px"><i class="ph-fill ph-hourglass"></i>building · ready Day ${info.ready_tick}</span>`
+        : `<span style="color:${stock > 0 ? 'var(--teal-300)' : 'var(--text-muted)'}">${stock} in stock</span>`;
+      const btn = UI.button({ size: 'sm', variant: afford && !building ? (nuke ? 'danger' : 'gold') : 'default', disabled: !afford || building, icon: 'hammer', children: 'Build' });
+      html += `<div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">${Tile(a.icon, nuke ? 'linear-gradient(180deg,#ff9f43,#b4520c)' : 'var(--navy-500)', 30)}`
+        + `<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;font:600 13px/1 var(--font-body);color:${nuke ? 'var(--gold-300)' : '#fff'}">${a.name}<span style="font:500 11px/1 var(--font-body);color:var(--text-muted)"><i class="ph-fill ph-hourglass"></i> ${a.days}d</span></div>`
+        + `<div style="margin-top:4px;display:flex;align-items:center;gap:7px;font:500 11px/1 var(--font-body)">${Cost(a.cost, s.res, 11)}<span style="color:var(--text-muted)">·</span>${status}</div></div>`
+        + `<span data-arsenal="${k}" style="display:contents">${btn}</span></div>`;
+    });
     return html;
   }
 
@@ -1122,6 +1151,11 @@
     if (LIVE) { LIVE.api.research(key).then(() => { toast('Researching ' + (t.name || key) + '.', 'ok'); liveRefresh(); }).catch(fail); return; }
     toast('Researching ' + (t.name || key) + '.', 'ok');
   }
+  function onArsenal(item) {
+    const a = (window.HUD_ARSENAL || {})[item]; if (!a) return;
+    if (LIVE) { LIVE.api.arsenal(item).then((resp) => { const rt = resp && resp.ready_tick; toast('Building ' + a.name + (rt ? ' · ready Day ' + rt : '') + '.', 'ok'); liveRefresh(); }).catch(fail); return; }
+    toast('Building ' + a.name + '.', 'ok');
+  }
   function onDiplo(pid, act) {
     const p = S.players.find((x) => x.id === pid);
     if (LIVE) {
@@ -1177,7 +1211,7 @@
         snap.players.map((p) => [p.id, p.pop, p.lands.length, p.diplo, p.share]),
         snap.armies.map((a) => [a.owner, a.at, a.to, a.arriveDay, JSON.stringify(a.units)]),
         snap.scenarios.live.res, snap.buildingsHere.map((b) => [b.type, b.status, b.country]),
-        (snap.TECH || []).map((t) => t.status), snap.ARSENAL, (snap.chat || []).length,
+        (snap.TECH || []).map((t) => t.status), snap.ARSENAL, snap.ARSENAL_INFO, (snap.chat || []).length,
         (snap.training || []).map((t) => [t.at, t.u, t.ready]),
         (snap.PROPOSALS || []).map((p) => [p.id, p.type, p.incoming]), snap.ACCESS, snap.TRUCE_UNTIL,
         (snap.trades || []).map((t) => [t.id, t.status]),
@@ -1207,7 +1241,7 @@
       });
       S.events = snap.events; S.tech = snap.TECH; S.chat = snap.chat || [];   // mapSnapshot returns TECH (uppercase)
       S.training = (snap.training || []).slice();
-      S.queue = snap.buildingsHere.slice(); D.scenarios.live = snap.scenarios.live; D.ARSENAL = snap.ARSENAL;
+      S.queue = snap.buildingsHere.slice(); D.scenarios.live = snap.scenarios.live; D.ARSENAL = snap.ARSENAL; D.ARSENAL_INFO = snap.ARSENAL_INFO || {};
       D._defence = snap._defence; D._vision = snap._vision;
       D.ACCESS = snap.ACCESS || {}; D.TRUCE_UNTIL = snap.TRUCE_UNTIL || {}; D.PROPOSALS = snap.PROPOSALS || []; D.trades = snap.trades || [];
       // Keep the day in step with the server: re-anchor the local clock if it has drifted
@@ -1239,6 +1273,7 @@
       if ((el = t('[data-move]'))) { const mv = el.getAttribute('data-move').split('|'); return onMove(mv[0], mv[1], mv[2]); }
       if ((el = t('[data-strike]'))) { const sk = el.getAttribute('data-strike').split('|'); return onStrike(sk[0], sk[1] || null, S.selected); }
       if ((el = t('[data-research]'))) return onResearch(el.getAttribute('data-research'));
+      if ((el = t('[data-arsenal]'))) return onArsenal(el.getAttribute('data-arsenal'));
       if ((el = t('[data-lens]'))) { S.lens = el.getAttribute('data-lens'); recolor(); render(); return; }
       if ((el = t('[data-zoom]'))) { if (globe) globe.camera.position.z = Math.max(1.6, Math.min(5, globe.camera.position.z + parseFloat(el.getAttribute('data-zoom')))); return; }
       if (t('[data-focus]')) { if (globe) globe.focus(me().country); return; }

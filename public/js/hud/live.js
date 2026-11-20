@@ -61,7 +61,44 @@ window.HUD_UNITS_TIPS = {
     if (rel.truce_until != null) return 'truce';
     return 'neutral';
   };
-  const EVENT_TEXT = {}; // event rendering handled by hud.js feed component; we pass type/actor/text/day
+
+  // Turn raw server events ({id, tick, type, data}) into the feed's display shape
+  // ({id, type, actor, text, day}), newest-first. Noisy/internal events are dropped.
+  function mapEvents(rows, players, feats, myId) {
+    const pname = (id) => { if (id == null) return ''; if (id === myId) return 'You'; const p = players.find((x) => x.id === id); return p ? p.name : 'A rival nation'; };
+    const cname = (code) => (feats[code] && feats[code].properties && feats[code].properties.name) || code || 'a country';
+    const bname = (t) => (window.IAP_DATA.BUILDINGS[t] || {}).name || t;
+    const uname = (u) => (window.HUD_UNITS[u] || {}).name || u;
+    const tname = (k) => { const t = (window.HUD_DATA_TECH_META || []).find((x) => x.key === k); return t ? t.name : k; };
+    const aname = (k) => (window.HUD_DATA_STRIKES && window.HUD_DATA_STRIKES[k] && window.HUD_DATA_STRIKES[k].name) || k;
+    const sname = (k) => ({ artillery: 'an artillery barrage', air: 'an air strike', srbm: 'a short-range missile', mrbm: 'a medium-range missile', icbm: 'an ICBM' }[k] || 'a strike');
+    const out = [];
+    (rows || []).forEach((e) => {
+      const d = e.data || {}, day = e.tick; let actor = '', text = null, type = e.type;
+      switch (e.type) {
+        case 'match_started': text = 'The match has begun.'; break;
+        case 'build_complete': actor = pname(d.player); text = 'finished a ' + bname(d.type) + ' in ' + cname(d.country) + '.'; break;
+        case 'training_complete': actor = pname(d.player); text = 'trained ' + d.count + ' ' + uname(d.unit) + ' in ' + cname(d.country) + '.'; break;
+        case 'research_complete': actor = pname(d.player); text = 'researched ' + tname(d.tech) + '.'; break;
+        case 'arsenal_ready': actor = pname(d.player); text = 'built ' + d.count + ' ' + aname(d.item) + '.'; break;
+        case 'conquest': actor = pname(d.to); text = 'conquered ' + cname(d.country) + '.'; break;
+        case 'battle_repelled': actor = pname(d.defender); text = 'held ' + cname(d.country) + ' against ' + pname(d.attacker) + '.'; break;
+        case 'reinforced': actor = pname(d.player); text = 'reinforced ' + cname(d.country) + '.'; break;
+        case 'revolt': type = 'war'; text = cname(d.country) + ' revolted against ' + pname(d.from) + '.'; break;
+        case 'integrated': actor = pname(d.player); text = 'integrated ' + cname(d.country) + '.'; break;
+        case 'truce_ended': text = 'Truce ended between ' + pname(d.a) + ' and ' + pname(d.b) + '.'; break;
+        case 'player_defeated': actor = pname(d.player); text = 'has been defeated.'; break;
+        case 'match_ended': actor = pname(d.winner); text = 'dominates the world!'; break;
+        case 'desertion': actor = pname(d.player); text = 'lost ' + d.lost + ' troops to desertion.'; break;
+        case 'grounded_no_oil': actor = pname(d.player); text = 'ran out of oil — forces grounded.'; break;
+        case 'strike': actor = pname(d.by); text = 'hit ' + cname(d.target) + ' with ' + sname(d.kind) + '.'; break;
+        case 'nuclear_strike': actor = pname(d.by); text = 'launched a nuclear strike on ' + cname(d.target) + '!'; break;
+        default: return; // ai_*, retaliate_prompt, research_started, battle_won/lost, proposal_* — skip
+      }
+      out.push({ id: e.id, type, actor, text, day });
+    });
+    return out.reverse(); // newest first
+  }
 
   // Build HUD_DATA from a /api/match/get snapshot.
   const mapChat = (rows) => (rows || []).map((m) => ({ id: m.id, pid: m.player, scope: m.scope, body: m.body }));
@@ -130,7 +167,7 @@ window.HUD_UNITS_TIPS = {
       players, scenarios: { live: scenario }, buildingsHere: buildings, training,
       UNITS: window.HUD_UNITS, UNITS_TIPS: window.HUD_UNITS_TIPS,
       TECH: tech, STRIKES: window.HUD_DATA_STRIKES, ARSENAL: r.me.arsenal || {}, ACCESS: {}, TRUCE_UNTIL: {},
-      armies, incoming: [], trades: [], events: (r.events || []), chat: chat || [],
+      armies, incoming: [], trades: [], events: mapEvents(r.events || [], players, feats || {}, myId), chat: chat || [],
       TOTAL: (r.players || []).reduce((s, p) => s + (p.territories || 0), 0) || 176, VICTORY: 0.6,
       TICK_SEC: r.match.tick_interval_sec || 20, DAY: r.match.current_tick,
       _defence: defence, _vision: vision, _matchId: matchId, _nextTickAt: r.match.next_tick_at,
@@ -154,7 +191,7 @@ window.HUD_UNITS_TIPS = {
 
   // Initial snapshot: fetch synchronously so window.HUD_DATA exists before hud.js evaluates
   // (hud.js captures HUD_DATA at load time). Subsequent updates poll asynchronously every 3s.
-  let lastEvent = 0, feats = null, chatAll = [], lastChatId = 0;
+  let lastEvent = 0, feats = null, chatAll = [], lastChatId = 0, eventsAll = [];
   function loadFeats() {
     if (feats) return feats;
     try { const x = new XMLHttpRequest(); x.open('GET', window.IAP_DATA.GEO_URL, false); x.send(); feats = {};
@@ -169,6 +206,7 @@ window.HUD_UNITS_TIPS = {
       const r = JSON.parse(x.responseText);
       try { const xc = new XMLHttpRequest(); xc.open('GET', '/api/chat/list?match_id=' + matchId + '&since_id=0', false); xc.send();
         chatAll = mapChat(JSON.parse(xc.responseText).messages); lastChatId = chatAll.reduce((m, c) => Math.max(m, c.id || 0), 0); } catch (e2) { chatAll = []; }
+      eventsAll = (r.events || []).slice();   // seed the dispatches log with everything so far
       window.HUD_DATA = mapSnapshot(r, loadFeats(), chatAll);
       lastEvent = (r.events || []).reduce((m, e) => Math.max(m, e.id || 0), 0);
     } catch (e) {
@@ -185,6 +223,10 @@ window.HUD_UNITS_TIPS = {
     poll() {
       return api.get(lastEvent).then((r) => {
         lastEvent = (r.events || []).reduce((m, e) => Math.max(m, e.id || 0), lastEvent);
+        // Accumulate: the poll only returns events newer than lastEvent, so append them to the
+        // running log (capped) instead of letting the feed empty out between ticks.
+        if ((r.events || []).length) { eventsAll = eventsAll.concat(r.events); if (eventsAll.length > 150) eventsAll = eventsAll.slice(-150); }
+        r.events = eventsAll;
         return api.chatList(lastChatId).then(
           (cr) => { const nw = mapChat(cr.messages); if (nw.length) { chatAll = chatAll.concat(nw); lastChatId = chatAll.reduce((m, c) => Math.max(m, c.id || 0), lastChatId); } return mapSnapshot(r, loadFeats(), chatAll); },
           () => mapSnapshot(r, loadFeats(), chatAll)

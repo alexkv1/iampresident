@@ -654,6 +654,47 @@
   const markerLayer = { els: {}, items: [], raf: null };
   let lastMarkerSig = '';
 
+  // ---- strike / missile FX (transient) ----
+  // Fire-and-forget animations triggered by strike/nuclear_strike realtime events: a trajectory
+  // arc + a projectile travelling along it, then a burst at the target. Not game state — purely
+  // visual, so they live in their own layer and self-remove when the burst finishes.
+  const fxLayer = { items: [] };
+  let fxSeq = 0;
+  const STRIKE_COLOR = { artillery: '#ffd166', air: '#8be9ff', srbm: '#8be9ff', mrbm: '#8be9ff', icbm: '#b78bff', nuclear: '#ff7a3c' };
+  function strikeFx(payload) {
+    if (!globe || !S.geoReady || !payload) return;
+    const kind = payload.kind || 'nuclear';   // the nuclear_strike event carries no `kind`
+    const toCode = payload.target;
+    if (!toCode || !GEO.centroid(toCode)) return;
+    let fromCode = payload.from;
+    if (!fromCode) { const by = allPlayers().find((p) => p.id === payload.by); fromCode = by && by.country; }   // missiles/nukes launch from the capital
+    const host = document.getElementById('fx-layer');
+    if (!host) return;
+    const nuke = kind === 'nuclear';
+    const color = STRIKE_COLOR[kind] || '#ff5a5a';
+    const id = 'fx' + (fxSeq++);
+    const el = document.createElement('div');
+    el.setAttribute('data-fx', id);
+    el.style.cssText = 'position:absolute;left:0;top:0;opacity:0;pointer-events:none;will-change:transform;z-index:20';
+    host.appendChild(el);
+    // No usable origin (or striking its own tile) → just burst on the target.
+    if (!fromCode || fromCode === toCode || !GEO.centroid(fromCode)) {
+      el.innerHTML = burstHTML(kind, color);
+      fxLayer.items.push({ id, el, impacted: true, boomStart: performance.now(), toCode, kind, path: null });
+      return;
+    }
+    const lift = nuke ? 0.5 : (kind === 'artillery' ? 0.07 : kind === 'air' ? 0.13 : 0.4);
+    const route = GEO.pathPoints(globe, [fromCode, toCode], { lift, step: 0.4 });
+    const path = globe.addPath(route, { color, opacity: 0.85, radius: nuke ? 0.006 : 0.0035, dash: 0, arrow: false });
+    el.innerHTML = `<div style="transform:translate(-50%,-50%)"><i class="ph-fill ph-${nuke ? 'radioactive' : 'rocket'}" style="font-size:${nuke ? 22 : 17}px;color:${color};filter:drop-shadow(0 0 6px ${color}) drop-shadow(0 1px 2px rgba(0,0,0,.85))"></i></div>`;
+    const dur = nuke ? 2200 : (kind === 'artillery' || kind === 'air' ? 1000 : 1700);
+    fxLayer.items.push({ id, el, route, start: performance.now(), dur, kind, toCode, path, impacted: false });
+  }
+  function burstHTML(kind, color) {
+    const size = kind === 'nuclear' ? 74 : 44;
+    return `<div style="transform:translate(-50%,-50%);width:${size}px;height:${size}px;border-radius:50%;border:3px solid ${color};background:radial-gradient(circle, ${color}dd, transparent 66%);box-shadow:0 0 24px ${color}, inset 0 0 16px ${color};animation:iap-burst .85s ease-out forwards"></div>`;
+  }
+
   // ---- buildings on the globe ----
   // Each of a player's buildings is pinned to a point inside its country, spread evenly via a
   // golden-angle (phyllotaxis) spiral so a cluster of farms/mines/labs fans out instead of
@@ -780,6 +821,27 @@
       el.style.opacity = s.vis;
       el.style.zIndex = Math.round(s.y) - 1;   // sit just under the army markers
     }
+    // Strike FX: fly the projectile along its arc, then burst on the target and self-remove.
+    for (let i = fxLayer.items.length - 1; i >= 0; i--) {
+      const it = fxLayer.items[i];
+      if (!it.impacted) {
+        const t = (now - it.start) / it.dur;
+        if (t >= 1) {
+          if (it.path) { globe.removePath(it.path); it.path = null; }
+          it.impacted = true; it.boomStart = now;
+          it.el.innerHTML = burstHTML(it.kind, STRIKE_COLOR[it.kind] || '#ff5a5a');
+        } else {
+          const s = globe.projectLocal(GEO.pointAt(it.route, Math.max(0, t)));
+          it.el.style.transform = 'translate(' + s.x.toFixed(1) + 'px,' + s.y.toFixed(1) + 'px)';
+          it.el.style.opacity = s.vis;
+        }
+      }
+      if (it.impacted) {
+        const c = GEO.centroid(it.toCode);
+        if (c) { const s = globe.projectLocal(globe.lonLatVec(c[0], c[1], 1.012)); it.el.style.transform = 'translate(' + s.x.toFixed(1) + 'px,' + s.y.toFixed(1) + 'px)'; it.el.style.opacity = s.vis; }
+        if (now - it.boomStart > 900) { if (it.el.parentNode) it.el.parentNode.removeChild(it.el); fxLayer.items.splice(i, 1); }
+      }
+    }
   }
 
   // ---- clock ----
@@ -824,6 +886,7 @@
     if (!document.getElementById('hud-panels')) {
       stage.insertAdjacentHTML('beforeend', `<div id="building-layer" style="position:absolute;inset:0;pointer-events:none;z-index:0"></div>`);
       stage.insertAdjacentHTML('beforeend', `<div id="marker-layer" style="position:absolute;inset:0;pointer-events:none;z-index:0;isolation:isolate"></div>`);
+      stage.insertAdjacentHTML('beforeend', `<div id="fx-layer" style="position:absolute;inset:0;pointer-events:none;z-index:1"></div>`);
       stage.insertAdjacentHTML('beforeend', `<div id="hud-panels"></div>`);
       stage.insertAdjacentHTML('beforeend', `<div id="hover-tip" style="position:absolute;left:0;top:0;pointer-events:none;z-index:30;display:none"></div>`);
       stage.insertAdjacentHTML('beforeend', `<div id="tip-layer" style="position:absolute;inset:0;pointer-events:none;z-index:60"></div>`);
@@ -1211,7 +1274,7 @@
           const ws = new WebSocket(window.WS_URL + '?match_id=' + LIVE.matchId);
           // Refresh on any real game event (strike, nuclear_strike, conquest, revolt,
           // research_complete, …) — not just a whitelist — so everything is realtime.
-          ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch (e) { return; } if (m.event && m.event !== 'ping' && m.event !== 'connected') liveRefresh(); };
+          ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch (e) { return; } if (!m.event || m.event === 'ping' || m.event === 'connected') return; if (m.event === 'strike' || m.event === 'nuclear_strike') strikeFx(m.payload || {}); liveRefresh(); };
         } catch (e) { /* polling still works */ }
       }
     }

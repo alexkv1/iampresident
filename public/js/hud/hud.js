@@ -804,10 +804,15 @@
     return { kind: 'war', title: 'Invasion incoming', body: (allPlayers().find((p) => p.id === threat.owner) || {}).name + '’s ' + armyList(threat.units) + ' is marching on ' + cname(threat.to), eta: Math.max(0, threat.arriveDay - S.day), target: threat.to };
   }
 
-  function Toasts(alert) {
-    const top = alert ? 262 : 186;
-    const items = S.toasts.map((x) => UI.toast({ kind: x.kind, children: x.msg })).join('');
-    return `<div id="toast" style="position:absolute;top:${top}px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;z-index:40">${items}</div>`;
+  // Toasts live in their own persistent layer (not inside #hud-panels), so showing/clearing a
+  // toast never rebuilds the panels — otherwise clicking Build would tear down and recreate the
+  // in-progress progress bars, which reads as a flash.
+  function renderToasts() {
+    const layer = document.getElementById('toast');
+    if (!layer) return;
+    const top = deriveAlert() ? 262 : 186;
+    layer.style.top = top + 'px';
+    layer.innerHTML = S.toasts.map((x) => UI.toast({ kind: x.kind, children: x.msg })).join('');
   }
 
   // ---- render all regions ----
@@ -822,6 +827,7 @@
       stage.insertAdjacentHTML('beforeend', `<div id="hud-panels"></div>`);
       stage.insertAdjacentHTML('beforeend', `<div id="hover-tip" style="position:absolute;left:0;top:0;pointer-events:none;z-index:30;display:none"></div>`);
       stage.insertAdjacentHTML('beforeend', `<div id="tip-layer" style="position:absolute;inset:0;pointer-events:none;z-index:60"></div>`);
+      stage.insertAdjacentHTML('beforeend', `<div id="toast" style="position:absolute;top:186px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;z-index:40"></div>`);
     }
   }
   function render() {
@@ -835,16 +841,17 @@
     ['ctx-scroll', 'comms-list'].forEach((id) => { const el = document.getElementById(id); if (el) scrolls[id] = el.scrollTop; });
     document.getElementById('hud-panels').innerHTML =
       IdentityPlate() + WorldClock() + Treasury() + AlertRibbon(alert)
-      + Standings() + ContextPanel() + Comms() + Hotbar() + GlobeControls() + Toasts(alert);
+      + Standings() + ContextPanel() + Comms() + Hotbar() + GlobeControls();
     Object.keys(scrolls).forEach((id) => { const el = document.getElementById(id); if (el) el.scrollTop = scrolls[id]; });
+    renderToasts();
     wire();
   }
 
   function toast(msg, kind) {
     const id = Math.random();
     S.toasts.push({ id, msg, kind });
-    render();
-    setTimeout(() => { S.toasts = S.toasts.filter((y) => y.id !== id); render(); }, 2600);
+    renderToasts();   // just the toast layer — never rebuild the panels (would flash the bars)
+    setTimeout(() => { S.toasts = S.toasts.filter((y) => y.id !== id); renderToasts(); }, 2600);
   }
 
   // ---- tooltip resolution (data-tip token -> tip object) ----
@@ -925,6 +932,7 @@
     if (!afford) return toast('Not enough resources.', 'err');
     if (LIVE) { LIVE.api.build(S.selected, type).then(() => { toast(B.name + ' started.', 'ok'); liveRefresh(); }).catch(fail); return; }
     S.queue.push({ type, status: 'building', country: S.selected, started: S.day, complete_at: S.day + B.build_ticks });
+    render();   // toast() no longer re-renders the panels; mock mutators render themselves
     toast(B.name + ' started.', 'ok');
   }
   function onTrain(u) {
@@ -934,6 +942,7 @@
     if (busy >= slotsAt(at)) return toast('All ' + slotsAt(at) + ' training slots in ' + cname(at) + ' are busy. Build a Factory for another slot.', 'err');
     const ready = Math.floor(dayNow()) + U.build_ticks;
     S.training.push({ id: Math.random(), u, at, ready });
+    render();   // toast() no longer re-renders the panels; mock mutators render themselves
     toast('Training 5 ' + U.name.toLowerCase() + ' in ' + cname(at) + ' · ready Day ' + ready + '.', 'ok');
   }
   function onMove(armyId, target, kind) {
@@ -961,6 +970,7 @@
     if (act === 'war') { p.diplo = 'war'; toast('War declared on ' + p.name + '.', 'err'); S.events.unshift({ id: Math.random(), type: 'war', actor: 'You', text: 'declared war on ' + p.name, day: S.day }); render(); return; }
     if (act === 'break') { p.diplo = 'neutral'; toast('Alliance with ' + p.name + ' ended.', 'default'); render(); return; }
     S.proposals[pid + ':' + act] = { expires: S.day + 3 };
+    render();   // toast() no longer re-renders the panels; mock mutators render themselves
     toast(({ alliance: 'Alliance proposed to ', access: 'Military access requested from ', truce: 'Truce offered to ' }[act]) + p.name + '. Waiting for a reply.', 'ok');
   }
   // Pull a fresh snapshot from the backend and fold it into the HUD state (live mode only).

@@ -206,6 +206,25 @@ final class Diplomacy {
     }
 
     /**
+     * End an alliance (GAME_RULES §7): allies -> neutral, and revoke any access that was
+     * granted between them. Returns [ok, message?].
+     */
+    public static function breakAlliance(DB $db, int $matchId, int $from, int $to, int $tick): array {
+        if ($from === $to) return ['ok' => false, 'message' => 'You can’t do that to yourself.'];
+        if (!self::areAllied($db, $matchId, $from, $to)) {
+            return ['ok' => false, 'message' => 'You are not allied with them.'];
+        }
+        [$a, $b] = $from < $to ? [$from, $to] : [$to, $from];
+        // Alliance ends → neutral, and the mutual military access it implied is withdrawn.
+        $db->execute(
+            "UPDATE `diplomacy` SET `state`='neutral', `access_ab`=0, `access_ba`=0, `date_updated`=NOW()
+              WHERE `match_id`=? AND `player_a`=? AND `player_b`=?",
+            [$matchId, $a, $b], 'iii'
+        );
+        return ['ok' => true];
+    }
+
+    /**
      * Per-tick maintenance (GAME_RULES §7): expire stale proposals and end elapsed
      * truces (state -> neutral, `truce_ended` event). $match carries current_tick.
      */

@@ -62,6 +62,7 @@
     scars: {},
     toasts: [],
     chatTab: 'feed', chatScope: 'all',
+    tradeDraft: null,   // open trade-offer composer: { to, give:{}, receive:{} }
     geo: null, geoReady: false,
   };
   let BROKE = false;
@@ -515,24 +516,47 @@
   function ResLine(res) {
     return `<span style="display:inline-flex;gap:8px">${Object.keys(res).map((k) => `<span style="display:inline-flex;align-items:center;gap:4px;font:italic 800 18px/1 var(--font-display);color:#fff"><i class="ph-fill ph-${HUD_RES[k].icon}" style="color:${HUD_RES[k].color};font-size:16px"></i>${res[k]}</span>`).join('')}</span>`;
   }
+  const TRADE_RES_ORDER = ['gold', 'food', 'minerals', 'energy', 'oil', 'research'];
+  function tradeResLine(m) {
+    const keys = TRADE_RES_ORDER.filter((k) => (m || {})[k] > 0);
+    if (!keys.length) return `<span style="color:var(--text-muted);font:500 12px/1 var(--font-body)">nothing</span>`;
+    return keys.map((k) => `<span style="display:inline-flex;align-items:center;gap:3px;font:700 12px/1 var(--font-num);color:${HUD_RES[k].color}"><i class="ph-fill ph-${HUD_RES[k].icon}"></i>${hudNum(m[k])}</span>`).join(' ');
+  }
+  function TradeComposer(others) {
+    const draft = S.tradeDraft;
+    const field = (side, k) => `<label style="display:flex;align-items:center;gap:6px"><i class="ph-fill ph-${HUD_RES[k].icon}" style="color:${HUD_RES[k].color};width:14px;text-align:center"></i><input type="number" min="0" inputmode="numeric" data-trade-field="${side}|${k}" value="${(draft[side] && draft[side][k]) || ''}" placeholder="0" style="width:100%;background:var(--navy-950);border:1px solid var(--navy-600);border-radius:7px;color:#fff;padding:5px 7px;font:600 12px/1 var(--font-num)"></label>`;
+    const col = (side) => `<div style="display:flex;flex-direction:column;gap:5px;margin-top:5px">${TRADE_RES_ORDER.map((k) => field(side, k)).join('')}</div>`;
+    return `<div style="padding:12px;border-radius:12px;margin-bottom:10px;background:var(--grad-navy);border:1px solid var(--sky-800);box-shadow:0 3px 0 var(--navy-950)">`
+      + `<div style="font:700 13px/1 var(--font-body);color:#fff;margin-bottom:8px">New trade offer</div>`
+      + `<label style="display:block;margin-bottom:10px"><span style="font:500 11px/1 var(--font-body);color:var(--text-muted)">To</span>`
+      + `<select data-trade-to style="width:100%;margin-top:4px;background:var(--navy-950);border:1px solid var(--navy-600);border-radius:7px;color:#fff;padding:6px 8px;font:600 12px/1 var(--font-body)">${others.map((p) => `<option value="${p.id}"${p.id === draft.to ? ' selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>`
+      + `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div>${Eyebrow('You give')}${col('give')}</div><div>${Eyebrow('You receive')}${col('receive')}</div></div>`
+      + `<div style="display:flex;gap:8px;margin-top:10px"><span style="flex:1" data-trade-act="send">${UI.button({ size: 'sm', variant: 'gold', icon: 'paper-plane-right', block: true, children: 'Send offer' })}</span><span data-trade-act="cancel" style="display:contents">${UI.button({ size: 'sm', variant: 'ghost', children: 'Cancel' })}</span></div></div>`;
+  }
   function TradePane() {
-    const players = allPlayers();
-    const pl = (id) => players.find((p) => p.id === id);
-    const incoming = D.trades.filter((t) => t.dir === 'in');
-    const outgoing = D.trades.filter((t) => t.dir === 'out');
-    let html = `<div>${SectionHead('Incoming offers', UI.button({ size: 'sm', variant: 'gold', icon: 'plus', children: 'New offer' }))}`;
+    const pl = (id) => allPlayers().find((p) => p.id === id) || {};
+    const others = allPlayers().filter((p) => !p.me);
+    const trades = D.trades || [];
+    const incoming = trades.filter((t) => t.dir === 'in');
+    const outgoing = trades.filter((t) => t.dir === 'out');
+    let html = '<div>';
+    if (!others.length) return `<div style="font:400 13px/1.4 var(--font-body);color:var(--text-muted);padding:6px 0">No other nations to trade with yet.</div>`;
+    if (S.tradeDraft) html += TradeComposer(others);
+    else html += SectionHead('Trade', `<span data-trade-act="new" style="display:contents">${UI.button({ size: 'sm', variant: 'gold', icon: 'plus', children: 'New offer' })}</span>`);
+    html += SectionHead('Incoming offers');
     if (!incoming.length) html += `<div style="font:400 13px/1.4 var(--font-body);color:var(--text-muted);padding:6px 0 12px">No offers on the table.</div>`;
     incoming.forEach((t) => {
       const p = pl(t.from);
       html += `<div style="padding:12px;border-radius:12px;margin-bottom:8px;background:var(--grad-navy);border:1px solid var(--navy-600);box-shadow:0 3px 0 var(--navy-950)">`
-        + `<div style="display:flex;align-items:center;gap:6px;font:600 13px/1 var(--font-body);color:#fff"><span style="width:9px;height:9px;border-radius:3px;background:${p.color}"></span>${esc(p.name)}</div>`
-        + `<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:10px 0"><div>${Eyebrow('You get', undefined, 'margin-bottom:5px')}${ResLine(t.give)}</div><i class="ph-bold ph-arrows-left-right" style="color:var(--text-muted);font-size:18px"></i><div>${Eyebrow('You give', undefined, 'margin-bottom:5px')}${ResLine(t.receive)}</div></div>`
-        + `<div style="display:flex;gap:8px"><span style="flex:1">${UI.button({ size: 'sm', variant: 'primary', icon: 'check', block: true, children: 'Accept' })}</span><span style="flex:1">${UI.button({ size: 'sm', variant: 'ghost', block: true, children: 'Decline' })}</span></div></div>`;
+        + `<div style="display:flex;align-items:center;gap:6px;font:600 13px/1 var(--font-body);color:#fff"><span style="width:9px;height:9px;border-radius:3px;background:${p.color}"></span>${esc(p.name || 'Player')}</div>`
+        + `<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:10px 0"><div>${Eyebrow('You get')}<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:6px">${tradeResLine(t.give)}</div></div><i class="ph-bold ph-arrows-left-right" style="color:var(--text-muted);font-size:18px"></i><div>${Eyebrow('You give')}<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:6px">${tradeResLine(t.receive)}</div></div></div>`
+        + `<div style="display:flex;gap:8px"><span style="flex:1" data-trade-act="accept|${t.id}">${UI.button({ size: 'sm', variant: 'primary', icon: 'check', block: true, children: 'Accept' })}</span><span style="flex:1" data-trade-act="decline|${t.id}">${UI.button({ size: 'sm', variant: 'ghost', block: true, children: 'Decline' })}</span></div></div>`;
     });
     html += SectionHead(`<span style="display:block;margin-top:6px">Your offers</span>`);
+    if (!outgoing.length) html += `<div style="font:400 12px/1.4 var(--font-body);color:var(--text-muted);padding:4px 0">None pending.</div>`;
     outgoing.forEach((t) => {
       const p = pl(t.to);
-      html += `<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:var(--navy-850);box-shadow:var(--shadow-inset-well)"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;font:600 12px/1 var(--font-body);color:#fff;margin-bottom:6px"><span style="width:9px;height:9px;border-radius:3px;background:${p.color}"></span>To ${esc(p.name)}</div><div style="display:flex;align-items:center;gap:6px">${ResLine(t.give)}<i class="ph-bold ph-arrow-right" style="color:var(--text-muted)"></i>${ResLine(t.receive)}</div></div>${UI.pill({ icon: 'hourglass', children: 'Pending' })}</div>`;
+      html += `<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:var(--navy-850);box-shadow:var(--shadow-inset-well);margin-bottom:6px"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;font:600 12px/1 var(--font-body);color:#fff;margin-bottom:6px"><span style="width:9px;height:9px;border-radius:3px;background:${p.color}"></span>To ${esc(p.name || 'Player')}</div><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${tradeResLine(t.give)}<i class="ph-bold ph-arrow-right" style="color:var(--text-muted)"></i>${tradeResLine(t.receive)}</div></div>${UI.pill({ icon: 'hourglass', children: 'Pending' })}</div>`;
     });
     html += '</div>';
     return html;
@@ -541,10 +565,15 @@
   // ---- Diplomacy pane ----
   function DiplomacyPane() {
     const players = allPlayers();
+    const props = D.PROPOSALS || [];
+    const typeName = { alliance: 'an alliance', truce: 'a truce', access: 'military access' };
+    const typeLabel = { alliance: 'Alliance', access: 'Access', truce: 'Truce' };
     let html = `<div style="display:flex;flex-direction:column;gap:8px">`;
     players.filter((p) => !p.me).forEach((p) => {
       const d = DIPLO[p.diplo || 'neutral'], tl = truceLeft(p), access = !!D.ACCESS[p.id];
-      const pend = (k) => S.proposals[p.id + ':' + k];
+      const outgoing = props.filter((x) => !x.incoming && x.to === p.id);
+      const incoming = props.filter((x) => x.incoming && x.from === p.id);
+      const pend = (k) => outgoing.some((x) => x.type === k) || !!S.proposals[p.id + ':' + k];
       const acts = [];
       if (p.diplo === 'neutral' || !p.diplo) acts.push(['alliance', 'Propose alliance', 'primary'], ['war', 'Declare war', 'danger']);
       if (p.diplo === 'allied') acts.push(['break', 'End alliance', 'ghost']);
@@ -553,11 +582,17 @@
       let pills = '';
       if (access) pills += `<span class="iap-tip" data-tip="access" data-place="left" style="cursor:help">${UI.pill({ tone: 'teal', icon: 'path', children: 'Access granted' })}</span>`;
       if (tl) pills += UI.pill({ tone: 'sky', icon: 'hourglass', children: 'Truce · ' + tl + ' days left' });
-      ['alliance', 'access', 'truce'].filter(pend).forEach((k) => { pills += UI.pill({ icon: 'hourglass', children: ({ alliance: 'Alliance', access: 'Access', truce: 'Truce' }[k]) + ' proposed · waiting' }); });
+      outgoing.forEach((x) => { pills += UI.pill({ icon: 'hourglass', children: (typeLabel[x.type] || x.type) + ' proposed · waiting' }); });
+      // Incoming proposals: the player can Accept or Decline (wired to /api/diplomacy/respond).
+      const incomingRows = incoming.map((x) =>
+        `<div style="margin-top:8px;padding:10px;border-radius:10px;background:rgba(63,162,255,.1);box-shadow:inset 0 0 0 1px var(--sky-800)">`
+        + `<div style="font:500 12px/1.35 var(--font-body);color:#fff;margin-bottom:8px"><b>${esc(p.name)}</b> proposes ${typeName[x.type] || x.type}.</div>`
+        + `<div style="display:flex;gap:6px"><span style="flex:1" data-respond="${x.id}|1">${UI.button({ size: 'sm', variant: 'primary', icon: 'check', block: true, children: 'Accept' })}</span>`
+        + `<span style="flex:1" data-respond="${x.id}|0">${UI.button({ size: 'sm', variant: 'ghost', block: true, children: 'Decline' })}</span></div></div>`).join('');
       const actionsRow = tl ? '' : acts.map(([k, label, v]) => `<span style="flex:1" data-diplo-act="${k}">${UI.button({ size: 'sm', variant: v, disabled: !!pend(k), block: true, children: label })}</span>`).join('');
       html += `<div data-diplo="${p.id}" style="padding:12px;border-radius:12px;background:var(--grad-navy);border:1px solid var(--navy-600);box-shadow:0 3px 0 var(--navy-950)">`
         + `<div style="display:flex;align-items:center;gap:10px"><span style="width:6px;height:32px;border-radius:3px;background:${p.color};transform:skewX(var(--skew))"></span><div style="flex:1;min-width:0"><div style="font:600 14px/1.2 var(--font-body);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</div><div style="font:400 11px/1.3 var(--font-body);color:var(--text-muted)">${esc(p.title)} · ${p.lands.length} lands${p.ai ? ' · AI' : ''}</div></div><span class="iap-tip" data-tip="diplo:${p.diplo || 'neutral'}" data-place="left" style="cursor:help">${UI.badge({ kind: d.kind, icon: d.icon, children: d.label })}</span></div>`
-        + `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${pills}</div>`
+        + `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${pills}</div>${incomingRows}`
         + (tl ? `<div style="margin-top:8px;font:400 12px/1.4 var(--font-body);color:var(--text-muted)">Truces can’t be broken. You can’t attack each other until Day ${S.day + tl}.</div>` : '')
         + `<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">${actionsRow}</div></div>`;
     });
@@ -988,7 +1023,7 @@
       layer.innerHTML = `<div style="position:absolute;z-index:60;pointer-events:none;${style}">${UI.tooltip(Object.assign({}, tip, { placement: place, arrowOffset }))}</div>`;
     }, 300);
   }
-  function hideTip() { clearTimeout(tipTimer); tipShown = false; const l = document.getElementById('tip-layer'); if (l) l.innerHTML = ''; if (pendingRender) { pendingRender = false; render(); } }
+  function hideTip() { clearTimeout(tipTimer); tipShown = false; const l = document.getElementById('tip-layer'); if (l) l.innerHTML = ''; if (pendingRender && !S.tradeDraft) { pendingRender = false; render(); } }
 
   // ---- actions ----
   const LIVE = window.HUD_LIVE || null;
@@ -1031,7 +1066,9 @@
   function onDiplo(pid, act) {
     const p = S.players.find((x) => x.id === pid);
     if (LIVE) {
-      const call = act === 'war' ? LIVE.api.declareWar(pid) : LIVE.api.propose(pid, act === 'break' ? 'break' : act);
+      const call = act === 'war' ? LIVE.api.declareWar(pid)
+        : act === 'break' ? LIVE.api.breakAlliance(pid)
+        : LIVE.api.propose(pid, act);
       const msg = { war: 'War declared on ', break: 'Alliance ended with ', alliance: 'Alliance proposed to ', access: 'Military access requested from ', truce: 'Truce offered to ' }[act];
       call.then(() => { toast(msg + p.name + '.', act === 'war' ? 'err' : 'ok'); liveRefresh(); }).catch(fail);
       return;
@@ -1041,6 +1078,32 @@
     S.proposals[pid + ':' + act] = { expires: S.day + 3 };
     render();   // toast() no longer re-renders the panels; mock mutators render themselves
     toast(({ alliance: 'Alliance proposed to ', access: 'Military access requested from ', truce: 'Truce offered to ' }[act]) + p.name + '. Waiting for a reply.', 'ok');
+  }
+  // Accept / decline an incoming diplomacy proposal.
+  function onRespond(id, accept) {
+    if (LIVE) { LIVE.api.respond(id, accept).then(() => { toast(accept ? 'Proposal accepted.' : 'Proposal declined.', accept ? 'ok' : 'default'); liveRefresh(); }).catch(fail); return; }
+    toast(accept ? 'Proposal accepted.' : 'Proposal declined.', 'ok');
+  }
+  // Trade composer + incoming-offer actions.
+  function onTradeAct(action, arg) {
+    if (action === 'new') { const others = allPlayers().filter((p) => !p.me); S.tradeDraft = { to: others.length ? others[0].id : null, give: {}, receive: {} }; render(); return; }
+    if (action === 'cancel') { S.tradeDraft = null; render(); return; }
+    if (action === 'send') {
+      const d = S.tradeDraft; if (!d) return;
+      if (!d.to) { toast('Pick a nation to trade with.', 'err'); return; }
+      const clean = (m) => { const o = {}; Object.keys(m || {}).forEach((k) => { const v = parseInt(m[k], 10); if (v > 0) o[k] = v; }); return o; };
+      const give = clean(d.give), receive = clean(d.receive);
+      if (!Object.keys(give).length && !Object.keys(receive).length) { toast('Add at least one resource to the offer.', 'err'); return; }
+      S.tradeDraft = null;
+      if (LIVE) { LIVE.api.tradePropose(d.to, give, receive).then(() => { toast('Trade offer sent.', 'ok'); liveRefresh(); }).catch(fail); render(); return; }
+      render(); toast('Trade offer sent.', 'ok');
+      return;
+    }
+    if (action === 'accept' || action === 'decline') {
+      const id = parseInt(arg, 10), acc = action === 'accept';
+      if (LIVE) { LIVE.api.tradeRespond(id, acc).then(() => { toast(acc ? 'Trade accepted.' : 'Trade declined.', acc ? 'ok' : 'default'); liveRefresh(); }).catch(fail); return; }
+      toast(acc ? 'Trade accepted.' : 'Trade declined.', 'ok');
+    }
   }
   // Pull a fresh snapshot from the backend and fold it into the HUD state (live mode only).
   let lastSig = '';
@@ -1057,6 +1120,8 @@
         snap.scenarios.live.res, snap.buildingsHere.map((b) => [b.type, b.status, b.country]),
         (snap.TECH || []).map((t) => t.status), snap.ARSENAL, (snap.chat || []).length,
         (snap.training || []).map((t) => [t.at, t.u, t.ready]),
+        (snap.PROPOSALS || []).map((p) => [p.id, p.type, p.incoming]), snap.ACCESS, snap.TRUCE_UNTIL,
+        (snap.trades || []).map((t) => [t.id, t.status]),
       ]);
       if (sig === lastSig) return;
       lastSig = sig;
@@ -1085,6 +1150,7 @@
       S.training = (snap.training || []).slice();
       S.queue = snap.buildingsHere.slice(); D.scenarios.live = snap.scenarios.live; D.ARSENAL = snap.ARSENAL;
       D._defence = snap._defence; D._vision = snap._vision;
+      D.ACCESS = snap.ACCESS || {}; D.TRUCE_UNTIL = snap.TRUCE_UNTIL || {}; D.PROPOSALS = snap.PROPOSALS || []; D.trades = snap.trades || [];
       // Keep the day in step with the server: re-anchor the local clock if it has drifted
       // a whole day from the authoritative current_tick (snap.DAY).
       if (snap.DAY != null && Math.abs(snap.DAY - Math.floor(dayNow())) >= 1) {
@@ -1094,7 +1160,7 @@
       recolor(); renderRoutes(); renderMarkers(); renderBuildings();
       // Don't tear down the panels (and the hovered tooltip) mid-hover — defer the rebuild until
       // the tooltip closes, so info dialogs stop flashing/closing every tick.
-      if (tipShown) pendingRender = true; else render();
+      if (tipShown || S.tradeDraft) pendingRender = true; else render();   // don't tear down an open tooltip or the trade composer mid-edit
     }).catch(() => {});
   }
 
@@ -1119,6 +1185,8 @@
       if (t('[data-focus]')) { if (globe) globe.focus(me().country); return; }
       if ((el = t('[data-pick]'))) { const code = el.getAttribute('data-pick'); if (el.closest('[data-mk]')) { S.selected = code; setMode('army'); } else pick(code); return; }
       if ((el = t('[data-diplo-act]'))) { const p = el.closest('[data-diplo]'); return onDiplo(parseInt(p.getAttribute('data-diplo'), 10), el.getAttribute('data-diplo-act')); }
+      if ((el = t('[data-respond]'))) { const rp = el.getAttribute('data-respond').split('|'); return onRespond(parseInt(rp[0], 10), rp[1] === '1'); }
+      if ((el = t('[data-trade-act]'))) { const ta = el.getAttribute('data-trade-act').split('|'); return onTradeAct(ta[0], ta[1]); }
       if (t('[data-empty-attack]')) return setMode('army');
       if (t('[data-alert-action]')) { const al = deriveAlert(); if (al && al.target) { S.selected = al.target; S.mode = 'army'; if (globe) globe.focus(al.target); render(); } return; }
     });
@@ -1131,6 +1199,14 @@
       if (e.target.id === 'chat-input') { e.stopPropagation(); if (e.key === 'Enter') sendChat(e.target); }
     });
     stage.addEventListener('click', (e) => { if (e.target.closest('[data-send]')) { const inp = document.getElementById('chat-input'); if (inp) sendChat(inp); } }, true);
+    // trade composer: keep the draft in state as the player types (no re-render per keystroke).
+    stage.addEventListener('input', (e) => {
+      const f = e.target.closest('[data-trade-field]');
+      if (f && S.tradeDraft) { const [side, res] = f.getAttribute('data-trade-field').split('|'); (S.tradeDraft[side] = S.tradeDraft[side] || {})[res] = f.value; }
+    });
+    stage.addEventListener('change', (e) => {
+      if (e.target.matches('[data-trade-to]') && S.tradeDraft) S.tradeDraft.to = parseInt(e.target.value, 10);
+    });
   }
   function sendChat(inp) {
     const v = inp.value.trim(); if (!v) return; inp.value = '';

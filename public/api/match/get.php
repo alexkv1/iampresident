@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../../utils/engine/Economy.php';
 require_once __DIR__ . '/../../../utils/engine/Research.php';
 require_once __DIR__ . '/../../../utils/engine/Arsenal.php';
 require_once __DIR__ . '/../../../utils/engine/Vision.php';
+require_once __DIR__ . '/../../../utils/engine/Trade.php';
 require_once __DIR__ . '/../../../utils/engine/Tick.php';
 
 $auth = require_auth();
@@ -198,5 +199,6 @@ json_ok([
     'events'      => $events,
     'diplomacy'   => $relations,
     'proposals'   => $proposals,
+    'trades'      => Trade::listFor(db(), $matchId, $myId),
     'catalog'     => GameConfig::BUILDINGS,
 ]);

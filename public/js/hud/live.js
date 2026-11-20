@@ -50,6 +50,9 @@ window.HUD_UNITS_TIPS = {
     propose: (player, type) => req('/api/diplomacy/propose', 'POST', { match_id: matchId, player, type }),
     respond: (id, accept) => req('/api/diplomacy/respond', 'POST', { match_id: matchId, id, accept: accept ? 1 : 0 }),
     declareWar: (player) => req('/api/diplomacy/declare-war', 'POST', { match_id: matchId, player }),
+    breakAlliance: (player) => req('/api/diplomacy/break', 'POST', { match_id: matchId, player }),
+    tradePropose: (player, give, receive) => req('/api/trade/propose', 'POST', { match_id: matchId, player, give: JSON.stringify(give || {}), receive: JSON.stringify(receive || {}) }),
+    tradeRespond: (id, accept) => req('/api/trade/respond', 'POST', { match_id: matchId, id, accept: accept ? 1 : 0 }),
     chatSend: (body, scope) => req('/api/chat/send', 'POST', { match_id: matchId, body, scope: scope || 'all' }),
     chatList: (since) => req('/api/chat/list', 'GET', { match_id: matchId, since_id: since || 0 }),
   };
@@ -106,6 +109,14 @@ window.HUD_UNITS_TIPS = {
     const myId = r.me.player_id;
     const landsOf = {}; (r.territories || []).forEach((t) => { (landsOf[t.owner] = landsOf[t.owner] || []).push(t.country_code); });
     const relByPlayer = {}; (r.diplomacy || []).forEach((d) => { relByPlayer[d.player] = d; });
+    // Access I hold over other players' land + active truce countdowns, from the relations.
+    const ACCESS = {}, TRUCE_UNTIL = {};
+    (r.diplomacy || []).forEach((d) => {
+      if (d.access_received) ACCESS[d.player] = true;      // I may cross their land
+      if (d.truce_until != null) TRUCE_UNTIL[d.player] = d.truce_until;
+    });
+    // Diplomacy proposals in flight (incoming need accept/decline; outgoing show "waiting").
+    const PROPOSALS = (r.proposals || []).map((p) => ({ id: p.id, from: p.from, to: p.to, type: p.type, incoming: !!p.incoming, expires: p.expires_tick }));
     const players = (r.players || []).map((p) => ({
       id: p.id, me: p.id === myId, name: p.display_name, title: p.leader_title || '', country: p.country_code,
       color: p.color, pop: p.pop, popCap: Math.round(p.pop * 1.2), ai: !!p.is_ai,
@@ -166,8 +177,9 @@ window.HUD_UNITS_TIPS = {
     return {
       players, scenarios: { live: scenario }, buildingsHere: buildings, training,
       UNITS: window.HUD_UNITS, UNITS_TIPS: window.HUD_UNITS_TIPS,
-      TECH: tech, STRIKES: window.HUD_DATA_STRIKES, ARSENAL: r.me.arsenal || {}, ACCESS: {}, TRUCE_UNTIL: {},
-      armies, incoming: [], trades: [], events: mapEvents(r.events || [], players, feats || {}, myId), chat: chat || [],
+      TECH: tech, STRIKES: window.HUD_DATA_STRIKES, ARSENAL: r.me.arsenal || {}, ACCESS, TRUCE_UNTIL, PROPOSALS,
+      armies, incoming: [], trades: (r.trades || []).map((t) => ({ id: t.id, dir: t.dir, from: t.from, to: t.to, give: t.give || {}, receive: t.receive || {} })),
+      events: mapEvents(r.events || [], players, feats || {}, myId), chat: chat || [],
       TOTAL: (r.players || []).reduce((s, p) => s + (p.territories || 0), 0) || 176, VICTORY: 0.6,
       TICK_SEC: r.match.tick_interval_sec || 20, DAY: r.match.current_tick,
       _defence: defence, _vision: vision, _matchId: matchId, _nextTickAt: r.match.next_tick_at,

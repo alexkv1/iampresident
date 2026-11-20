@@ -1072,7 +1072,9 @@
       if (window.WS_URL) {
         try {
           const ws = new WebSocket(window.WS_URL + '?match_id=' + LIVE.matchId);
-          ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch (e) { return; } if (['tick', 'match_updated', 'chat', 'match_started', 'march_started', 'proposal'].includes(m.event)) liveRefresh(); };
+          // Refresh on any real game event (strike, nuclear_strike, conquest, revolt,
+          // research_complete, …) — not just a whitelist — so everything is realtime.
+          ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch (e) { return; } if (m.event && m.event !== 'ping' && m.event !== 'connected') liveRefresh(); };
         } catch (e) { /* polling still works */ }
       }
     }

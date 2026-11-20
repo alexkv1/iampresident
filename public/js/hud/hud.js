@@ -65,7 +65,9 @@
     geo: null, geoReady: false,
   };
   let BROKE = false;
-  const sc = () => { const s = D.scenarios[S.scenario] || D.scenarios.calm; return BROKE ? Object.assign({}, s, { res: { food: 0, energy: 0, minerals: 0, gold: 0, oil: 0, research: 0 } }) : s; };
+  // Never return undefined: live data only has `scenarios.live`, and the first render in
+  // boot() runs before S.scenario is switched to 'live', so fall back through live/calm/any.
+  const sc = () => { const s = D.scenarios[S.scenario] || D.scenarios.live || D.scenarios.calm || Object.values(D.scenarios)[0] || {}; return BROKE ? Object.assign({}, s, { res: { food: 0, energy: 0, minerals: 0, gold: 0, oil: 0, research: 0 } }) : s; };
   const me = () => S.players.find((p) => p.me);
   let globe = null;
 
@@ -853,6 +855,11 @@
       S.armies = snap.armies; S.events = snap.events; S.tech = snap.tech;
       S.queue = snap.buildingsHere.slice(); D.scenarios.live = snap.scenarios.live; D.ARSENAL = snap.ARSENAL;
       D._defence = snap._defence; D._vision = snap._vision;
+      // Keep the day in step with the server: re-anchor the local clock if it has drifted
+      // a whole day from the authoritative current_tick (snap.DAY).
+      if (snap.DAY != null && Math.abs(snap.DAY - Math.floor(dayNow())) >= 1) {
+        clock.day0 = snap.DAY; clock.t0 = performance.now(); clock.into = 0; S.day = snap.DAY;
+      }
       computeShares(S.geo ? S.geo.props : {});
       recolor(); renderRoutes(); render(); renderMarkers();
     }).catch(() => {});
@@ -957,6 +964,7 @@
     const params = new URLSearchParams(location.search);
     BROKE = params.get('broke') === '1';
     // (scenario/mode query params are accepted but ignored, matching the mockup.)
+    if (LIVE) S.scenario = 'live';   // use the live scenario from the very first render
 
     fitStage();
     window.addEventListener('resize', fitStage);

@@ -11,6 +11,14 @@ $v = fn($p) => '/js/' . $p . '?v=' . (@filemtime(__DIR__ . '/../../js/' . $p) ?:
   <title>I Am President — lead a nation, feed your people, dominate the world</title>
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="/css/app.css">
+  <script>
+    // Scale the fixed 1440 landing design to fit any desktop width (down below 1440,
+    // native at/above). Set before first paint to avoid a flash; updated on resize.
+    (function () {
+      function fit() { document.documentElement.style.setProperty('--landing-zoom', Math.min(1, window.innerWidth / 1440)); }
+      fit(); window.addEventListener('resize', fit);
+    })();
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" crossorigin="anonymous"></script>
 </head>
 <body class="page-home">

@@ -226,7 +226,11 @@ label.field > .field-hint { font: 400 12px/1.4 var(--font-body); color: var(--te
 @keyframes iapRing { 0% { transform: translate(-50%,-50%) scale(.72); opacity: .75; } 100% { transform: translate(-50%,-50%) scale(1.3); opacity: 0; } }
 
 /* ============================================================ Landing page (1c) */
-.landing { width: 1440px; max-width: 100%; margin: 0 auto; background: var(--bg-page); color: var(--text-body); }
+/* Fixed 1440 design, auto-scaled to fit any desktop width (set by the fit script in
+   home/index.php): scales down below 1440, native at/above it. `zoom` scales the
+   layout box so the page still scrolls normally and the globe stays interactive. */
+.landing { width: 1440px; margin: 0 auto; background: var(--bg-page); color: var(--text-body);
+  zoom: var(--landing-zoom, 1); }
 .hero { position: relative; background: var(--pattern-stripes), var(--grad-page); padding: 14px 14px 96px; }
 .hero-topbar { display: flex; align-items: center; gap: 16px; min-height: 38px; white-space: nowrap; }
 .hero-nav { display: flex; align-items: center; gap: 4px; margin-left: 12px; }

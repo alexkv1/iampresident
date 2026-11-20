@@ -63,7 +63,7 @@ window.HUD_DATA = (function () {
       unlocks: 'Missiles (1 500 gold) with 5 500 km range.' },
     { key: 'icbm', name: 'ICBM', icon: 'rocket-launch', cost: { research: 3000, gold: 25000 }, days: 18, requires: ['mrbm'], status: 'locked',
       unlocks: 'Intercontinental missiles (4 000 gold). Reach any country on Earth.' },
-    { key: 'nukes', name: 'Nuclear weapons', icon: 'radioactive', cost: { research: 6000, gold: 60000, minerals: 8000 }, days: 25, requires: ['icbm'], labs: 5, status: 'locked', danger: true,
+    { key: 'nuclear', name: 'Nuclear weapons', icon: 'radioactive', cost: { research: 6000, gold: 60000, minerals: 8000 }, days: 25, requires: ['icbm'], labs: 5, status: 'locked', danger: true,
       unlocks: 'Warheads (15 000 gold, 10 days each). Destroys everything in a country, kills 40% of its people and ruins its farmland for 20 days. Every nation may declare war on you, and nuclear powers retaliate at once.' },
   ];
 
@@ -73,7 +73,7 @@ window.HUD_DATA = (function () {
     srbm: { tech: 'srbm', damage: 12, rangeKm: 1000, name: 'Short-range missile' },
     mrbm: { tech: 'mrbm', damage: 18, rangeKm: 5500, name: 'Medium-range missile' },
     icbm: { tech: 'icbm', damage: 25, rangeKm: 40000, name: 'ICBM' },
-    nuke: { tech: 'nukes' },
+    nuke: { tech: 'nuclear' },
   };
   const ARSENAL = { srbm: 0, mrbm: 0, icbm: 0, warhead: 0 };
   const ACCESS = { 5: true };

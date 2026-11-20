@@ -63,6 +63,7 @@
     toasts: [],
     chatTab: 'feed', chatScope: 'all',
     tradeDraft: null,   // open trade-offer composer: { to, give:{}, receive:{} }
+    alertDismissed: null,   // sig of an invasion alert the player dismissed
     geo: null, geoReady: false,
   };
   let BROKE = false;
@@ -182,6 +183,7 @@
       + `<div><div style="font:italic 900 22px/1 var(--font-display);text-transform:uppercase;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.3)">${esc(alert.title)}</div>`
       + `<div style="margin-top:3px;font:500 13px/1.2 var(--font-body);color:rgba(255,255,255,.92)">${esc(alert.body)}${alert.eta ? ' · arrives Day ' + (S.day + alert.eta) : ''}</div></div>`
       + `<span style="margin-left:6px" data-alert-action>${btn}</span>`
+      + (war && LIVE ? `<button type="button" data-alert-dismiss aria-label="Dismiss" style="margin-left:2px;width:26px;height:26px;border:0;border-radius:7px;cursor:pointer;background:rgba(0,0,0,.28);color:#fff;display:grid;place-items:center"><i class="ph-bold ph-x" style="font-size:14px"></i></button>` : '')
       + `</div></div></div>`;
   }
 
@@ -332,7 +334,7 @@
     const inRange = tiers.filter((k) => Sk[k].rangeKm >= dist);
     const ready = inRange.find((k) => D.ARSENAL[k] > 0);
     strike.push(!tiers.length ? { kind: 'missile', ok: false, locked: true, reason: 'Research Short-range missiles' } : noStrike ? { kind: 'missile', ok: false, reason: noStrike } : ready ? { kind: 'missile', ok: true, sKind: ready, from: m.country, to: target, damage: Sk[ready].damage, detail: Sk[ready].name + ' · ' + D.ARSENAL[ready] + ' in stock' } : { kind: 'missile', ok: false, reason: !inRange.length ? 'Out of range (' + Math.round(dist) + ' km). Research longer-range missiles.' : 'No ' + Sk[inRange[0]].name.toLowerCase() + 's built.' });
-    lk = lockFor('nukes');
+    lk = lockFor('nuclear');
     strike.push(lk ? { kind: 'nuke', ok: false, locked: true, reason: lk + ' · 60 000 gold · 5 Labs' } : { kind: 'nuke', ok: false, reason: 'No warhead built (15 000 gold, 10 days).' });
     return { invade, strike };
   }
@@ -698,7 +700,7 @@
   const STRIKE_COLOR = { artillery: '#ffcf5a', air: '#6fe9ff', srbm: '#6fe9ff', mrbm: '#7fd0ff', icbm: '#c9a3ff', nuclear: '#ff8a3c' };
   // Trajectory arc height per kind. Kept low enough to read as a missile arc near the surface
   // (0.4+ balloons it off-frame); nuclear arcs a little higher for drama.
-  const STRIKE_LIFT = { artillery: 0.05, air: 0.1, srbm: 0.12, mrbm: 0.16, icbm: 0.2, nuclear: 0.24 };
+  const STRIKE_LIFT = { artillery: 0.12, air: 0.14, srbm: 0.14, mrbm: 0.17, icbm: 0.2, nuclear: 0.24 };
   function strikeFx(payload) {
     if (!globe || !S.geoReady || !payload) return;
     const kind = payload.kind || 'nuclear';   // the nuclear_strike event carries no `kind`
@@ -728,12 +730,15 @@
     el.innerHTML = `<div style="transform:translate(-50%,-50%);position:relative;display:grid;place-items:center">`
       + `<div style="position:absolute;width:${nuke ? 30 : 22}px;height:${nuke ? 30 : 22}px;border-radius:50%;background:radial-gradient(circle, ${color}, transparent 70%);opacity:.95"></div>`
       + `<i class="ph-fill ph-${nuke ? 'radioactive' : 'rocket'}" style="position:relative;font-size:${nuke ? 24 : 19}px;color:#fff;filter:drop-shadow(0 0 7px ${color}) drop-shadow(0 0 3px ${color})"></i></div>`;
-    const dur = nuke ? 2200 : (kind === 'artillery' || kind === 'air' ? 1000 : 1700);
+    const dur = nuke ? 2200 : (kind === 'artillery' || kind === 'air' ? 1300 : 1700);
     fxLayer.items.push({ id, el, route, start: performance.now(), dur, kind, toCode, path, impacted: false });
   }
   function burstHTML(kind, color) {
-    const size = kind === 'nuclear' ? 74 : 44;
-    return `<div style="transform:translate(-50%,-50%);width:${size}px;height:${size}px;border-radius:50%;border:3px solid ${color};background:radial-gradient(circle, ${color}dd, transparent 66%);box-shadow:0 0 24px ${color}, inset 0 0 16px ${color};animation:iap-burst .85s ease-out forwards"></div>`;
+    const s = kind === 'nuclear' ? 90 : 58;   // white-hot core + an expanding shockwave ring
+    return `<div style="transform:translate(-50%,-50%);width:${s}px;height:${s}px;position:relative">`
+      + `<div style="position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle, #fff 0%, ${color} 40%, transparent 72%);box-shadow:0 0 34px ${color};animation:iap-burst .9s ease-out forwards"></div>`
+      + `<div style="position:absolute;inset:0;border-radius:50%;border:3px solid ${color};animation:iap-reticle 1s ease-out forwards"></div>`
+      + `</div>`;
   }
 
   // ---- buildings on the globe ----
@@ -745,7 +750,8 @@
   const buildingLayer = { els: {}, items: [] };
   let lastBuildingSig = '';
   const GOLDEN = 2.399963229728653;   // golden angle in radians
-  const _cRadius = {};                 // cache: country code -> spread radius in degrees
+  const _cRadius = {};                 // cache: country code -> extent radius in degrees
+  const _cPool = {};                   // cache: country code -> interior points (spiral order)
   // Great-circle angle (degrees) between two [lon,lat] points.
   function angBetween(a, b) {
     const r = Math.PI / 180;
@@ -757,23 +763,57 @@
     const c = GEO.centroid(code), f = S.geo && S.geo.feats && S.geo.feats[code];
     let r = 1.2;
     if (c && f && f.geometry) {
-      // Largest ring (most points) as a proxy for the mainland; max angular offset from centroid.
       const polys = f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates : [f.geometry.coordinates];
       let best = null;
       polys.forEach((poly) => { const ring = poly[0]; if (ring && (!best || ring.length > best.length)) best = ring; });
       if (best) { let mx = 0; best.forEach((p) => { const d = angBetween(c, p); if (d < 40 && d > mx) mx = d; }); if (mx > 0) r = mx; }
     }
-    return (_cRadius[code] = Math.max(0.5, Math.min(7, r * 0.6)));
+    return (_cRadius[code] = Math.max(0.5, Math.min(12, r)));
   }
-  // Point inside a country for the slot-th building of `cap` capacity: centroid + spiral offset.
-  function buildingLonLat(code, slot, cap) {
-    const c = GEO.centroid(code); if (!c) return null;
-    const R = countryRadius(code);
-    const rr = R * Math.sqrt((slot + 0.5) / Math.max(4, cap));
-    const ang = slot * GOLDEN;
-    const dLat = rr * Math.sin(ang);
-    const dLon = (rr * Math.cos(ang)) / Math.max(0.2, Math.cos(c[1] * Math.PI / 180));
-    return [c[0] + dLon, c[1] + dLat];
+  function outerPolys(feat) {
+    const g = feat && feat.geometry; if (!g) return [];
+    if (g.type === 'MultiPolygon') return g.coordinates;
+    if (g.type === 'Polygon') return [g.coordinates];
+    return [];
+  }
+  // Ray-casting point-in-polygon on lon/lat (fine at country scale).
+  function pointInRing(x, y, ring) {
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const xi = ring[i][0], yi = ring[i][1], xj = ring[j][0], yj = ring[j][1];
+      if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) inside = !inside;
+    }
+    return inside;
+  }
+  function pointInCountry(x, y, polys) {
+    for (const poly of polys) {
+      if (pointInRing(x, y, poly[0])) {
+        let hole = false;
+        for (let h = 1; h < poly.length; h++) if (pointInRing(x, y, poly[h])) { hole = true; break; }
+        if (!hole) return true;
+      }
+    }
+    return false;
+  }
+  // A phyllotaxis spiral over the country's extent, keeping only points INSIDE the land polygon,
+  // in spiral (inner→outer) order. Buildings index into this so they always sit on the country
+  // and never float in the sea, even for thin/jagged countries like Norway. Cached per country.
+  function countryPool(code) {
+    if (_cPool[code]) return _cPool[code];
+    const c = GEO.centroid(code), polys = outerPolys(S.geo && S.geo.feats && S.geo.feats[code]);
+    const pool = [];
+    if (c && polys.length) {
+      const R = countryRadius(code), CAP = 700;
+      for (let i = 0; i < CAP; i++) {
+        const rr = R * Math.sqrt((i + 0.5) / CAP);
+        const ang = i * GOLDEN;
+        const lat = c[1] + rr * Math.sin(ang);
+        const lon = c[0] + (rr * Math.cos(ang)) / Math.max(0.2, Math.cos(lat * Math.PI / 180));
+        if (pointInCountry(lon, lat, polys)) pool.push([lon, lat]);
+      }
+    }
+    if (!pool.length && c) pool.push([c[0], c[1]]);   // degenerate fallback
+    return (_cPool[code] = pool);
   }
   function BuildingDot(b, isMe) {
     const B = IAP.BUILDINGS[b.type]; if (!B) return '';
@@ -796,9 +836,13 @@
     const items = [];
     Object.keys(byCountry).forEach((code) => {
       const list = byCountry[code].slice().sort((x, y) => (x.id || 0) - (y.id || 0));
+      const pool = countryPool(code);
+      // Spread the buildings across the interior pool by capacity, so the i-th building keeps its
+      // spot as you build more (grows outward from the centre) and every dot is on the country.
       const cap = Math.max(list.length, (S.geo.props[code] || {}).land_slots || 4);
       list.forEach((b, i) => {
-        const ll = buildingLonLat(code, i, cap); if (!ll) return;
+        const ll = pool.length ? pool[Math.min(pool.length - 1, Math.floor(i * pool.length / cap))] : GEO.centroid(code);
+        if (!ll) return;
         items.push({ id: 'b' + (b.id != null ? b.id : code + '-' + b.type + '-' + i), lon: ll[0], lat: ll[1], b });
       });
     });
@@ -880,7 +924,7 @@
       if (it.impacted) {
         const c = GEO.centroid(it.toCode);
         if (c) { const s = globe.projectLocal(globe.lonLatVec(c[0], c[1], 1.012)); it.el.style.transform = 'translate(' + s.x.toFixed(1) + 'px,' + s.y.toFixed(1) + 'px)'; it.el.style.opacity = s.vis; }
-        if (now - it.boomStart > 900) { if (it.el.parentNode) it.el.parentNode.removeChild(it.el); fxLayer.items.splice(i, 1); }
+        if (now - it.boomStart > 1050) { if (it.el.parentNode) it.el.parentNode.removeChild(it.el); fxLayer.items.splice(i, 1); }
       }
     }
   }
@@ -904,7 +948,9 @@
     const visibleArmies = S.armies.filter((a) => a.owner === m.id || alliedIds().has(a.owner) || (a.route ? seen(a.from, vis) || seen(a.to, vis) : seen(a.at, vis)));
     const threat = visibleArmies.filter((a) => a.route && a.owner !== m.id && m.lands.includes(a.to)).sort((x, y) => x.arriveDay - y.arriveDay)[0];
     if (!threat) return null;
-    return { kind: 'war', title: 'Invasion incoming', body: (allPlayers().find((p) => p.id === threat.owner) || {}).name + '’s ' + armyList(threat.units) + ' is marching on ' + cname(threat.to), eta: Math.max(0, threat.arriveDay - S.day), target: threat.to };
+    const sig = threat.owner + ':' + threat.to + ':' + threat.arriveDay;
+    if (S.alertDismissed === sig) return null;   // player dismissed this specific incoming attack
+    return { kind: 'war', title: 'Invasion incoming', body: (allPlayers().find((p) => p.id === threat.owner) || {}).name + '’s ' + armyList(threat.units) + ' is marching on ' + cname(threat.to), eta: Math.max(0, threat.arriveDay - S.day), target: threat.to, sig };
   }
 
   // Toasts live in their own persistent layer (not inside #hud-panels), so showing/clearing a
@@ -1054,8 +1100,21 @@
     if (LIVE) { LIVE.api.move(a ? a.srvId : armyId, target, kind || 'land').then(() => { toast('Marching on ' + cname(target) + '.', 'ok'); liveRefresh(); }).catch(fail); return; }
     toast('Marching on ' + cname(target) + '.', 'ok');
   }
+  // Human-readable summary of what a strike actually did, built from the API response
+  // (units destroyed + defence damage), so the player can tell it landed and had an effect.
+  function strikeResultMsg(kind, target, resp) {
+    resp = resp || {};
+    const name = { artillery: 'Artillery barrage', air: 'Air strike', srbm: 'Missile strike', mrbm: 'Missile strike', icbm: 'ICBM strike', nuclear: 'Nuclear strike' }[kind] || 'Strike';
+    const parts = [];
+    if (resp.units_destroyed) parts.push(resp.units_destroyed + ' unit' + (resp.units_destroyed > 1 ? 's' : '') + ' destroyed');
+    const dmg = resp.damage_added != null ? resp.damage_added : resp.garrison_damage;
+    if (dmg) parts.push(dmg + ' defence damage');
+    if (resp.plane_loss) parts.push('lost ' + resp.plane_loss + ' plane' + (resp.plane_loss > 1 ? 's' : ''));
+    return name + ' on ' + cname(target) + (parts.length ? ' — ' + parts.join(', ') + '.' : ' hit, but it was fully defended.');
+  }
   function onStrike(kind, from, target) {
-    if (LIVE) { LIVE.api.strike({ kind, target: target || S.selected, from: from || undefined }).then(() => { toast('Strike on ' + cname(target || S.selected) + ' launched.', 'ok'); liveRefresh(); }).catch(fail); return; }
+    const tgt = target || S.selected;
+    if (LIVE) { LIVE.api.strike({ kind, target: tgt, from: from || undefined }).then((resp) => { toast(strikeResultMsg(kind, tgt, resp), 'ok'); liveRefresh(); }).catch(fail); return; }
     toast('Strike launched.', 'ok');
   }
   function onResearch(key) {
@@ -1188,7 +1247,8 @@
       if ((el = t('[data-respond]'))) { const rp = el.getAttribute('data-respond').split('|'); return onRespond(parseInt(rp[0], 10), rp[1] === '1'); }
       if ((el = t('[data-trade-act]'))) { const ta = el.getAttribute('data-trade-act').split('|'); return onTradeAct(ta[0], ta[1]); }
       if (t('[data-empty-attack]')) return setMode('army');
-      if (t('[data-alert-action]')) { const al = deriveAlert(); if (al && al.target) { S.selected = al.target; S.mode = 'army'; if (globe) globe.focus(al.target); render(); } return; }
+      if (t('[data-alert-dismiss]')) { const al = deriveAlert(); if (al && al.sig) S.alertDismissed = al.sig; render(); return; }
+      if (t('[data-alert-action]')) { const al = deriveAlert(); if (al && al.target) { S.selected = al.target; S.mode = 'army'; if (globe) globe.focus(al.target); render(); toast('Defending ' + cname(al.target) + ' — send troops from a bordering land, or build up its garrison, before Day ' + (S.day + (al.eta || 0)) + '.', 'default'); } return; }
     });
     // tooltips via hover-intent (event delegation on the stage)
     stage.addEventListener('mouseover', (e) => { const el = e.target.closest('.iap-tip'); if (!el) return; const tip = resolveTip(el.getAttribute('data-tip')); showTip(tip, el, el.getAttribute('data-place') || 'bottom'); });

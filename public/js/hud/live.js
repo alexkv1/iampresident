@@ -94,7 +94,15 @@ window.HUD_UNITS_TIPS = {
         case 'match_ended': actor = pname(d.winner); text = 'dominates the world!'; break;
         case 'desertion': actor = pname(d.player); text = 'lost ' + d.lost + ' troops to desertion.'; break;
         case 'grounded_no_oil': actor = pname(d.player); text = 'ran out of oil — forces grounded.'; break;
-        case 'strike': actor = pname(d.by); text = 'hit ' + cname(d.target) + ' with ' + sname(d.kind) + '.'; break;
+        case 'strike': {
+          actor = pname(d.by);
+          const bits = [];
+          if (d.units_destroyed) bits.push(d.units_destroyed + ' unit' + (d.units_destroyed > 1 ? 's' : '') + ' destroyed');
+          const sd = d.garrison_damage != null ? d.garrison_damage : d.def_removed;
+          if (!d.units_destroyed && sd) bits.push(sd + ' defence damage');
+          text = 'hit ' + cname(d.target) + ' with ' + sname(d.kind) + (bits.length ? ' (' + bits.join(', ') + ')' : '') + '.';
+          break;
+        }
         case 'nuclear_strike': actor = pname(d.by); text = 'launched a nuclear strike on ' + cname(d.target) + '!'; break;
         default: return; // ai_*, retaliate_prompt, research_started, battle_won/lost, proposal_* — skip
       }
@@ -190,7 +198,7 @@ window.HUD_UNITS_TIPS = {
     artillery: { tech: 'artillery', perUnit: 2 }, air: { tech: 'air', perUnit: 3, rangeKm: 1500 },
     srbm: { tech: 'srbm', damage: 12, rangeKm: 1000, name: 'Short-range missile' },
     mrbm: { tech: 'mrbm', damage: 18, rangeKm: 5500, name: 'Medium-range missile' },
-    icbm: { tech: 'icbm', damage: 25, rangeKm: 40000, name: 'ICBM' }, nuke: { tech: 'nukes' },
+    icbm: { tech: 'icbm', damage: 25, rangeKm: 40000, name: 'ICBM' }, nuke: { tech: 'nuclear' },
   };
   window.HUD_DATA_TECH_META = [
     { key: 'artillery', name: 'Artillery', icon: 'target', cost: { research: 300, gold: 1500 }, days: 4, unlocks: 'Artillery unit. Shell any country that borders a stack with guns.' },
@@ -198,7 +206,7 @@ window.HUD_UNITS_TIPS = {
     { key: 'srbm', name: 'Short-range missiles', icon: 'rocket', cost: { research: 800, gold: 5000 }, days: 8, requires: ['artillery'], unlocks: 'Build missiles (800 gold) that hit up to 1 000 km from your capital.' },
     { key: 'mrbm', name: 'Medium-range missiles', icon: 'rocket', cost: { research: 1500, gold: 10000 }, days: 12, requires: ['srbm'], unlocks: 'Missiles (1 500 gold) with 5 500 km range.' },
     { key: 'icbm', name: 'ICBM', icon: 'rocket-launch', cost: { research: 3000, gold: 25000 }, days: 18, requires: ['mrbm'], unlocks: 'Intercontinental missiles (4 000 gold). Reach any country on Earth.' },
-    { key: 'nukes', name: 'Nuclear weapons', icon: 'radioactive', cost: { research: 6000, gold: 60000, minerals: 8000 }, days: 25, requires: ['icbm'], labs: 5, danger: true, unlocks: 'Warheads (15 000 gold, 10 days each). Destroys everything in a country, kills 40% of its people and ruins its farmland for 20 days. Every nation may declare war on you, and nuclear powers retaliate at once.' },
+    { key: 'nuclear', name: 'Nuclear weapons', icon: 'radioactive', cost: { research: 6000, gold: 60000, minerals: 8000 }, days: 25, requires: ['icbm'], labs: 5, danger: true, unlocks: 'Warheads (15 000 gold, 10 days each). Destroys everything in a country, kills 40% of its people and ruins its farmland for 20 days. Every nation may declare war on you, and nuclear powers retaliate at once.' },
   ];
 
   // Initial snapshot: fetch synchronously so window.HUD_DATA exists before hud.js evaluates

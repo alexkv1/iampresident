@@ -120,7 +120,7 @@ window.HUD_UNITS_TIPS = {
       // Progress fills from started→complete_at; derive started from the real build length
       // (complete_at − build_ticks) instead of "now", else every bar sits at 0%.
       const bt = (window.IAP_DATA.BUILDINGS[b.type] || {}).build_ticks || 3;
-      return { type: b.type, status: b.status === 'active' ? 'active' : 'building', country: b.country_code, complete_at: b.complete_at_tick, started: (b.complete_at_tick != null ? b.complete_at_tick - bt : r.match.current_tick) };
+      return { id: b.id, type: b.type, status: b.status === 'active' ? 'active' : 'building', country: b.country_code, complete_at: b.complete_at_tick, started: (b.complete_at_tick != null ? b.complete_at_tick - bt : r.match.current_tick) };
     });
 
     // In-progress training batches → the HUD's {at, u, ready} shape (slot usage + ready Day).

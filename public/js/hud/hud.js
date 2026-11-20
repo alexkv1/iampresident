@@ -653,6 +653,75 @@
 
   const markerLayer = { els: {}, items: [], raf: null };
   let lastMarkerSig = '';
+
+  // ---- buildings on the globe ----
+  // Each of a player's buildings is pinned to a point inside its country, spread evenly via a
+  // golden-angle (phyllotaxis) spiral so a cluster of farms/mines/labs fans out instead of
+  // stacking. Positions are keyed by slot index into the country's capacity, so building more
+  // appends outward without moving the existing dots. Dots are driven by the live building list,
+  // so a building destroyed server-side (e.g. nuked) simply disappears on the next refresh.
+  const buildingLayer = { els: {}, items: [] };
+  let lastBuildingSig = '';
+  const GOLDEN = 2.399963229728653;   // golden angle in radians
+  const _cRadius = {};                 // cache: country code -> spread radius in degrees
+  function countryRadius(code) {
+    if (_cRadius[code] != null) return _cRadius[code];
+    const c = GEO.centroid(code), f = S.geo && S.geo.feats && S.geo.feats[code];
+    let r = 1.2;
+    if (c && f && f.geometry) {
+      // Largest ring (most points) as a proxy for the mainland; max angular offset from centroid.
+      const polys = f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates : [f.geometry.coordinates];
+      let best = null;
+      polys.forEach((poly) => { const ring = poly[0]; if (ring && (!best || ring.length > best.length)) best = ring; });
+      if (best) { let mx = 0; best.forEach((p) => { const d = GEO.angleDeg(c, p); if (d < 40 && d > mx) mx = d; }); if (mx > 0) r = mx; }
+    }
+    return (_cRadius[code] = Math.max(0.5, Math.min(7, r * 0.6)));
+  }
+  // Point inside a country for the slot-th building of `cap` capacity: centroid + spiral offset.
+  function buildingLonLat(code, slot, cap) {
+    const c = GEO.centroid(code); if (!c) return null;
+    const R = countryRadius(code);
+    const rr = R * Math.sqrt((slot + 0.5) / Math.max(4, cap));
+    const ang = slot * GOLDEN;
+    const dLat = rr * Math.sin(ang);
+    const dLon = (rr * Math.cos(ang)) / Math.max(0.2, Math.cos(c[1] * Math.PI / 180));
+    return [c[0] + dLon, c[1] + dLat];
+  }
+  function BuildingDot(b, isMe) {
+    const B = IAP.BUILDINGS[b.type]; if (!B) return '';
+    const building = b.status !== 'active';
+    const ring = isMe ? 'rgba(255,255,255,.9)' : 'rgba(6,10,20,.85)';
+    return `<div style="display:flex;flex-direction:column;align-items:center">`
+      + `<span style="width:20px;height:20px;border-radius:7px;display:grid;place-items:center;background:linear-gradient(180deg, rgba(255,255,255,.35), rgba(0,0,0,.18)), ${B.tone};border:1.5px solid ${ring};box-shadow:0 2px 0 rgba(0,0,0,.45), 0 4px 8px rgba(0,0,0,.45);${building ? 'opacity:.72;animation:iap-pulse 1.3s ease-in-out infinite' : ''}">`
+      + `<i class="ph-fill ph-${B.icon}" style="font-size:12px;color:#fff"></i></span>`
+      + `<div style="width:2px;height:5px;background:${ring}"></div><div style="width:7px;height:3px;border-radius:50%;background:rgba(0,0,0,.5)"></div>`
+      + `</div>`;
+  }
+  function renderBuildings(force) {
+    if (!LIVE) return;   // globe buildings are a live-gameplay feature; mock mode stays design-exact
+    const host = document.getElementById('building-layer');
+    if (!host || !globe || !S.geoReady) return;
+    // My buildings, grouped by country, each assigned a stable slot = index within its country
+    // (sorted by id) so new builds append and don't shuffle the others.
+    const byCountry = {};
+    (S.queue || []).forEach((b) => { if (b.country) (byCountry[b.country] = byCountry[b.country] || []).push(b); });
+    const items = [];
+    Object.keys(byCountry).forEach((code) => {
+      const list = byCountry[code].slice().sort((x, y) => (x.id || 0) - (y.id || 0));
+      const cap = Math.max(list.length, (S.geo.props[code] || {}).land_slots || 4);
+      list.forEach((b, i) => {
+        const ll = buildingLonLat(code, i, cap); if (!ll) return;
+        items.push({ id: 'b' + (b.id != null ? b.id : code + '-' + b.type + '-' + i), lon: ll[0], lat: ll[1], b });
+      });
+    });
+    const sig = JSON.stringify(items.map((it) => [it.id, it.b.status, it.lon.toFixed(3), it.lat.toFixed(3)]));
+    if (!force && sig === lastBuildingSig && host.childElementCount === items.length) return;
+    lastBuildingSig = sig;
+    host.innerHTML = items.map((it) => `<div data-bk="${it.id}" style="position:absolute;left:0;top:0;opacity:0"><div style="transform:translate(-50%,-100%)">${BuildingDot(it.b, true)}</div></div>`).join('');
+    buildingLayer.items = items;
+    buildingLayer.els = {};
+    host.querySelectorAll('[data-bk]').forEach((el) => { buildingLayer.els[el.getAttribute('data-bk')] = el; });
+  }
   function renderMarkers(force) {
     const m = me(), players = allPlayers(), vis = vision();
     const visibleArmies = S.armies.filter((a) => a.owner === m.id || alliedIds().has(a.owner) || (a.route ? seen(a.from, vis) || seen(a.to, vis) : seen(a.at, vis)));
@@ -696,6 +765,15 @@
       el.style.pointerEvents = s.vis > 0.6 ? 'auto' : 'none';
       el.style.zIndex = Math.round(s.y);
     }
+    // Building dots are pinned to fixed lon/lat; re-project each frame as the globe rotates.
+    for (const it of buildingLayer.items) {
+      const el = buildingLayer.els[it.id];
+      if (!el) continue;
+      const s = globe.projectLocal(globe.lonLatVec(it.lon, it.lat, 1.012));
+      el.style.transform = 'translate(' + s.x.toFixed(1) + 'px,' + s.y.toFixed(1) + 'px)';
+      el.style.opacity = s.vis;
+      el.style.zIndex = Math.round(s.y) - 1;   // sit just under the army markers
+    }
   }
 
   // ---- clock ----
@@ -733,6 +811,7 @@
   function ensureLayers() {
     const stage = document.getElementById('hud-stage');
     if (!document.getElementById('hud-panels')) {
+      stage.insertAdjacentHTML('beforeend', `<div id="building-layer" style="position:absolute;inset:0;pointer-events:none;z-index:0"></div>`);
       stage.insertAdjacentHTML('beforeend', `<div id="marker-layer" style="position:absolute;inset:0;pointer-events:none;z-index:0;isolation:isolate"></div>`);
       stage.insertAdjacentHTML('beforeend', `<div id="hud-panels"></div>`);
       stage.insertAdjacentHTML('beforeend', `<div id="hover-tip" style="position:absolute;left:0;top:0;pointer-events:none;z-index:30;display:none"></div>`);
@@ -927,7 +1006,7 @@
         clock.day0 = snap.DAY; clock.t0 = performance.now(); clock.into = 0; S.day = snap.DAY;
       }
       computeShares(S.geo ? S.geo.props : {});
-      recolor(); renderRoutes(); renderMarkers();
+      recolor(); renderRoutes(); renderMarkers(); renderBuildings();
       // Don't tear down the panels (and the hovered tooltip) mid-hover — defer the rebuild until
       // the tooltip closes, so info dialogs stop flashing/closing every tick.
       if (tipShown) pendingRender = true; else render();
@@ -1056,6 +1135,8 @@
           // Live armies come from the backend snapshot; rebuild route geometry for any in transit.
           S.scenario = 'live';
           S.armies = D.armies.map((a) => { const b = Object.assign({}, a, { units: Object.assign({}, a.units) }); if (b.codes && b.codes.length > 1) { b.route = GEO.pathPoints(globe, b.codes, { lift: ROUTE_LIFT[b.kind] || 0, step: 0.5 }); b.start = performance.now(); b.dur = Math.max(500, ((b.arriveDay || S.day) - dayNow()) * clock.dayMs); } return b; });
+          // Buildings come from the snapshot with their real countries (the mock default forces SWE).
+          S.queue = (D.buildingsHere || []).slice();
           // Open on the player's own country so the context panel + Build work right away.
           const myC = me() && me().country; if (myC) { S.selected = myC; globe.setSelected(myC); globe.focus(myC); }
         } else {
@@ -1070,6 +1151,7 @@
         renderRoutes();
         render();
         renderMarkers(true);
+        renderBuildings(true);
       });
       globe.focus('SWE'); globe._targetRotX = Math.min(globe._targetRotX, 0.92);
       // The globe free-runs its focus ease (same 0.08/frame as the mockup) so the army-marker overlay's

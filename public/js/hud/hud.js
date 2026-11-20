@@ -664,6 +664,12 @@
   let lastBuildingSig = '';
   const GOLDEN = 2.399963229728653;   // golden angle in radians
   const _cRadius = {};                 // cache: country code -> spread radius in degrees
+  // Great-circle angle (degrees) between two [lon,lat] points.
+  function angBetween(a, b) {
+    const r = Math.PI / 180;
+    const d = Math.sin(a[1] * r) * Math.sin(b[1] * r) + Math.cos(a[1] * r) * Math.cos(b[1] * r) * Math.cos((a[0] - b[0]) * r);
+    return Math.acos(Math.max(-1, Math.min(1, d))) / r;
+  }
   function countryRadius(code) {
     if (_cRadius[code] != null) return _cRadius[code];
     const c = GEO.centroid(code), f = S.geo && S.geo.feats && S.geo.feats[code];
@@ -673,7 +679,7 @@
       const polys = f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates : [f.geometry.coordinates];
       let best = null;
       polys.forEach((poly) => { const ring = poly[0]; if (ring && (!best || ring.length > best.length)) best = ring; });
-      if (best) { let mx = 0; best.forEach((p) => { const d = GEO.angleDeg(c, p); if (d < 40 && d > mx) mx = d; }); if (mx > 0) r = mx; }
+      if (best) { let mx = 0; best.forEach((p) => { const d = angBetween(c, p); if (d < 40 && d > mx) mx = d; }); if (mx > 0) r = mx; }
     }
     return (_cRadius[code] = Math.max(0.5, Math.min(7, r * 0.6)));
   }

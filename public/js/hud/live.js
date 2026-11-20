@@ -54,6 +54,7 @@ window.HUD_UNITS_TIPS = {
     tradePropose: (player, give, receive) => req('/api/trade/propose', 'POST', { match_id: matchId, player, give: JSON.stringify(give || {}), receive: JSON.stringify(receive || {}) }),
     tradeRespond: (id, accept) => req('/api/trade/respond', 'POST', { match_id: matchId, id, accept: accept ? 1 : 0 }),
     chatSend: (body, scope) => req('/api/chat/send', 'POST', { match_id: matchId, body, scope: scope || 'all' }),
+    cheat: (cmd) => req('/api/debug/cheat', 'POST', { match_id: matchId, cmd }),
     chatList: (since) => req('/api/chat/list', 'GET', { match_id: matchId, since_id: since || 0 }),
   };
 
@@ -195,14 +196,14 @@ window.HUD_UNITS_TIPS = {
   }
 
   window.HUD_DATA_STRIKES = {
-    artillery: { tech: 'artillery', perUnit: 2 }, air: { tech: 'air', perUnit: 3, rangeKm: 1500 },
+    artillery: { tech: 'artillery', perUnit: 2 }, air: { tech: 'air', perUnit: 3, rangeKm: 4000 },
     srbm: { tech: 'srbm', damage: 12, rangeKm: 1000, name: 'Short-range missile' },
     mrbm: { tech: 'mrbm', damage: 18, rangeKm: 5500, name: 'Medium-range missile' },
     icbm: { tech: 'icbm', damage: 25, rangeKm: 40000, name: 'ICBM' }, nuke: { tech: 'nuclear' },
   };
   window.HUD_DATA_TECH_META = [
     { key: 'artillery', name: 'Artillery', icon: 'target', cost: { research: 300, gold: 1500 }, days: 4, unlocks: 'Artillery unit. Shell any country that borders a stack with guns.' },
-    { key: 'air', name: 'Air Force', icon: 'airplane-tilt', cost: { research: 600, gold: 3000 }, days: 6, requires: ['artillery'], unlocks: 'Air Force unit. Strike anything within 1 500 km of a stack with planes.' },
+    { key: 'air', name: 'Air Force', icon: 'airplane-tilt', cost: { research: 600, gold: 3000 }, days: 6, requires: ['artillery'], unlocks: 'Air Force unit. Strike anything within 4 000 km of a stack with planes.' },
     { key: 'srbm', name: 'Short-range missiles', icon: 'rocket', cost: { research: 800, gold: 5000 }, days: 8, requires: ['artillery'], unlocks: 'Build missiles (800 gold) that hit up to 1 000 km from your capital.' },
     { key: 'mrbm', name: 'Medium-range missiles', icon: 'rocket', cost: { research: 1500, gold: 10000 }, days: 12, requires: ['srbm'], unlocks: 'Missiles (1 500 gold) with 5 500 km range.' },
     { key: 'icbm', name: 'ICBM', icon: 'rocket-launch', cost: { research: 3000, gold: 25000 }, days: 18, requires: ['mrbm'], unlocks: 'Intercontinental missiles (4 000 gold). Reach any country on Earth.' },

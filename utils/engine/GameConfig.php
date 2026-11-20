@@ -112,7 +112,7 @@ final class GameConfig {
     // Strikes (GAME_RULES §9). def = defence reduction; range km, 'border' or 'global'.
     const STRIKES = [
         'artillery' => ['name' => 'Artillery barrage', 'range' => 'border', 'def' => -2,  'per' => 'gun',  'cost' => ['minerals' => 1], 'cooldown' => 1, 'needs_unit' => 'artillery'],
-        'air'       => ['name' => 'Air strike',        'range' => 1500,     'def' => -3,  'per' => 'plane','cost' => ['oil' => 2],      'cooldown' => 1, 'needs_unit' => 'air', 'plane_loss' => 0.05, 'plane_loss_garrison' => 20],
+        'air'       => ['name' => 'Air strike',        'range' => 4000,     'def' => -3,  'per' => 'plane','cost' => ['oil' => 2],      'cooldown' => 1, 'needs_unit' => 'air', 'plane_loss' => 0.05, 'plane_loss_garrison' => 20],
         'srbm'      => ['name' => 'SRBM strike',       'range' => 1000,     'def' => -12, 'item' => 'srbm',    'cooldown' => 0],
         'mrbm'      => ['name' => 'MRBM strike',       'range' => 5500,     'def' => -18, 'item' => 'mrbm',    'cooldown' => 0],
         'icbm'      => ['name' => 'ICBM strike',       'range' => 'global', 'def' => -25, 'item' => 'icbm',    'cooldown' => 0],

@@ -1270,6 +1270,8 @@
   }
   function sendChat(inp) {
     const v = inp.value.trim(); if (!v) return; inp.value = '';
+    // Debug cheat console: chat starting with "/" is a cheat command, not a message.
+    if (v[0] === '/' && LIVE) { LIVE.api.cheat(v.slice(1)).then((r) => { toast(r.message || 'Done.', 'ok'); liveRefresh(); }).catch(fail); return; }
     if (LIVE) { LIVE.api.chatSend(v, S.chatScope).catch(fail); return; }
     S.chat.push({ id: Math.random(), scope: S.chatScope, pid: me().id, body: v }); render();
   }

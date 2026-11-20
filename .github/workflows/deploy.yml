@@ -50,6 +50,7 @@ jobs:
               'internal-key'      => '${{ secrets.INTERNAL_KEY }}',
               'realtime-emit-url' => 'http://127.0.0.1:8081/emit',
               'realtime-ws-url'   => '${{ secrets.REALTIME_WS_URL }}',
+              'debug-cheats'      => true,   // dev server: enable the in-chat /cheat console. Set false for production.
           ];
           EOL
           EOF

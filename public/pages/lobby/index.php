@@ -11,6 +11,7 @@ if (!$mock) {
     $matchId = (int)($_GET['match'] ?? 0); $wsUrl = ''; $auth = null;
 }
 $v = fn($p) => '/js/' . $p . '?v=' . (@filemtime(__DIR__ . '/../../js/' . $p) ?: 1);
+header('Cache-Control: no-cache, must-revalidate');   // always revalidate the HTML so new ?v= assets load
 ?><!doctype html>
 <html lang="en">
 <head>

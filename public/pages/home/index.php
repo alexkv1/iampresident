@@ -2,6 +2,7 @@
 // Landing page (design 1c). Scrolling marketing + the "Choose your nation" hero that
 // doubles as the old home: name, claimed country, match mode, Take office.
 require __DIR__ . '/../../../utils/bootstrap.php';
+header('Cache-Control: no-cache, must-revalidate');   // always revalidate the HTML so new ?v= assets load
 $v = fn($p) => '/js/' . $p . '?v=' . (@filemtime(__DIR__ . '/../../js/' . $p) ?: 1);
 ?><!doctype html>
 <html lang="en">

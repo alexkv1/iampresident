@@ -291,10 +291,10 @@
       if (!landUnits(a.units)) return;
       const path = GEO.landPath(a.at, target, passable);
       const atk = armyStrength(a.units);
-      if (path) { const km = GEO.pathKm(path); land.push({ kind: 'land', ok: true, armyId: a.id, codes: path, km, days: Math.max(1, Math.ceil(km / stackSpeed(a.units))), strength: atk, fromName: cname(a.at), via: path.slice(1, -1).map(cname) }); }
+      if (path) { const km = GEO.pathKm(path); land.push({ kind: 'land', ok: true, armyId: a.id, srvId: a.srvId, codes: path, km, days: Math.max(1, Math.ceil(km / stackSpeed(a.units))), strength: atk, fromName: cname(a.at), via: path.slice(1, -1).map(cname) }); }
       if (a.units.navy && GEO.coastal(a.at) && GEO.coastal(target)) {
         const cap = a.units.navy * D.UNITS.navy.capacity, need = landUnits(a.units), km = GEO.km(a.at, target) * 1.3;
-        sea.push(cap >= need ? { kind: 'sea', ok: true, armyId: a.id, codes: [a.at, target], km, days: Math.max(1, Math.ceil(km / D.UNITS.navy.speed)), strength: Math.round(atk * 0.75), fromName: cname(a.at), via: [] }
+        sea.push(cap >= need ? { kind: 'sea', ok: true, armyId: a.id, srvId: a.srvId, codes: [a.at, target], km, days: Math.max(1, Math.ceil(km / D.UNITS.navy.speed)), strength: Math.round(atk * 0.75), fromName: cname(a.at), via: [] }
           : { kind: 'sea', ok: false, reason: 'Needs ' + Math.ceil((need - cap) / D.UNITS.navy.capacity) + ' more ships in ' + cname(a.at) + ' (' + cap + '/' + need + ' units).' });
       }
     });
@@ -322,15 +322,15 @@
     const noStrike = block && block !== 'allied' ? block : block === 'allied' ? 'You can’t strike an ally.' : null;
     let lk = lockFor('artillery');
     const art = myStatic.filter((a) => a.units.artillery && GEO.neighbors(a.at).includes(target)).sort((x, y) => y.units.artillery - x.units.artillery)[0];
-    strike.push(lk ? { kind: 'artillery', ok: false, locked: true, reason: lk } : noStrike ? { kind: 'artillery', ok: false, reason: noStrike } : art ? { kind: 'artillery', ok: true, from: art.at, to: target, damage: art.units.artillery * Sk.artillery.perUnit, detail: art.units.artillery + ' guns in ' + cname(art.at) + ' · ' + art.units.artillery + ' minerals' } : { kind: 'artillery', ok: false, reason: 'No artillery in a country that borders ' + cname(target) + '.' });
+    strike.push(lk ? { kind: 'artillery', ok: false, locked: true, reason: lk } : noStrike ? { kind: 'artillery', ok: false, reason: noStrike } : art ? { kind: 'artillery', ok: true, sKind: 'artillery', sFrom: art.srvId, from: art.at, to: target, damage: art.units.artillery * Sk.artillery.perUnit, detail: art.units.artillery + ' guns in ' + cname(art.at) + ' · ' + art.units.artillery + ' minerals' } : { kind: 'artillery', ok: false, reason: 'No artillery in a country that borders ' + cname(target) + '.' });
     lk = lockFor('air');
     const air = myStatic.filter((a) => a.units.air && GEO.km(a.at, target) <= Sk.air.rangeKm).sort((x, y) => y.units.air - x.units.air)[0];
-    strike.push(lk ? { kind: 'air', ok: false, locked: true, reason: lk } : noStrike ? { kind: 'air', ok: false, reason: noStrike } : air ? { kind: 'air', ok: true, from: air.at, to: target, damage: air.units.air * Sk.air.perUnit, detail: air.units.air + ' planes from ' + cname(air.at) + ' · ' + Math.round(GEO.km(air.at, target)) + ' km' } : { kind: 'air', ok: false, reason: myStatic.some((a) => a.units.air) ? 'Out of range (1 500 km).' : 'Train planes in Army mode first.' });
+    strike.push(lk ? { kind: 'air', ok: false, locked: true, reason: lk } : noStrike ? { kind: 'air', ok: false, reason: noStrike } : air ? { kind: 'air', ok: true, sKind: 'air', sFrom: air.srvId, from: air.at, to: target, damage: air.units.air * Sk.air.perUnit, detail: air.units.air + ' planes from ' + cname(air.at) + ' · ' + Math.round(GEO.km(air.at, target)) + ' km' } : { kind: 'air', ok: false, reason: myStatic.some((a) => a.units.air) ? 'Out of range (1 500 km).' : 'Train planes in Army mode first.' });
     const dist = GEO.km(m.country, target);
     const tiers = ['srbm', 'mrbm', 'icbm'].filter((k) => techDone.has(k));
     const inRange = tiers.filter((k) => Sk[k].rangeKm >= dist);
     const ready = inRange.find((k) => D.ARSENAL[k] > 0);
-    strike.push(!tiers.length ? { kind: 'missile', ok: false, locked: true, reason: 'Research Short-range missiles' } : noStrike ? { kind: 'missile', ok: false, reason: noStrike } : ready ? { kind: 'missile', ok: true, from: m.country, to: target, damage: Sk[ready].damage, detail: Sk[ready].name + ' · ' + D.ARSENAL[ready] + ' in stock' } : { kind: 'missile', ok: false, reason: !inRange.length ? 'Out of range (' + Math.round(dist) + ' km). Research longer-range missiles.' : 'No ' + Sk[inRange[0]].name.toLowerCase() + 's built.' });
+    strike.push(!tiers.length ? { kind: 'missile', ok: false, locked: true, reason: 'Research Short-range missiles' } : noStrike ? { kind: 'missile', ok: false, reason: noStrike } : ready ? { kind: 'missile', ok: true, sKind: ready, from: m.country, to: target, damage: Sk[ready].damage, detail: Sk[ready].name + ' · ' + D.ARSENAL[ready] + ' in stock' } : { kind: 'missile', ok: false, reason: !inRange.length ? 'Out of range (' + Math.round(dist) + ' km). Research longer-range missiles.' : 'No ' + Sk[inRange[0]].name.toLowerCase() + 's built.' });
     lk = lockFor('nukes');
     strike.push(lk ? { kind: 'nuke', ok: false, locked: true, reason: lk + ' · 60 000 gold · 5 Labs' } : { kind: 'nuke', ok: false, reason: 'No warhead built (15 000 gold, 10 days).' });
     return { invade, strike };
@@ -375,7 +375,8 @@
     else if (opt.blockers) mid = `<div class="iap-tip" data-tip="blocked" data-place="left" style="margin-top:3px;font:400 11px/1.3 var(--font-body);color:var(--red-300);cursor:help"><i class="ph-fill ph-prohibit"></i> Blocked by ${opt.blockers.map(esc).join(', ')}</div>`;
     else mid = `<div style="margin-top:3px;font:400 11px/1.3 var(--font-body);color:var(--text-muted)">${esc(opt.reason)}</div>`;
     const strengthCol = opt.ok ? `<div class="iap-tip" data-tip="odds" data-place="left" style="text-align:right;cursor:help"><div style="font:italic 800 16px/1 var(--font-display);color:#fff">${opt.strength}</div>${opt.odds != null ? `<div style="margin-top:2px;font:700 11px/1 var(--font-body);color:${opt.odds >= 0.65 ? 'var(--green-300)' : opt.odds >= 0.35 ? 'var(--gold-300)' : 'var(--red-300)'}">${Math.round(opt.odds * 100)}%</div>` : ''}</div>` : '';
-    const btn = UI.button({ size: 'sm', variant: !opt.ok ? 'default' : friendly ? 'primary' : 'danger', disabled: !opt.ok, children: friendly ? 'Move' : 'Attack' });
+    const btnInner = UI.button({ size: 'sm', variant: !opt.ok ? 'default' : friendly ? 'primary' : 'danger', disabled: !opt.ok, children: friendly ? 'Move' : 'Attack' });
+    const btn = opt.ok ? `<span data-move="${opt.armyId}|${S.selected}|${opt.kind}" style="display:contents">${btnInner}</span>` : btnInner;
     return `<div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);opacity:${opt.ok ? 1 : 0.5}">`
       + `<span class="iap-tip" data-tip="route:${opt.kind}" data-place="left" style="cursor:help">${Tile(icon, tileTone, 30)}</span>`
       + `<div style="flex:1;min-width:0"><div style="font:600 13px/1.15 var(--font-body);color:#fff">${t.title}${opt.ok ? ' · ' + opt.days + (opt.days === 1 ? ' day' : ' days') : ''}</div>${mid}</div>${strengthCol}${btn}</div>`;
@@ -383,7 +384,8 @@
 
   function StrikeRow(s) {
     const t = TIPS.strike[s.kind], nuke = s.kind === 'nuke';
-    const btn = UI.button({ size: 'sm', variant: s.ok ? (nuke ? 'danger' : 'gold') : 'default', disabled: !s.ok, icon: s.ok ? 'fire' : undefined, children: 'Strike' });
+    const btnInner = UI.button({ size: 'sm', variant: s.ok ? (nuke ? 'danger' : 'gold') : 'default', disabled: !s.ok, icon: s.ok ? 'fire' : undefined, children: 'Strike' });
+    const btn = s.ok ? `<span data-strike="${s.sKind}|${s.sFrom || ''}" style="display:contents">${btnInner}</span>` : btnInner;
     return `<div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);opacity:${s.ok ? 1 : 0.55}">`
       + `<span class="iap-tip" data-tip="strike:${s.kind}" data-place="left" style="cursor:help">${Tile(t.icon, nuke ? 'linear-gradient(180deg,#ff9f43,#b4520c)' : t.tone, 30)}</span>`
       + `<div style="flex:1;min-width:0"><div style="font:600 13px/1.15 var(--font-body);color:${nuke ? 'var(--gold-300)' : '#fff'}">${t.title}</div>`
@@ -450,7 +452,7 @@
     neighbors.forEach((n) => {
       let metaRight;
       if (n.blocked) metaRight = `<span class="iap-tip" data-tip="cantattack:${esc(n.blocked)}" data-place="left" style="cursor:help;font:500 11px/1 var(--font-body);color:var(--navy-300);display:inline-flex;align-items:center;gap:4px"><i class="ph-fill ph-prohibit"></i>${n.blocked.indexOf('Truce') === 0 ? 'Truce' : n.blocked.indexOf('access') >= 0 ? 'No access' : 'Not at war'}</span>`;
-      else metaRight = UI.button({ size: 'sm', variant: n.friendly ? 'ghost' : 'danger', disabled: !here, children: n.friendly ? 'Move' : 'Attack' });
+      else { const nb = UI.button({ size: 'sm', variant: n.friendly ? 'ghost' : 'danger', disabled: !here, children: n.friendly ? 'Move' : 'Attack' }); metaRight = here ? `<span data-move="${here.id}|${n.code}|land" style="display:contents">${nb}</span>` : nb; }
       const defPart = !n.friendly ? (n.def == null ? `<span class="iap-tip" data-tip="fog" data-place="left" style="display:inline-flex;align-items:center;gap:2px;cursor:help">?<i class="ph-fill ph-eye-slash"></i></span>` : n.def) : '';
       html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 0"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;font:600 13px/1.1 var(--font-body);color:#fff">${n.ownerColor ? `<span style="width:8px;height:8px;border-radius:2px;background:${n.ownerColor}"></span>` : ''}${esc(n.name)}</div>`
         + `<div style="display:flex;align-items:center;gap:4px;font:400 11px/1.3 var(--font-body);color:${n.friendly ? 'var(--teal-300)' : 'var(--red-300)'}">${n.friendly ? (n.mine ? 'Yours' : 'Allied') + ' · reinforce' : esc(n.ownerName || 'Neutral') + ' · ' + strength + ' vs '}${defPart}<span style="color:var(--text-muted)">· ${n.days} ${n.days === 1 ? 'day' : 'days'}</span></div></div>${metaRight}</div>`;
@@ -483,7 +485,7 @@
       + `</div>`;
     let detail;
     if (st.kind === 'active') detail = `<div style="margin-top:8px"><div style="display:flex;justify-content:space-between;margin-bottom:5px;font:600 11px/1 var(--font-body);color:var(--sky-300)"><span>${Math.round(progress * 100)}%</span><span style="color:var(--text-muted)">${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left</span></div>${Meter(progress, 1, 'var(--sky-400)', 6)}</div>`;
-    else if (st.kind !== 'done') detail = `<div style="display:flex;align-items:center;gap:8px;margin-top:8px">${Cost(tech.cost, Object.assign({ research: 1e9, gold: 1e9, minerals: 1e9 }, st.kind === 'poor' ? s.res : {}), 11)}<span style="font:500 11px/1 var(--font-body);color:var(--text-muted)"><i class="ph-fill ph-hourglass"></i> ${tech.days}d</span><div style="flex:1"></div>${st.kind === 'ready' ? UI.button({ size: 'sm', variant: nuke ? 'danger' : 'gold', icon: 'flask', children: 'Research' }) : ''}</div>`;
+    else if (st.kind !== 'done') detail = `<div style="display:flex;align-items:center;gap:8px;margin-top:8px">${Cost(tech.cost, Object.assign({ research: 1e9, gold: 1e9, minerals: 1e9 }, st.kind === 'poor' ? s.res : {}), 11)}<span style="font:500 11px/1 var(--font-body);color:var(--text-muted)"><i class="ph-fill ph-hourglass"></i> ${tech.days}d</span><div style="flex:1"></div>${st.kind === 'ready' ? `<span data-research="${tech.key}" style="display:contents">${UI.button({ size: 'sm', variant: nuke ? 'danger' : 'gold', icon: 'flask', children: 'Research' })}</span>` : ''}</div>`;
     else detail = '';
     const reason = st.reason ? `<div style="display:flex;align-items:center;gap:5px;margin-top:7px;font:500 11px/1.3 var(--font-body);color:${st.kind === 'poor' ? 'var(--red-300)' : 'var(--text-muted)'}"><i class="ph-fill ph-${st.kind === 'poor' ? 'warning' : 'lock'}"></i>${esc(st.reason)}</div>` : '';
     const cardBg = nuke ? 'repeating-linear-gradient(135deg, rgba(245,185,66,.08) 0 10px, rgba(0,0,0,.18) 10px 20px), rgba(40,14,10,.55)' : 'var(--grad-navy)';
@@ -834,6 +836,20 @@
     S.training.push({ id: Math.random(), u, at, ready });
     toast('Training 5 ' + U.name.toLowerCase() + ' in ' + cname(at) + ' · ready Day ' + ready + '.', 'ok');
   }
+  function onMove(armyId, target, kind) {
+    const a = S.armies.find((x) => x.id === armyId);
+    if (LIVE) { LIVE.api.move(a ? a.srvId : armyId, target, kind || 'land').then(() => { toast('Marching on ' + cname(target) + '.', 'ok'); liveRefresh(); }).catch(fail); return; }
+    toast('Marching on ' + cname(target) + '.', 'ok');
+  }
+  function onStrike(kind, from, target) {
+    if (LIVE) { LIVE.api.strike({ kind, target: target || S.selected, from: from || undefined }).then(() => { toast('Strike on ' + cname(target || S.selected) + ' launched.', 'ok'); liveRefresh(); }).catch(fail); return; }
+    toast('Strike launched.', 'ok');
+  }
+  function onResearch(key) {
+    const t = S.tech.find((x) => x.key === key) || {};
+    if (LIVE) { LIVE.api.research(key).then(() => { toast('Researching ' + (t.name || key) + '.', 'ok'); liveRefresh(); }).catch(fail); return; }
+    toast('Researching ' + (t.name || key) + '.', 'ok');
+  }
   function onDiplo(pid, act) {
     const p = S.players.find((x) => x.id === pid);
     if (LIVE) {
@@ -860,13 +876,13 @@
         snap.players.map((p) => [p.id, p.pop, p.lands.length, p.diplo, p.share]),
         snap.armies.map((a) => [a.owner, a.at, a.to, a.arriveDay, JSON.stringify(a.units)]),
         snap.scenarios.live.res, snap.buildingsHere.map((b) => [b.type, b.status, b.country]),
-        (snap.TECH || []).map((t) => t.status), snap.ARSENAL,
+        (snap.TECH || []).map((t) => t.status), snap.ARSENAL, (snap.chat || []).length,
       ]);
       if (sig === lastSig) return;
       lastSig = sig;
 
       S.players = snap.players.map((p) => Object.assign({}, p, { lands: p.lands.slice() }));
-      S.armies = snap.armies; S.events = snap.events; S.tech = snap.TECH;   // mapSnapshot returns TECH (uppercase)
+      S.armies = snap.armies; S.events = snap.events; S.tech = snap.TECH; S.chat = snap.chat || [];   // mapSnapshot returns TECH (uppercase)
       S.queue = snap.buildingsHere.slice(); D.scenarios.live = snap.scenarios.live; D.ARSENAL = snap.ARSENAL;
       D._defence = snap._defence; D._vision = snap._vision;
       // Keep the day in step with the server: re-anchor the local clock if it has drifted
@@ -892,6 +908,9 @@
       if ((el = t('[data-scope]'))) { S.chatScope = el.getAttribute('data-scope'); render(); return; }
       if ((el = t('[data-build]'))) return onBuild(el.getAttribute('data-build'));
       if ((el = t('[data-train]'))) return onTrain(el.getAttribute('data-train'));
+      if ((el = t('[data-move]'))) { const mv = el.getAttribute('data-move').split('|'); return onMove(mv[0], mv[1], mv[2]); }
+      if ((el = t('[data-strike]'))) { const sk = el.getAttribute('data-strike').split('|'); return onStrike(sk[0], sk[1] || null, S.selected); }
+      if ((el = t('[data-research]'))) return onResearch(el.getAttribute('data-research'));
       if ((el = t('[data-lens]'))) { S.lens = el.getAttribute('data-lens'); recolor(); render(); return; }
       if ((el = t('[data-zoom]'))) { if (globe) globe.camera.position.z = Math.max(1.6, Math.min(5, globe.camera.position.z + parseFloat(el.getAttribute('data-zoom')))); return; }
       if (t('[data-focus]')) { if (globe) globe.focus(me().country); return; }

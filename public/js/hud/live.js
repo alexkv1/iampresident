@@ -61,7 +61,8 @@ window.HUD_UNITS_TIPS = {
   const EVENT_TEXT = {}; // event rendering handled by hud.js feed component; we pass type/actor/text/day
 
   // Build HUD_DATA from a /api/match/get snapshot.
-  function mapSnapshot(r, feats) {
+  const mapChat = (rows) => (rows || []).map((m) => ({ id: m.id, pid: m.player, scope: m.scope, body: m.body }));
+  function mapSnapshot(r, feats, chat) {
     const myId = r.me.player_id;
     const landsOf = {}; (r.territories || []).forEach((t) => { (landsOf[t.owner] = landsOf[t.owner] || []).push(t.country_code); });
     const relByPlayer = {}; (r.diplomacy || []).forEach((d) => { relByPlayer[d.player] = d; });
@@ -100,7 +101,7 @@ window.HUD_UNITS_TIPS = {
       players, scenarios: { live: scenario }, buildingsHere: buildings,
       UNITS: window.HUD_UNITS, UNITS_TIPS: window.HUD_UNITS_TIPS,
       TECH: tech, STRIKES: window.HUD_DATA_STRIKES, ARSENAL: r.me.arsenal || {}, ACCESS: {}, TRUCE_UNTIL: {},
-      armies, incoming: [], trades: [], events: (r.events || []), chat: [],
+      armies, incoming: [], trades: [], events: (r.events || []), chat: chat || [],
       TOTAL: (r.players || []).reduce((s, p) => s + (p.territories || 0), 0) || 176, VICTORY: 0.6,
       TICK_SEC: r.match.tick_interval_sec || 20, DAY: r.match.current_tick,
       _defence: defence, _vision: vision, _matchId: matchId, _nextTickAt: r.match.next_tick_at,
@@ -124,7 +125,7 @@ window.HUD_UNITS_TIPS = {
 
   // Initial snapshot: fetch synchronously so window.HUD_DATA exists before hud.js evaluates
   // (hud.js captures HUD_DATA at load time). Subsequent updates poll asynchronously every 3s.
-  let lastEvent = 0, feats = null;
+  let lastEvent = 0, feats = null, chatAll = [], lastChatId = 0;
   function loadFeats() {
     if (feats) return feats;
     try { const x = new XMLHttpRequest(); x.open('GET', window.IAP_DATA.GEO_URL, false); x.send(); feats = {};
@@ -137,7 +138,9 @@ window.HUD_UNITS_TIPS = {
       x.open('GET', '/api/match/get?match_id=' + matchId + '&since_event=0', false);
       x.send();
       const r = JSON.parse(x.responseText);
-      window.HUD_DATA = mapSnapshot(r, loadFeats());
+      try { const xc = new XMLHttpRequest(); xc.open('GET', '/api/chat/list?match_id=' + matchId + '&since_id=0', false); xc.send();
+        chatAll = mapChat(JSON.parse(xc.responseText).messages); lastChatId = chatAll.reduce((m, c) => Math.max(m, c.id || 0), 0); } catch (e2) { chatAll = []; }
+      window.HUD_DATA = mapSnapshot(r, loadFeats(), chatAll);
       lastEvent = (r.events || []).reduce((m, e) => Math.max(m, e.id || 0), 0);
     } catch (e) {
       // Fall back to an empty-ish shape so the HUD still renders rather than throwing.
@@ -150,6 +153,14 @@ window.HUD_UNITS_TIPS = {
   // mode it calls HUD_LIVE.poll() on an interval and routes HUD actions through HUD_LIVE.api.
   window.HUD_LIVE = {
     api, mapSnapshot, matchId, scenarioKey: 'live',
-    poll() { return api.get(lastEvent).then((r) => { lastEvent = (r.events || []).reduce((m, e) => Math.max(m, e.id || 0), lastEvent); return mapSnapshot(r, loadFeats()); }); },
+    poll() {
+      return api.get(lastEvent).then((r) => {
+        lastEvent = (r.events || []).reduce((m, e) => Math.max(m, e.id || 0), lastEvent);
+        return api.chatList(lastChatId).then(
+          (cr) => { const nw = mapChat(cr.messages); if (nw.length) { chatAll = chatAll.concat(nw); lastChatId = chatAll.reduce((m, c) => Math.max(m, c.id || 0), lastChatId); } return mapSnapshot(r, loadFeats(), chatAll); },
+          () => mapSnapshot(r, loadFeats(), chatAll)
+        );
+      });
+    },
   };
 })();

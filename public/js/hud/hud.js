@@ -848,11 +848,25 @@
     toast(({ alliance: 'Alliance proposed to ', access: 'Military access requested from ', truce: 'Truce offered to ' }[act]) + p.name + '. Waiting for a reply.', 'ok');
   }
   // Pull a fresh snapshot from the backend and fold it into the HUD state (live mode only).
+  let lastSig = '';
   function liveRefresh() {
     if (!LIVE) return;
     LIVE.poll().then((snap) => {
+      // Skip the whole re-render when nothing meaningful changed (most 3s polls land
+      // between server ticks). This stops the HUD from rebuilding its panels — and
+      // clobbering an open tooltip / hover — once a second for no reason.
+      const sig = JSON.stringify([
+        snap.DAY, (snap.events || []).length,
+        snap.players.map((p) => [p.id, p.pop, p.lands.length, p.diplo, p.share]),
+        snap.armies.map((a) => [a.owner, a.at, a.to, a.arriveDay, JSON.stringify(a.units)]),
+        snap.scenarios.live.res, snap.buildingsHere.map((b) => [b.type, b.status, b.country]),
+        (snap.TECH || []).map((t) => t.status), snap.ARSENAL,
+      ]);
+      if (sig === lastSig) return;
+      lastSig = sig;
+
       S.players = snap.players.map((p) => Object.assign({}, p, { lands: p.lands.slice() }));
-      S.armies = snap.armies; S.events = snap.events; S.tech = snap.tech;
+      S.armies = snap.armies; S.events = snap.events; S.tech = snap.TECH;   // mapSnapshot returns TECH (uppercase)
       S.queue = snap.buildingsHere.slice(); D.scenarios.live = snap.scenarios.live; D.ARSENAL = snap.ARSENAL;
       D._defence = snap._defence; D._vision = snap._vision;
       // Keep the day in step with the server: re-anchor the local clock if it has drifted
@@ -984,6 +998,8 @@
           // Live armies come from the backend snapshot; rebuild route geometry for any in transit.
           S.scenario = 'live';
           S.armies = D.armies.map((a) => { const b = Object.assign({}, a, { units: Object.assign({}, a.units) }); if (b.codes && b.codes.length > 1) { b.route = GEO.pathPoints(globe, b.codes, { lift: ROUTE_LIFT[b.kind] || 0, step: 0.5 }); b.start = performance.now(); b.dur = Math.max(500, ((b.arriveDay || S.day) - dayNow()) * clock.dayMs); } return b; });
+          // Open on the player's own country so the context panel + Build work right away.
+          const myC = me() && me().country; if (myC) { S.selected = myC; globe.setSelected(myC); globe.focus(myC); }
         } else {
           // launch the incoming attack march (attack scenario is always active in mock)
           const base = D.armies.map((a) => Object.assign({}, a, { units: Object.assign({}, a.units) }));

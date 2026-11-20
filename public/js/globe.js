@@ -1,4 +1,5 @@
 // Interactive 3D globe — restyled port of public/js/globe.js (three.js r149 UMD + earcut).
+// Landing-page copy adds opts {wheelZoom:false, cameraZ, spin} so the page can scroll over it.
 // Same API as the source: new Globe(el, {autoRotate}); await g.load(url); g.onHover/onSelect/setOwners/setSelected/focus.
 // Game-layer changes: brighter ocean + land, stronger atmosphere, gold hover rim, destroy() for SPA use.
 (function () {
@@ -23,6 +24,9 @@
       this.selectable = false; this.selectedCode = null; this.hoverCode = null;
       this._selectCb = null; this._hoverCb = null;
       this.autoRotate = opts.autoRotate !== false;
+      this.wheelZoom = opts.wheelZoom !== false;
+      this.camZ = opts.cameraZ || 3.0;
+      this.spin = opts.spin || 0.0007;
       this._initScene(); this._initControls();
       this._animate = this._animate.bind(this);
       this._raf = requestAnimationFrame(this._animate);
@@ -34,7 +38,7 @@
       const w = this.container.clientWidth || 800, h = this.container.clientHeight || 600;
       this.scene = new THREE.Scene();
       this.camera = new THREE.PerspectiveCamera(42, w / h, 0.1, 100);
-      this.camera.position.set(0, 0, 3.0);
+      this.camera.position.set(0, 0, this.camZ);
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       this.renderer.setSize(w, h);
@@ -137,7 +141,7 @@
         } else this._pick(e, false);
       });
       el.addEventListener('pointerleave', () => { if (this.hoverCode) { this.hoverCode = null; this._recolorAll(); if (this._hoverCb) this._hoverCb(null, null); } });
-      el.addEventListener('wheel', (e) => {
+      if (this.wheelZoom) el.addEventListener('wheel', (e) => {
         e.preventDefault();
         this.camera.position.z = Math.max(1.5, Math.min(6, this.camera.position.z + e.deltaY * 0.0016));
       }, { passive: false });
@@ -267,7 +271,7 @@
         this.world.rotation.y += (this._targetRotY - this.world.rotation.y) * 0.08;
         this.world.rotation.x += (this._targetRotX - this.world.rotation.x) * 0.08;
       } else if (this.autoRotate && !this._userActive) {
-        this.world.rotation.y += 0.0007;
+        this.world.rotation.y += this.spin;
       }
       this.renderer.render(this.scene, this.camera);
     }

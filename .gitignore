@@ -22,3 +22,7 @@ tools/visual/node_modules/
 !.claude/skills/
 .claude/skills/*
 !.claude/skills/iampresident-design/
+
+# landing/lobby visual harness (dev-only, generated)
+design_handoff_landing_lobby/visual/out/
+design_handoff_landing_lobby/visual/reference/

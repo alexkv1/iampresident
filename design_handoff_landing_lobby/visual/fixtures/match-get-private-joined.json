@@ -1,0 +1,56 @@
+{
+  "success": true,
+  "match": {
+    "status": "lobby",
+    "max_players": 8,
+    "tick_interval_sec": 20,
+    "current_tick": 0,
+    "id": 5102,
+    "name": "Private room",
+    "mode": "private",
+    "join_code": "K7PX2Q"
+  },
+  "me": {
+    "player_id": 304,
+    "is_host": 0,
+    "country_code": "PRK"
+  },
+  "players": [
+    {
+      "id": 301,
+      "display_name": "oskar",
+      "color": "#e6194b",
+      "country_code": "FRA",
+      "is_ready": 1,
+      "is_host": 1,
+      "is_ai": 0
+    },
+    {
+      "id": 302,
+      "display_name": "grainlord",
+      "color": "#3cb44b",
+      "country_code": "BRA",
+      "is_ready": 1,
+      "is_host": 0,
+      "is_ai": 0
+    },
+    {
+      "id": 303,
+      "display_name": "nordwind",
+      "color": "#4363d8",
+      "country_code": null,
+      "is_ready": 0,
+      "is_host": 0,
+      "is_ai": 0
+    },
+    {
+      "id": 304,
+      "display_name": "Alex",
+      "color": "#f58231",
+      "country_code": "PRK",
+      "is_ready": 0,
+      "is_host": 0,
+      "is_ai": 0
+    }
+  ]
+}

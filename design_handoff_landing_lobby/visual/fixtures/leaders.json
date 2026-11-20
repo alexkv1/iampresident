@@ -1,0 +1,225 @@
+{
+  "success": true,
+  "leaders": {
+    "USA": {
+      "name": "Donald Trump",
+      "title": "President"
+    },
+    "RUS": {
+      "name": "Vladimir Putin",
+      "title": "President"
+    },
+    "CHN": {
+      "name": "Xi Jinping",
+      "title": "President"
+    },
+    "PRK": {
+      "name": "Kim Jong Un",
+      "title": "Supreme Leader"
+    },
+    "KOR": {
+      "name": "Lee Jae-myung",
+      "title": "President"
+    },
+    "GBR": {
+      "name": "Keir Starmer",
+      "title": "Prime Minister"
+    },
+    "DEU": {
+      "name": "Friedrich Merz",
+      "title": "Chancellor"
+    },
+    "FRA": {
+      "name": "Emmanuel Macron",
+      "title": "President"
+    },
+    "IND": {
+      "name": "Narendra Modi",
+      "title": "Prime Minister"
+    },
+    "JPN": {
+      "name": "Sanae Takaichi",
+      "title": "Prime Minister"
+    },
+    "CAN": {
+      "name": "Mark Carney",
+      "title": "Prime Minister"
+    },
+    "BRA": {
+      "name": "Luiz Inácio Lula da Silva",
+      "title": "President"
+    },
+    "SAU": {
+      "name": "Salman bin Abdulaziz",
+      "title": "King"
+    },
+    "MEX": {
+      "name": "Claudia Sheinbaum",
+      "title": "President"
+    },
+    "AUS": {
+      "name": "Anthony Albanese",
+      "title": "Prime Minister"
+    },
+    "ITA": {
+      "name": "Giorgia Meloni",
+      "title": "Prime Minister"
+    },
+    "ESP": {
+      "name": "Pedro Sánchez",
+      "title": "Prime Minister"
+    },
+    "IDN": {
+      "name": "Prabowo Subianto",
+      "title": "President"
+    },
+    "TUR": {
+      "name": "Recep Tayyip Erdoğan",
+      "title": "President"
+    },
+    "EGY": {
+      "name": "Abdel Fattah el-Sisi",
+      "title": "President"
+    },
+    "NGA": {
+      "name": "Bola Tinubu",
+      "title": "President"
+    },
+    "ZAF": {
+      "name": "Cyril Ramaphosa",
+      "title": "President"
+    },
+    "ARG": {
+      "name": "Javier Milei",
+      "title": "President"
+    },
+    "UKR": {
+      "name": "Volodymyr Zelensky",
+      "title": "President"
+    },
+    "POL": {
+      "name": "Karol Nawrocki",
+      "title": "President"
+    },
+    "NLD": {
+      "name": "Dick Schoof",
+      "title": "Prime Minister"
+    },
+    "SWE": {
+      "name": "Ulf Kristersson",
+      "title": "Prime Minister"
+    },
+    "NOR": {
+      "name": "Jonas Gahr Støre",
+      "title": "Prime Minister"
+    },
+    "FIN": {
+      "name": "Petteri Orpo",
+      "title": "Prime Minister"
+    },
+    "DNK": {
+      "name": "Mette Frederiksen",
+      "title": "Prime Minister"
+    },
+    "IRN": {
+      "name": "Ali Khamenei",
+      "title": "Supreme Leader"
+    },
+    "IRQ": {
+      "name": "Mohammed Shia al-Sudani",
+      "title": "Prime Minister"
+    },
+    "ISR": {
+      "name": "Benjamin Netanyahu",
+      "title": "Prime Minister"
+    },
+    "PAK": {
+      "name": "Shehbaz Sharif",
+      "title": "Prime Minister"
+    },
+    "VNM": {
+      "name": "Tô Lâm",
+      "title": "General Secretary"
+    },
+    "THA": {
+      "name": "Anutin Charnvirakul",
+      "title": "Prime Minister"
+    },
+    "PHL": {
+      "name": "Ferdinand Marcos Jr.",
+      "title": "President"
+    },
+    "MYS": {
+      "name": "Anwar Ibrahim",
+      "title": "Prime Minister"
+    },
+    "NZL": {
+      "name": "Christopher Luxon",
+      "title": "Prime Minister"
+    },
+    "GRC": {
+      "name": "Kyriakos Mitsotakis",
+      "title": "Prime Minister"
+    },
+    "HUN": {
+      "name": "Viktor Orbán",
+      "title": "Prime Minister"
+    },
+    "COL": {
+      "name": "Gustavo Petro",
+      "title": "President"
+    },
+    "CHL": {
+      "name": "Gabriel Boric",
+      "title": "President"
+    },
+    "VEN": {
+      "name": "Nicolás Maduro",
+      "title": "President"
+    },
+    "ETH": {
+      "name": "Abiy Ahmed",
+      "title": "Prime Minister"
+    },
+    "KEN": {
+      "name": "William Ruto",
+      "title": "President"
+    },
+    "MAR": {
+      "name": "Mohammed VI",
+      "title": "King"
+    },
+    "DZA": {
+      "name": "Abdelmadjid Tebboune",
+      "title": "President"
+    },
+    "KAZ": {
+      "name": "Kassym-Jomart Tokayev",
+      "title": "President"
+    },
+    "UZB": {
+      "name": "Shavkat Mirziyoyev",
+      "title": "President"
+    },
+    "SYR": {
+      "name": "Ahmed al-Sharaa",
+      "title": "President"
+    },
+    "QAT": {
+      "name": "Tamim bin Hamad Al Thani",
+      "title": "Emir"
+    },
+    "ARE": {
+      "name": "Mohamed bin Zayed Al Nahyan",
+      "title": "President"
+    },
+    "JOR": {
+      "name": "Abdullah II",
+      "title": "King"
+    },
+    "CUB": {
+      "name": "Miguel Díaz-Canel",
+      "title": "President"
+    }
+  }
+}

@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/i-am-president-design-system-7cd541da-e91b-4cf5-bfd6-2085c31dd70e/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/i-am-president-design-system-7cd541da-e91b-4cf5-bfd6-2085c31dd70e/tokens/colors.css">
+<link rel="stylesheet" href="_ds/i-am-president-design-system-7cd541da-e91b-4cf5-bfd6-2085c31dd70e/tokens/typography.css">
+<link rel="stylesheet" href="_ds/i-am-president-design-system-7cd541da-e91b-4cf5-bfd6-2085c31dd70e/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/i-am-president-design-system-7cd541da-e91b-4cf5-bfd6-2085c31dd70e/tokens/base.css">
+<link rel="stylesheet" href="_ds/i-am-president-design-system-7cd541da-e91b-4cf5-bfd6-2085c31dd70e/assets/icons/phosphor/fill.css">
+<link rel="stylesheet" href="_ds/i-am-president-design-system-7cd541da-e91b-4cf5-bfd6-2085c31dd70e/assets/icons/phosphor/bold.css">
+<link rel="stylesheet" href="_ds/i-am-president-design-system-7cd541da-e91b-4cf5-bfd6-2085c31dd70e/styles.css">
+<script src="_ds/i-am-president-design-system-7cd541da-e91b-4cf5-bfd6-2085c31dd70e/_ds_bundle.js"></script>
+<script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
+<script src="https://unpkg.com/earcut@2.2.4/dist/earcut.min.js"></script>
+<script src="globe.js"></script>
+<style>
+body{margin:0;background:#e7e4dc;font-family:system-ui,sans-serif}
+a{color:var(--teal-300);text-decoration:none}a:hover{color:var(--teal-200)}
+@keyframes iapRing{0%{transform:scale(.72);opacity:.75}100%{transform:scale(1.3);opacity:0}}
+@keyframes iapPulse{0%{box-shadow:0 0 0 0 rgba(60,180,75,.7)}100%{box-shadow:0 0 0 9px rgba(60,180,75,0)}}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 12px}.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#1a1a1a}.dv-notes{margin:0 0 24px;max-width:1000px;font:13px/1.55 system-ui,sans-serif;color:rgba(0,0,0,.62)}.dv-opts{display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 12px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.6)}.dv-card{max-width:100%;border:1px solid rgba(0,0,0,.08);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}.dv-opt:target .dv-oid{background:#2a78d6;color:#fff}.dv-next{margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)}
+</style>
+</helmet>
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">After Take office in <a class="dv-oid" href="#1c">1c</a>: searching, then the lobby · 1440×900</span></div>
+<p class="dv-notes">Take office in <a class="dv-oid" href="#1c">1c</a> jumps here. Join random match goes to <a class="dv-oid" href="#2a">2a</a>, then <a class="dv-oid" href="#2b">2b</a>. Host private room goes straight to <a class="dv-oid" href="#2c">2c</a> with a fresh code. Join private room skips the search and lands in <a class="dv-oid" href="#2b">2b</a> with that room's code. The search loops every 10 seconds; pressing Take office again replays everything. Lobbies follow the game's lobby layout (top bar, Players, Your nation, country tag), with the country you claimed on the landing page already selected.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="2a">
+<div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Searching: the globe spins with your country lit, open matches are checked one by one, then "Match found".</div>
+<div class="dv-card" style="position:relative;width:1440px;height:900px;background:var(--pattern-stripes), var(--grad-page), var(--bg-page);color:var(--text-body);font-family:var(--font-body)">
+<div style="position:absolute;left:370px;top:60px;width:700px;height:700px">
+<div ref="{{ gS }}" data-globe="s" style="position:absolute;inset:0"></div>
+<div style="position:absolute;inset:0;z-index:2;pointer-events:none">{{ radar }}</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:340px;background:var(--grad-protect-b);pointer-events:none;z-index:3"></div>
+<div style="position:absolute;top:14px;left:14px;right:14px;z-index:10">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" padding="10px 16px" hint-size="100%,58px">
+<div style="display:flex;align-items:center;gap:14px;min-height:36px;white-space:nowrap">
+<div style="flex:none"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Wordmark" size="sm" layout="inline" hint-size="200px,30px"></x-import></div>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Pill" tone="sky" icon="globe-hemisphere-west" hint-size="140px,24px">Join random match</x-import>
+<span style="flex:1"></span>
+<span style="display:flex;align-items:center;gap:8px;color:var(--text-muted)"><i class="ph-fill ph-hourglass" style="font-size:18px"></i><span style="font:700 22px/1 var(--font-num);font-variant-numeric:tabular-nums;color:var(--white)">{{ searchClock }}</span></span>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" size="sm" variant="ghost" icon="x" hint-size="90px,34px">Cancel</x-import>
+</div>
+</x-import>
+</div>
+<div style="position:absolute;top:86px;left:14px;width:270px;z-index:10">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" title="Your nation" hint-size="270px,150px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="font:italic 900 30px/1 var(--font-display);text-transform:uppercase;color:var(--teal-300);text-shadow:var(--text-shadow-display)">{{ claimName }}</div>
+<div style="font:500 13px/1.35 var(--font-body);color:var(--gold-300)">{{ claimPersona }}</div>
+<div style="margin-top:6px;font:400 13px/1.45 var(--font-body);color:var(--text-muted)">You can switch country in the lobby.</div>
+</div>
+</x-import>
+</div>
+<div style="position:absolute;top:86px;right:14px;width:300px;z-index:10">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" title="Open matches" hint-size="300px,180px">
+<div style="display:flex;flex-direction:column;gap:2px">
+<sc-for list="{{ scanRows }}" as="r" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;background:{{ r.bg }};opacity:{{ r.op }};transition:opacity 200ms ease, background 200ms ease">
+<div style="flex:1;min-width:0"><div style="font:600 14px/1.25 var(--font-body);color:var(--text-strong);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</div><div style="font:400 11px/1.3 var(--font-body);color:var(--text-muted)">{{ r.seats }} players</div></div>
+<sc-if value="{{ r.queued }}" hint-placeholder-val="{{ true }}"><span style="font:500 12px/1 var(--font-body);color:var(--text-disabled)">Queued</span></sc-if>
+<sc-if value="{{ r.checking }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Spinner" size="{{ 18 }}" hint-size="18px,18px"></x-import></sc-if>
+<sc-if value="{{ r.full }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Badge" kind="danger" hint-size="40px,20px">Full</x-import></sc-if>
+<sc-if value="{{ r.found }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Badge" kind="ready" icon="check-circle" hint-size="90px,20px">Seat found</x-import></sc-if>
+</div>
+</sc-for>
+</div>
+</x-import>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:64px;z-index:10;display:flex;flex-direction:column;align-items:center;gap:18px">
+<div style="transform:skewX(-8deg) scale({{ plateScale }});border-radius:14px;background:{{ plateBg }};box-shadow:{{ plateShadow }};padding:16px 40px 12px;transition:transform 320ms cubic-bezier(.34,1.56,.64,1), background 200ms ease, box-shadow 200ms ease">
+<div style="transform:skewX(8deg);display:flex;align-items:baseline;font:italic 900 76px/.86 var(--font-display);text-transform:uppercase;white-space:nowrap;color:{{ plateColor }};text-shadow:{{ plateTextShadow }}"><span>{{ plateMain }}</span><span style="display:inline-block;width:.6em;text-align:left">{{ plateDots }}</span></div>
+</div>
+<div style="font:500 16px/1.4 var(--font-body);color:var(--navy-200);min-height:22px">{{ searchStatus }}</div>
+<div style="display:flex;gap:6px"><sc-for list="{{ searchSlots }}" as="sl" hint-placeholder-count="8"><span style="width:20px;height:20px;border-radius:4px;background:{{ sl.bg }};box-shadow:{{ sl.shadow }};transition:background 200ms ease"></span></sc-for></div>
+<div style="width:360px;height:8px;border-radius:999px;background:var(--navy-850);box-shadow:var(--shadow-inset-well);overflow:hidden;opacity:{{ enterOp }};transition:opacity 200ms ease"><div style="height:100%;width:{{ enterPct }};border-radius:999px;background:var(--grad-teal)"></div></div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="2b">
+<div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Lobby after a match is found. Your country is claimed; ready up and wait for the host.</div>
+<div class="dv-card" style="position:relative;width:1440px;height:900px;background:var(--grad-page), var(--bg-page);color:var(--text-body);font-family:var(--font-body)">
+<div ref="{{ gL }}" data-globe="l" style="position:absolute;inset:0"></div>
+<div style="position:absolute;top:14px;left:14px;right:14px;z-index:10">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" padding="10px 16px" hint-size="100%,58px">
+<div style="display:flex;align-items:center;gap:14px;min-height:36px;white-space:nowrap">
+<span style="font:italic 800 24px/1 var(--font-display);text-transform:uppercase;color:var(--text-strong);text-shadow:var(--text-shadow-display)">{{ lobbyName }}</span>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Pill" hint-size="70px,24px">{{ lobbyMode }}</x-import>
+<sc-if value="{{ lobbyPrivate }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Pill" icon="key" tone="gold" hint-size="120px,24px">Code: {{ lobbyCode }}</x-import></sc-if>
+<span style="flex:1"></span>
+<span style="font:400 13px/1 var(--font-body);color:var(--text-muted)">{{ lobbyMeta }}</span>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" size="sm" variant="ghost" icon="sign-out" hint-size="90px,34px">Leave</x-import>
+</div>
+</x-import>
+</div>
+<div style="position:absolute;top:86px;left:14px;width:270px;z-index:10">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" title="Players" hint-size="270px,240px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<sc-for list="{{ lobbyPlayers }}" as="p" hint-placeholder-count="4">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.PlayerRow" color="{{ p.color }}" name="{{ p.name }}" meta="{{ p.meta }}" me="{{ p.me }}" badges="{{ p.badges }}" hint-size="100%,48px"></x-import>
+</sc-for>
+</div>
+</x-import>
+</div>
+<div style="position:absolute;top:86px;right:14px;width:300px;z-index:10">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" title="Your nation" hint-size="300px,260px">
+<div style="display:flex;flex-direction:column;gap:14px">
+<div>
+<div style="font:italic 900 30px/1 var(--font-display);text-transform:uppercase;color:var(--teal-300);text-shadow:var(--text-shadow-display)">{{ claimName }}</div>
+<div style="margin-top:4px;font:500 13px/1.35 var(--font-body);color:var(--gold-300)">{{ claimPersona }}</div>
+</div>
+<p style="margin:0;font:400 14px/1.45 var(--font-body);color:var(--text-muted)">Click another country on the globe to switch.</p>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" variant="{{ readyVariantB }}" icon="{{ readyIconB }}" block="{{ true }}" onClick="{{ toggleReadyB }}" hint-size="100%,46px">{{ readyLabelB }}</x-import>
+<p style="margin:0;font:400 13px/1.45 var(--font-body);color:var(--text-muted)">{{ lobbyNote }}</p>
+</div>
+</x-import>
+</div>
+<sc-if value="{{ toastB }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:86px;left:0;right:0;z-index:11;display:flex;justify-content:center;pointer-events:none">
+<div style="width:max-content;white-space:nowrap"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Toast" kind="ok" hint-size="420px,44px">{{ toastB }}</x-import></div>
+</div>
+</sc-if>
+<sc-if value="{{ tagL }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;right:14px;bottom:14px;width:300px;z-index:10;pointer-events:none">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.CountryTag" name="{{ tagL.name }}" leader="{{ tagL.leader }}" farmland="{{ tagL.farmland }}" minerals="{{ tagL.minerals }}" oil="{{ tagL.oil }}" hint-size="300px,120px"></x-import>
+</div>
+</sc-if>
+<div style="position:absolute;bottom:14px;left:0;right:0;z-index:5;display:flex;justify-content:center;align-items:center;gap:6px;font:400 12px/1 var(--font-body);color:var(--text-muted);text-shadow:0 1px 2px rgba(0,0,0,.6);pointer-events:none"><i class="ph-fill ph-hand-grabbing" style="font-size:14px"></i>Drag to rotate · click a country to claim it</div>
+</div>
+</div>
+
+<div class="dv-opt" id="2c">
+<div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>Hosting a private room: the code is the first thing you see. Friends drop in as they enter it.</div>
+<div class="dv-card" style="position:relative;width:1440px;height:900px;background:var(--grad-page), var(--bg-page);color:var(--text-body);font-family:var(--font-body)">
+<div ref="{{ gH }}" data-globe="h" style="position:absolute;inset:0"></div>
+<div style="position:absolute;top:14px;left:14px;right:14px;z-index:10">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" padding="10px 16px" hint-size="100%,58px">
+<div style="display:flex;align-items:center;gap:14px;min-height:36px;white-space:nowrap">
+<span style="font:italic 800 24px/1 var(--font-display);text-transform:uppercase;color:var(--text-strong);text-shadow:var(--text-shadow-display)">Private room</span>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Pill" hint-size="70px,24px">Private</x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Pill" icon="key" tone="gold" hint-size="120px,24px">Code: {{ hostCode }}</x-import>
+<span style="flex:1"></span>
+<span style="font:400 13px/1 var(--font-body);color:var(--text-muted)">{{ hostMeta }}</span>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" size="sm" variant="ghost" icon="sign-out" hint-size="90px,34px">Leave</x-import>
+</div>
+</x-import>
+</div>
+<div style="position:absolute;top:86px;left:14px;width:270px;z-index:10">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" title="Players" hint-size="270px,240px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<sc-for list="{{ hostPlayers }}" as="p" hint-placeholder-count="1">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.PlayerRow" color="{{ p.color }}" name="{{ p.name }}" meta="{{ p.meta }}" me="{{ p.me }}" badges="{{ p.badges }}" hint-size="100%,48px"></x-import>
+</sc-for>
+<sc-for list="{{ openSeats }}" as="o" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;border:1px dashed var(--navy-500);font:400 13px/1.25 var(--font-body);color:var(--text-muted)"><i class="ph-fill ph-user-plus" style="font-size:16px"></i>Waiting for friends…</div>
+</sc-for>
+</div>
+</x-import>
+</div>
+<div style="position:absolute;top:86px;left:50%;width:440px;margin-left:-220px;z-index:10">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" title="Invite friends" hint-size="440px,240px">
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;justify-content:center;padding:16px 12px 12px;border-radius:12px;background:var(--navy-850);border:2px solid var(--navy-600);box-shadow:var(--shadow-inset-well)">
+<span style="font:italic 900 72px/.9 var(--font-display);letter-spacing:.14em;padding-left:.14em;background:linear-gradient(180deg,#fff4cf 0%,#ffd864 38%,#f5b942 62%,#d89a28 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 0 rgba(6,10,20,.6))">{{ hostCode }}</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" size="sm" icon="{{ copyIcon }}" block="{{ true }}" onClick="{{ copyCode }}" hint-size="100%,36px">{{ copyLabel }}</x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" size="sm" variant="ghost" icon="link" block="{{ true }}" hint-size="100%,36px">Copy invite link</x-import>
+</div>
+<p style="margin:0;font:400 13px/1.45 var(--font-body);color:var(--text-muted);text-align:center">Friends pick Join private room on the home screen and enter this code.</p>
+</div>
+</x-import>
+</div>
+<div style="position:absolute;top:86px;right:14px;width:300px;z-index:10">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" title="Your nation" hint-size="300px,300px">
+<div style="display:flex;flex-direction:column;gap:14px">
+<div>
+<div style="font:italic 900 30px/1 var(--font-display);text-transform:uppercase;color:var(--teal-300);text-shadow:var(--text-shadow-display)">{{ claimName }}</div>
+<div style="margin-top:4px;font:500 13px/1.35 var(--font-body);color:var(--gold-300)">{{ claimPersona }}</div>
+</div>
+<p style="margin:0;font:400 14px/1.45 var(--font-body);color:var(--text-muted)">Click another country on the globe to switch.</p>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" variant="{{ readyVariantH }}" icon="{{ readyIconH }}" block="{{ true }}" onClick="{{ toggleReadyH }}" hint-size="100%,46px">{{ readyLabelH }}</x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" variant="gold" icon="play" slanted="{{ true }}" block="{{ true }}" hint-size="100%,52px">Start match</x-import>
+<p style="margin:0;font:400 13px/1.45 var(--font-body);color:var(--text-muted)">You're the host. Start when your friends are ready.</p>
+</div>
+</x-import>
+</div>
+<sc-if value="{{ toastH }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:366px;left:0;right:0;z-index:11;display:flex;justify-content:center;pointer-events:none">
+<div style="width:max-content;white-space:nowrap"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Toast" icon="user-plus" hint-size="260px,44px">{{ toastH }}</x-import></div>
+</div>
+</sc-if>
+<sc-if value="{{ tagH }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;right:14px;bottom:14px;width:300px;z-index:10;pointer-events:none">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.CountryTag" name="{{ tagH.name }}" leader="{{ tagH.leader }}" farmland="{{ tagH.farmland }}" minerals="{{ tagH.minerals }}" oil="{{ tagH.oil }}" hint-size="300px,120px"></x-import>
+</div>
+</sc-if>
+<div style="position:absolute;bottom:14px;left:0;right:0;z-index:5;display:flex;justify-content:center;align-items:center;gap:6px;font:400 12px/1 var(--font-body);color:var(--text-muted);text-shadow:0 1px 2px rgba(0,0,0,.6);pointer-events:none"><i class="ph-fill ph-hand-grabbing" style="font-size:14px"></i>Drag to rotate · click a country to claim it</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "a countdown when everyone in <a class="dv-oid" href="#2b">2b</a> is ready" · "what happens when no match is found in <a class="dv-oid" href="#2a">2a</a>" · "the joining screen for a wrong room code"</p>
+</section>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Home screen as the landing page · desktop 1440 · three directions</span></div>
+<p class="dv-notes">Assumptions: ad traffic lands straight on the Home screen, so the first view keeps name + Play together and everything else scrolls below. Facts come from GameConfig.php and leaders.sql: 176 countries, 55 seeded leaders, 60% of the world to win, up to 8 players online, 3 AI nations solo. Each globe is the real game globe: drag it, hover a country, click to claim it. Open matches update live.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Briefing: centred, by the book. The tagline is the headline and the globe sits on the horizon.</div>
+<div class="dv-card" style="width:1440px;background:var(--bg-page);color:var(--text-body);font-family:var(--font-body)">
+
+<div style="position:relative;height:940px;overflow:hidden;background:var(--pattern-stripes), var(--grad-hero)">
+<div ref="{{ gA }}" style="position:absolute;left:70px;top:560px;width:1300px;height:1300px;z-index:1"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:150px;background:var(--grad-protect-b);z-index:2;pointer-events:none"></div>
+<div style="position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;padding:22px 48px">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Wordmark" size="sm" layout="inline" hint-size="200px,30px"></x-import>
+<div style="display:flex;align-items:center;gap:28px;font:500 14px/1 var(--font-body)">
+<a href="#a-how" style="color:var(--navy-200)">How it works</a>
+<a href="#a-leaders" style="color:var(--navy-200)">Leaders</a>
+<a href="#a-modes" style="color:var(--navy-200)">Modes</a>
+<a href="#a-open" style="color:var(--navy-200)">Open matches</a>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" variant="ghost" size="sm" icon="key" hint-size="150px,34px">Join with code</x-import>
+</div>
+</div>
+<div style="position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;text-align:center;gap:22px;padding:84px 40px 0">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Pill" tone="sky" icon="browser" hint-size="220px,24px">Plays in your browser · no sign-up</x-import>
+<h1 style="margin:0;display:flex;flex-direction:column;align-items:center;font:italic 900 104px/.86 var(--font-display);text-transform:uppercase;letter-spacing:.005em;color:var(--white);text-shadow:var(--text-shadow-hero)">
+<span>Lead a nation.</span>
+<span>Feed your people.</span>
+<span style="text-shadow:none;padding-right:.06em;background:linear-gradient(180deg,#fff4cf 0%,#ffd864 38%,#f5b942 62%,#d89a28 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 5px 0 rgba(6,10,20,.6))">Dominate the world.</span>
+</h1>
+<p style="margin:0;max-width:600px;font:400 17px/1.5 var(--font-body);color:var(--navy-200);text-wrap:pretty">Claim any of 176 countries and rule it as its real-world leader. Feed your people, build an army and race to control 60% of the world.</p>
+<div style="display:flex;gap:14px;align-items:center;width:560px;margin-top:4px">
+<div style="flex:1;min-width:0"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Input" value="{{ name }}" onChange="{{ onName }}" placeholder="President…" max-length="{{ 32 }}" icon="user" hint-size="100%,48px"></x-import></div>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" variant="gold" slanted="{{ true }}" icon="play" hint-size="170px,52px">Play now</x-import>
+</div>
+<div style="display:flex;gap:8px;font:400 14px/1.4 var(--font-body);color:var(--text-muted)"><span>or</span><a href="#a-modes">play solo against 3 AI nations</a><span>·</span><a href="#a-modes">join with a room code</a></div>
+</div>
+<sc-if value="{{ tagA }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;right:44px;bottom:36px;z-index:4;width:300px;pointer-events:none">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.CountryTag" name="{{ tagA.name }}" leader="{{ tagA.leader }}" farmland="{{ tagA.farmland }}" minerals="{{ tagA.minerals }}" oil="{{ tagA.oil }}" hint-size="300px,120px"></x-import>
+</div>
+</sc-if>
+<div style="position:absolute;left:48px;bottom:40px;z-index:4;display:flex;align-items:center;gap:8px;font:400 13px/1 var(--font-body);color:var(--navy-200);text-shadow:0 1px 2px rgba(0,0,0,.6);pointer-events:none"><i class="ph-fill ph-hand-pointing" style="font-size:16px"></i>Hover a country to meet its leader · click to claim it</div>
+</div>
+
+<div id="a-how" style="padding:110px 96px 120px;display:flex;flex-direction:column;align-items:center;gap:56px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center">
+<div style="display:flex;align-items:center;gap:10px;font:italic 800 18px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;color:var(--gold-400)"><span style="width:14px;height:14px;border-radius:2px;background:var(--grad-gold);transform:skewX(-8deg)"></span>How it works</div>
+<h2 style="margin:0;font:italic 900 72px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Lead. Feed. Dominate.</h2>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;width:100%">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Card" padding="{{ 30 }}" hint-size="100%,300px">
+<div style="display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<span style="width:64px;height:64px;border-radius:16px;display:grid;place-items:center;background:var(--grad-sky);box-shadow:inset 0 2px 0 rgba(255,255,255,.4), 0 3px 0 #13367a"><i class="ph-fill ph-flag-banner" style="font-size:34px;color:#fff;filter:drop-shadow(0 2px 0 rgba(0,0,0,.3))"></i></span>
+<span style="font:italic 900 56px/1 var(--font-display);color:var(--navy-500)">01</span>
+</div>
+<h3 style="margin:0;font:italic 900 44px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Lead</h3>
+<p style="margin:0;font:400 16px/1.5 var(--font-body);color:var(--navy-200);text-wrap:pretty">Spin the globe and claim a country. You take office as its real leader: pick North Korea and you are Supreme Leader Kim Jong Un.</p>
+</div>
+</x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Card" padding="{{ 30 }}" hint-size="100%,300px">
+<div style="display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<span style="width:64px;height:64px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(180deg,#6fd57a 0%,#3cb44b 55%,#2c8a38 100%);box-shadow:inset 0 2px 0 rgba(255,255,255,.4), 0 3px 0 var(--green-800)"><i class="ph-fill ph-grains" style="font-size:34px;color:#fff;filter:drop-shadow(0 2px 0 rgba(0,0,0,.3))"></i></span>
+<span style="font:italic 900 56px/1 var(--font-display);color:var(--navy-500)">02</span>
+</div>
+<h3 style="margin:0;font:italic 900 44px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Feed</h3>
+<p style="margin:0;font:400 16px/1.5 var(--font-body);color:var(--navy-200);text-wrap:pretty">Every Day your people eat. Build farms, mines and power plants. Fed nations grow 1% a day; starving ones shrink.</p>
+</div>
+</x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Card" padding="{{ 30 }}" hint-size="100%,300px">
+<div style="display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<span style="width:64px;height:64px;border-radius:16px;display:grid;place-items:center;background:var(--grad-danger);box-shadow:inset 0 2px 0 rgba(255,255,255,.4), 0 3px 0 #7a0c27"><i class="ph-fill ph-sword" style="font-size:34px;color:#fff;filter:drop-shadow(0 2px 0 rgba(0,0,0,.3))"></i></span>
+<span style="font:italic 900 56px/1 var(--font-display);color:var(--navy-500)">03</span>
+</div>
+<h3 style="margin:0;font:italic 900 44px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Dominate</h3>
+<p style="margin:0;font:400 16px/1.5 var(--font-body);color:var(--navy-200);text-wrap:pretty">Train infantry, armor, air force and navy, then march on your neighbours. Control 60% of the world to win.</p>
+</div>
+</x-import>
+</div>
+</div>
+
+<div id="a-leaders" style="padding:110px 96px;background:var(--navy-850);border-top:1px solid var(--navy-600);border-bottom:1px solid var(--navy-600);display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:center;gap:10px;font:italic 800 18px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;color:var(--gold-400)"><span style="width:14px;height:14px;border-radius:2px;background:var(--grad-gold);transform:skewX(-8deg)"></span>Leaders</div>
+<h2 style="margin:0;font:italic 900 72px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Pick a country.<br>Become its leader.</h2>
+</div>
+<p style="margin:0;max-width:420px;font:400 16px/1.5 var(--font-body);color:var(--navy-200);text-wrap:pretty">55 countries come with their real head of state, name and title. Pick any other and you rule it as its President.</p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px">
+<sc-for list="{{ leadersA }}" as="l" hint-placeholder-count="10">
+<button onClick="{{ l.onClick }}" style="position:relative;display:flex;flex-direction:column;gap:16px;padding:22px;border-radius:16px;border:1px solid {{ l.border }};background:var(--grad-card);box-shadow:{{ l.shadow }};cursor:pointer;text-align:left;font:inherit;color:inherit;transition:border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease" style-hover="transform:translateY(-2px)">
+<svg viewBox="0 0 100 100" style="width:88px;height:88px;filter:drop-shadow(0 3px 0 rgba(6,10,20,.7))"><path d="{{ l.d }}" fill="{{ l.fill }}"></path></svg>
+<div style="display:flex;flex-direction:column;gap:6px">
+<span style="font:italic 800 24px/1 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">{{ l.country }}</span>
+<span style="font:500 12px/1.2 var(--font-body);letter-spacing:1px;text-transform:uppercase;color:var(--gold-400)">{{ l.title }}</span>
+<span style="font:600 15px/1.3 var(--font-body);color:var(--text-body)">{{ l.name }}</span>
+</div>
+<sc-if value="{{ l.sel }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:18px;right:18px"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Pill" tone="teal" solid="{{ true }}" hint-size="50px,26px">You</x-import></span></sc-if>
+</button>
+</sc-for>
+</div>
+<div style="display:flex;align-items:center;justify-content:center;gap:22px">
+<span style="font:400 16px/1.4 var(--font-body);color:var(--navy-200)">You'll play as <b style="color:var(--white);font-weight:600">{{ aPersona }}</b></span>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" variant="primary" icon="flag-banner" hint-size="220px,46px">Claim {{ aCountry }}</x-import>
+</div>
+</div>
+
+<div id="a-modes" style="padding:110px 96px 56px;display:flex;flex-direction:column;align-items:center;gap:44px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center">
+<div style="display:flex;align-items:center;gap:10px;font:italic 800 18px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;color:var(--gold-400)"><span style="width:14px;height:14px;border-radius:2px;background:var(--grad-gold);transform:skewX(-8deg)"></span>Game modes</div>
+<h2 style="margin:0;font:italic 900 72px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Online, with friends or solo</h2>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;width:100%">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.ModeCard" icon="globe-hemisphere-west" tone="sky" title="Play Online" description="Create a public match strangers can join." hint-size="100%,90px"></x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.ModeCard" icon="lock-key" tone="violet" title="Private Room" description="Get a code to play with friends." hint-size="100%,90px"></x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.ModeCard" icon="robot" tone="gold" title="Single Player" description="Play solo against the computer (3 AI nations)." hint-size="100%,90px"></x-import>
+</div>
+<div style="display:flex;gap:12px;align-items:center;width:460px">
+<div style="flex:1;min-width:0"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Input" value="{{ code }}" onChange="{{ onCode }}" placeholder="Enter room code" uppercase="{{ true }}" max-length="{{ 6 }}" icon="key" hint-size="100%,48px"></x-import></div>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" hint-size="90px,48px">Join</x-import>
+</div>
+</div>
+
+<div id="a-open" style="padding:56px 96px 120px;display:flex;justify-content:center">
+<div style="width:820px">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Card" padding="{{ 26 }}" hint-size="100%,320px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+<h3 style="margin:0;font:italic 800 26px/1 var(--font-display);letter-spacing:1px;text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Open matches</h3>
+<span style="display:flex;align-items:center;gap:8px;font:500 12px/1 var(--font-body);color:var(--green-300)">{{ liveDot }}Live</span>
+</div>
+<sc-for list="{{ matches }}" as="m" hint-placeholder-count="4">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) auto 104px;align-items:center;gap:24px;padding:14px 12px;border-bottom:1px solid rgba(255,255,255,.05);border-radius:9px;background:{{ m.bg }};transition:background 500ms ease">
+<div><div style="font:600 16px/1.3 var(--font-body);color:var(--white)">{{ m.name }}</div><div style="font:400 12px/1.4 var(--font-body);color:var(--text-muted)">{{ m.meta }}</div></div>
+<div style="display:flex;gap:4px"><sc-for list="{{ m.slots }}" as="sl" hint-placeholder-count="8"><span style="width:14px;height:14px;border-radius:4px;background:{{ sl.bg }};box-shadow:inset 0 1px 0 rgba(255,255,255,.25)"></span></sc-for></div>
+<div style="display:flex;justify-content:flex-end">
+<sc-if value="{{ m.open }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" size="sm" variant="primary" hint-size="70px,34px">Join</x-import></sc-if>
+<sc-if value="{{ m.starting }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Badge" icon="hourglass" hint-size="80px,22px">Starting</x-import></sc-if>
+</div>
+</div>
+</sc-for>
+</x-import>
+</div>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;gap:40px;padding:36px 96px;background:var(--navy-950);border-top:1px solid var(--navy-600)">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Wordmark" size="sm" layout="inline" hint-size="200px,30px"></x-import>
+<div style="display:flex;gap:28px;font:500 13px/1 var(--font-body)"><a href="#1a" style="color:var(--navy-300)">Rules</a><a href="#1a" style="color:var(--navy-300)">Privacy</a><a href="#1a" style="color:var(--navy-300)">Terms</a><a href="#1a" style="color:var(--navy-300)">Contact</a></div>
+<p style="margin:0;max-width:380px;font:400 12px/1.5 var(--font-body);color:var(--navy-300);text-align:right">Leader names and titles follow the current real-world office holders and are updated when governments change.</p>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Oath of office: split hero. "I am ___" fills with the real title of the country on the globe; hover any country to change it.</div>
+<div class="dv-card" style="width:1440px;background:var(--bg-page);color:var(--text-body);font-family:var(--font-body)">
+
+<div style="position:relative;background:var(--pattern-stripes), var(--grad-page);padding-bottom:80px">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:24px 64px">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Wordmark" size="sm" layout="inline" hint-size="200px,30px"></x-import>
+<div style="display:flex;align-items:center;gap:12px">
+<span style="font:500 13px/1 var(--font-body);color:var(--text-muted)">Got a code?</span>
+<div style="width:150px"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Input" size="sm" value="{{ code }}" onChange="{{ onCode }}" placeholder="Room code" uppercase="{{ true }}" max-length="{{ 6 }}" hint-size="100%,36px"></x-import></div>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" size="sm" hint-size="70px,36px">Join</x-import>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 560px;gap:40px;align-items:center;padding:36px 64px 0">
+<div style="display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;gap:10px;font:italic 800 18px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;color:var(--gold-400)"><span style="width:14px;height:14px;border-radius:2px;background:var(--grad-gold);transform:skewX(-8deg)"></span>Pick a country. Take office.</div>
+<div style="margin-top:30px;font:italic 900 56px/1 var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-hero)">I am</div>
+<div style="min-height:226px;display:flex;align-items:flex-end;margin-top:6px">
+<span style="font:italic 900 132px/.84 var(--font-display);text-transform:uppercase;text-wrap:balance;padding-right:.06em;background:linear-gradient(180deg,#fff4cf 0%,#ffd864 38%,#f5b942 62%,#d89a28 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 5px 0 rgba(6,10,20,.6))">{{ bTitle }}</span>
+</div>
+<div style="margin-top:16px;font:italic 800 34px/1 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">{{ bLine }}</div>
+<p style="margin:26px 0 0;max-width:540px;font:400 17px/1.5 var(--font-body);color:var(--navy-200);text-wrap:pretty">Every country comes with its real head of state. Claim one and you take the title, the treasury and a population that needs feeding.</p>
+<div style="display:flex;gap:14px;align-items:center;width:580px;margin-top:28px">
+<div style="flex:1;min-width:0"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Input" value="{{ name }}" onChange="{{ onName }}" placeholder="President…" max-length="{{ 32 }}" icon="user" hint-size="100%,48px"></x-import></div>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" variant="gold" slanted="{{ true }}" icon="flag-banner" hint-size="190px,52px">Take office</x-import>
+</div>
+<div style="display:flex;align-items:center;gap:16px;margin-top:26px;min-height:20px">
+<sc-if value="{{ bCycling }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;gap:6px"><sc-for list="{{ bDots }}" as="dt" hint-placeholder-count="10"><button onClick="{{ dt.onClick }}" style="width:{{ dt.w }};height:10px;padding:0;border:0;border-radius:999px;background:{{ dt.bg }};cursor:pointer;transition:width 200ms ease, background 200ms ease"></button></sc-for></div>
+<span style="font:400 13px/1 var(--font-body);color:var(--text-muted)">Hover the globe to try any country</span>
+</sc-if>
+<sc-if value="{{ bLocked }}" hint-placeholder-val="{{ false }}">
+<span style="display:flex;align-items:center;gap:8px;font:500 14px/1 var(--font-body);color:var(--teal-300)"><i class="ph-fill ph-check-circle" style="font-size:18px"></i>{{ bLockText }}</span>
+<button onClick="{{ bUnlock }}" style="padding:0;border:0;background:none;font:500 13px/1 var(--font-body);color:var(--text-muted);cursor:pointer;text-decoration:underline">Shuffle again</button>
+</sc-if>
+</div>
+</div>
+<div style="position:relative;width:560px;height:580px">
+<div ref="{{ gB }}" style="position:absolute;inset:0"></div>
+<sc-if value="{{ tagB }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:-10px;bottom:10px;width:290px;pointer-events:none">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.CountryTag" name="{{ tagB.name }}" leader="{{ tagB.leader }}" farmland="{{ tagB.farmland }}" minerals="{{ tagB.minerals }}" oil="{{ tagB.oil }}" hint-size="290px,120px"></x-import>
+</div>
+</sc-if>
+</div>
+</div>
+</div>
+
+<div style="padding:110px 64px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:center;gap:10px;font:italic 800 18px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;color:var(--gold-400)"><span style="width:14px;height:14px;border-radius:2px;background:var(--grad-gold);transform:skewX(-8deg)"></span>How it works</div>
+<h2 style="margin:0;font:italic 900 72px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">From Day 1 to world domination</h2>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--navy-600)">
+<div style="display:flex;flex-direction:column;gap:16px;padding:40px 40px 0 0;border-right:1px solid var(--navy-600)">
+<span style="font:italic 900 168px/.8 var(--font-display);color:transparent;-webkit-text-stroke:2px var(--sky-600)">1</span>
+<h3 style="margin:0;font:italic 900 40px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Take office</h3>
+<p style="margin:0;font:400 16px/1.5 var(--font-body);color:var(--navy-200);text-wrap:pretty">Claim a country and you are sworn in as its leader. You start with two farms, a mine, a power plant and 1,500 gold.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;padding:40px 40px 0;border-right:1px solid var(--navy-600)">
+<span style="font:italic 900 168px/.8 var(--font-display);color:transparent;-webkit-text-stroke:2px var(--sky-600)">2</span>
+<h3 style="margin:0;font:italic 900 40px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Feed your people</h3>
+<p style="margin:0;font:400 16px/1.5 var(--font-body);color:var(--navy-200);text-wrap:pretty">Every Day your citizens eat. Keep the farms running and your population grows 1% a day. Let them starve and it shrinks.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;padding:40px 0 0 40px">
+<span style="font:italic 900 168px/.8 var(--font-display);color:transparent;-webkit-text-stroke:2px var(--sky-600)">3</span>
+<h3 style="margin:0;font:italic 900 40px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Dominate the world</h3>
+<p style="margin:0;font:400 16px/1.5 var(--font-body);color:var(--navy-200);text-wrap:pretty">Raise infantry, armor, air force and navy. Take your neighbours' land until you control 60% of the world.</p>
+</div>
+</div>
+</div>
+
+<div style="padding:100px 64px 110px;background:var(--navy-850);border-top:1px solid var(--navy-600);border-bottom:1px solid var(--navy-600);display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:center;gap:10px;font:italic 800 18px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;color:var(--gold-400)"><span style="width:14px;height:14px;border-radius:2px;background:var(--grad-gold);transform:skewX(-8deg)"></span>Leaders</div>
+<h2 style="margin:0;font:italic 900 72px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Who will you be?</h2>
+</div>
+<p style="margin:0;max-width:420px;font:400 16px/1.5 var(--font-body);color:var(--navy-200);text-wrap:pretty">55 countries come with their real leader and title. Pick any other and you are its President.</p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:22px 26px;padding:0 10px">
+<sc-for list="{{ rosterB }}" as="l" hint-placeholder-count="10">
+<button onClick="{{ l.onClick }}" style="transform:skewX(-8deg);display:flex;padding:16px 20px;border-radius:12px;border:1px solid {{ l.border }};background:var(--grad-navy);box-shadow:{{ l.shadow }};cursor:pointer;text-align:left;font:inherit;color:inherit;transition:border-color 150ms ease, box-shadow 150ms ease" style-hover="filter:brightness(1.08)">
+<span style="transform:skewX(8deg);display:flex;align-items:center;gap:14px;min-width:0">
+<svg viewBox="0 0 100 100" style="width:52px;height:52px;flex:none;filter:drop-shadow(0 2px 0 rgba(6,10,20,.7))"><path d="{{ l.d }}" fill="{{ l.fill }}"></path></svg>
+<span style="display:flex;flex-direction:column;gap:4px;min-width:0">
+<span style="font:500 11px/1.2 var(--font-body);letter-spacing:1px;text-transform:uppercase;color:var(--gold-400)">{{ l.title }}</span>
+<span style="font:italic 800 21px/1 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">{{ l.name }}</span>
+<span style="font:400 12px/1.2 var(--font-body);color:var(--text-muted)">{{ l.country }}</span>
+</span>
+</span>
+</button>
+</sc-for>
+</div>
+</div>
+
+<div style="padding:110px 64px;display:grid;grid-template-columns:500px minmax(0,1fr);gap:56px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;gap:10px;font:italic 800 18px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;color:var(--gold-400)"><span style="width:14px;height:14px;border-radius:2px;background:var(--grad-gold);transform:skewX(-8deg)"></span>Game modes</div>
+<h2 style="margin:0 0 10px;font:italic 900 72px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Ways to play</h2>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.ModeCard" icon="globe-hemisphere-west" tone="sky" title="Play Online" description="Create a public match strangers can join." hint-size="100%,86px"></x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.ModeCard" icon="lock-key" tone="violet" title="Private Room" description="Get a code to play with friends." hint-size="100%,86px"></x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.ModeCard" icon="robot" tone="gold" title="Single Player" description="Play solo against the computer (3 AI nations)." hint-size="100%,86px"></x-import>
+</div>
+<div style="padding-top:112px">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Card" padding="{{ 26 }}" hint-size="100%,320px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+<h3 style="margin:0;font:italic 800 26px/1 var(--font-display);letter-spacing:1px;text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Open matches</h3>
+<span style="display:flex;align-items:center;gap:8px;font:500 12px/1 var(--font-body);color:var(--green-300)">{{ liveDot }}Live</span>
+</div>
+<sc-for list="{{ matches }}" as="m" hint-placeholder-count="4">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 80px 90px;align-items:center;gap:20px;padding:14px 12px;border-bottom:1px solid rgba(255,255,255,.05);border-radius:9px;background:{{ m.bg }};transition:background 500ms ease">
+<div><div style="font:600 16px/1.3 var(--font-body);color:var(--white)">{{ m.name }}</div><div style="font:400 12px/1.4 var(--font-body);color:var(--text-muted)">{{ m.tick }}s/tick</div></div>
+<div style="display:flex;align-items:baseline;gap:4px;font:700 26px/1 var(--font-num);font-variant-numeric:tabular-nums;color:var(--white)">{{ m.players }}<span style="font:600 14px/1 var(--font-body);color:var(--text-muted)">/{{ m.max }}</span></div>
+<div style="display:flex;justify-content:flex-end">
+<sc-if value="{{ m.open }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" size="sm" variant="primary" hint-size="70px,34px">Join</x-import></sc-if>
+<sc-if value="{{ m.starting }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Badge" icon="hourglass" hint-size="80px,22px">Starting</x-import></sc-if>
+</div>
+</div>
+</sc-for>
+</x-import>
+</div>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;gap:40px;padding:36px 64px;background:var(--navy-950);border-top:1px solid var(--navy-600)">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Wordmark" size="sm" layout="inline" hint-size="200px,30px"></x-import>
+<div style="display:flex;gap:28px;font:500 13px/1 var(--font-body)"><a href="#1b" style="color:var(--navy-300)">Rules</a><a href="#1b" style="color:var(--navy-300)">Privacy</a><a href="#1b" style="color:var(--navy-300)">Terms</a><a href="#1b" style="color:var(--navy-300)">Contact</a></div>
+<p style="margin:0;max-width:380px;font:400 12px/1.5 var(--font-body);color:var(--navy-300);text-align:right">Leader names and titles follow the current real-world office holders and are updated when governments change.</p>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Day 1: the page wears the match HUD. Skewed plates carry the tagline, you claim a country right in the hero, and "How it works" is a Dispatches feed.</div>
+<div class="dv-card" style="width:1440px;background:var(--bg-page);color:var(--text-body);font-family:var(--font-body)">
+
+<div style="position:relative;background:var(--pattern-stripes), var(--grad-page);padding:14px 14px 96px">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" padding="10px 16px" hint-size="100%,58px">
+<div style="display:flex;align-items:center;gap:16px;min-height:38px;white-space:nowrap">
+<div style="flex:none"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Wordmark" size="sm" layout="inline" hint-size="200px,30px"></x-import></div>
+<nav style="display:flex;align-items:center;gap:4px;margin-left:12px">
+<a href="#c-how" style="padding:9px 12px;border-radius:10px;font:italic 800 17px/1 var(--font-display);letter-spacing:.04em;text-transform:uppercase;color:var(--navy-200)" style-hover="background:rgba(255,255,255,.06);color:var(--white)">How it works</a>
+<a href="#c-leaders" style="padding:9px 12px;border-radius:10px;font:italic 800 17px/1 var(--font-display);letter-spacing:.04em;text-transform:uppercase;color:var(--navy-200)" style-hover="background:rgba(255,255,255,.06);color:var(--white)">Leaders</a>
+<a href="#c-lobby" style="padding:9px 12px;border-radius:10px;font:italic 800 17px/1 var(--font-display);letter-spacing:.04em;text-transform:uppercase;color:var(--navy-200)" style-hover="background:rgba(255,255,255,.06);color:var(--white)">Lobby</a>
+</nav>
+<span style="flex:1"></span>
+</div>
+</x-import>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:40px;align-items:start;padding:72px 42px 0">
+<div style="display:flex;flex-direction:column;gap:22px;padding-top:30px">
+<div style="align-self:flex-start;transform:skewX(-8deg);border-radius:14px;border:1px solid var(--navy-600);background:var(--grad-navy);box-shadow:0 6px 0 var(--navy-950), var(--shadow-panel), var(--shadow-sheen);padding:16px 34px 12px">
+<div style="transform:skewX(8deg);font:italic 900 84px/.86 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display);white-space:nowrap">Lead a nation.</div>
+</div>
+<div style="align-self:flex-start;margin-left:44px;transform:skewX(-8deg);border-radius:14px;border:1px solid var(--navy-600);background:var(--grad-navy);box-shadow:0 6px 0 var(--navy-950), var(--shadow-panel), var(--shadow-sheen);padding:16px 34px 12px">
+<div style="transform:skewX(8deg);font:italic 900 84px/.86 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display);white-space:nowrap">Feed your people.</div>
+</div>
+<div style="align-self:flex-start;margin-left:88px;transform:skewX(-8deg);border-radius:14px;background:var(--grad-danger);box-shadow:0 6px 0 #7a0c27, var(--shadow-panel), var(--shadow-sheen-strong);padding:16px 34px 12px">
+<div style="transform:skewX(8deg);font:italic 900 84px/.86 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:0 3px 0 rgba(90,8,30,.6);white-space:nowrap">Dominate the world.</div>
+</div>
+<p style="margin:26px 0 0 4px;max-width:560px;font:400 17px/1.55 var(--font-body);color:var(--navy-200);text-wrap:pretty">Spin the globe, claim a country and rule it as its real-world leader. Up to 8 players share one world, live in your browser. The first to control 60% of it wins.</p>
+</div>
+<div style="position:relative">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" title="Choose your nation" hint-size="440px,640px">
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="height:380px;border-radius:12px;background:radial-gradient(circle at 50% 50%, rgba(63,162,255,.16), transparent 66%)"></div>
+<sc-if value="{{ claimed }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:9px;background:var(--me-tint);border:1px solid var(--teal-700)">
+<i class="ph-fill ph-flag-banner" style="font-size:20px;color:var(--teal-400)"></i>
+<span style="font:500 14px/1.3 var(--font-body);color:var(--text-body)">You'll play as <b style="color:var(--white);font-weight:600">{{ cPersona }}</b></span>
+</div>
+</sc-if>
+<sc-if value="{{ unclaimed }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border-radius:9px;border:1px dashed var(--navy-500);font:400 13px/1.3 var(--font-body);color:var(--text-muted)"><i class="ph-fill ph-hand-pointing" style="font-size:16px"></i>Drag to rotate · click a country to claim it</div>
+</sc-if>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Field" label="Your name" hint-size="100%,72px">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Input" value="{{ name }}" onChange="{{ onName }}" placeholder="President…" max-length="{{ 32 }}" icon="user" hint-size="100%,48px"></x-import>
+</x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Field" label="Match" hint-size="100%,72px">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Input" as="select" options="{{ matchOptions }}" value="{{ matchMode }}" onChange="{{ onMatchMode }}" icon="globe-hemisphere-west" hint-size="100%,48px"></x-import>
+</x-import>
+<sc-if value="{{ needsCode }}" hint-placeholder-val="{{ false }}">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Field" label="{{ codeLabel }}" hint="{{ codeHint }}" hint-size="100%,90px">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Input" value="{{ roomC }}" onChange="{{ onRoomC }}" placeholder="Enter room code" uppercase="{{ true }}" max-length="{{ 6 }}" icon="key" hint-size="100%,48px"></x-import>
+</x-import>
+</sc-if>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" variant="gold" slanted="{{ true }}" block="{{ true }}" icon="flag-banner" onClick="{{ takeOffice }}" hint-size="100%,52px">Take office</x-import>
+</div>
+</x-import>
+<div ref="{{ gC }}" data-globe="c" style="position:absolute;top:49px;left:17px;right:17px;height:380px"></div>
+<sc-if value="{{ tagC }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:309px;left:17px;right:17px;pointer-events:none">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.CountryTag" name="{{ tagC.name }}" leader="{{ tagC.leader }}" farmland="{{ tagC.farmland }}" minerals="{{ tagC.minerals }}" oil="{{ tagC.oil }}" hint-size="100%,120px"></x-import>
+</div>
+</sc-if>
+</div>
+</div>
+</div>
+
+<div id="c-how" style="padding:110px 56px;display:grid;grid-template-columns:minmax(0,1fr) 540px;gap:72px;align-items:center">
+<div style="display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;gap:10px;font:italic 800 18px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;color:var(--gold-400)"><span style="width:14px;height:14px;border-radius:2px;background:var(--grad-gold);transform:skewX(-8deg)"></span>How it works</div>
+<h2 style="margin:0;font:italic 900 72px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">One Day every<br>20 seconds</h2>
+<p style="margin:8px 0 0;max-width:560px;font:400 17px/1.55 var(--font-body);color:var(--navy-200);text-wrap:pretty">Every match runs on a shared clock. Each Day your people eat, your buildings produce and armies move. Fed nations grow 1% a day; starving ones shrink 1.5%. The first leader to control 60% of the world wins.</p>
+</div>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" title="Dispatches" hint-size="540px,300px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.FeedEvent" type="match_started" day="{{ 1 }}" hint-size="100%,40px">The match has begun.</x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.FeedEvent" type="build_complete" actor="{{ youActor }}" day="{{ 4 }}" hint-size="100%,40px">finished a Power Plant.</x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.FeedEvent" type="conquest" actor="Kim Jong Un" day="{{ 12 }}" hint-size="100%,40px">conquered Republic of Korea</x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.FeedEvent" type="match_ended" actor="{{ youActor }}" day="{{ 41 }}" hint-size="100%,40px">{{ youVerb }}</x-import>
+</div>
+</x-import>
+</div>
+
+<div id="c-leaders" style="padding:100px 56px 110px;background:var(--navy-850);border-top:1px solid var(--navy-600);border-bottom:1px solid var(--navy-600);display:flex;flex-direction:column;gap:52px">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:center;gap:10px;font:italic 800 18px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;color:var(--gold-400)"><span style="width:14px;height:14px;border-radius:2px;background:var(--grad-gold);transform:skewX(-8deg)"></span>Leaders</div>
+<h2 style="margin:0;font:italic 900 72px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">55 real leaders.<br>176 countries.</h2>
+</div>
+<p style="margin:0;max-width:440px;font:400 16px/1.5 var(--font-body);color:var(--navy-200);text-wrap:pretty">Claim a seeded country and you play as its head of state, under their real title. Every other country makes you its President. Click a name to claim that country.</p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:32px">
+<sc-for list="{{ groupsSmall }}" as="g" hint-placeholder-count="5">
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--navy-600)">
+<span style="font:italic 900 28px/.95 var(--font-display);text-transform:uppercase;color:var(--gold-400);text-shadow:var(--text-shadow-display)">{{ g.title }}</span>
+<span style="font:700 22px/1 var(--font-num);color:var(--text-muted)">{{ g.count }}</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:2px">
+<sc-for list="{{ g.people }}" as="p" hint-placeholder-count="2">
+<button onClick="{{ p.onClick }}" style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:6px 8px;margin:0 -8px;border:0;border-radius:6px;background:{{ p.bg }};font:500 15px/1.3 var(--font-body);color:{{ p.color }};text-align:left;cursor:pointer" style-hover="background:rgba(255,255,255,.06)"><span>{{ p.name }}</span><span style="font:600 11px/1 var(--font-body);letter-spacing:1px;color:var(--text-muted)">{{ p.code }}</span></button>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:48px">
+<sc-for list="{{ groupsBig }}" as="g" hint-placeholder-count="2">
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--navy-600)">
+<span style="font:italic 900 28px/.95 var(--font-display);text-transform:uppercase;color:var(--gold-400);text-shadow:var(--text-shadow-display)">{{ g.title }}</span>
+<span style="font:700 22px/1 var(--font-num);color:var(--text-muted)">{{ g.count }}</span>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 24px">
+<sc-for list="{{ g.people }}" as="p" hint-placeholder-count="12">
+<button onClick="{{ p.onClick }}" style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:6px 8px;margin:0 -8px;border:0;border-radius:6px;background:{{ p.bg }};font:500 14px/1.3 var(--font-body);color:{{ p.color }};text-align:left;cursor:pointer;min-width:0" style-hover="background:rgba(255,255,255,.06)"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ p.name }}</span><span style="font:600 11px/1 var(--font-body);letter-spacing:1px;color:var(--text-muted)">{{ p.code }}</span></button>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div id="c-lobby" style="padding:110px 56px 120px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:center;gap:10px;font:italic 800 18px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;color:var(--gold-400)"><span style="width:14px;height:14px;border-radius:2px;background:var(--grad-gold);transform:skewX(-8deg)"></span>Lobby</div>
+<h2 style="margin:0;font:italic 900 72px/.9 var(--font-display);text-transform:uppercase;color:var(--white);text-shadow:var(--text-shadow-display)">Jump into a match</h2>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.ModeCard" icon="globe-hemisphere-west" tone="sky" title="Play Online" description="Create a public match strangers can join." hint-size="100%,90px"></x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.ModeCard" icon="lock-key" tone="violet" title="Private Room" description="Get a code to play with friends." hint-size="100%,90px"></x-import>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.ModeCard" icon="robot" tone="gold" title="Single Player" description="Play solo against the computer (3 AI nations)." hint-size="100%,90px"></x-import>
+</div>
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Panel" title="Open matches" hint-size="100%,320px">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 240px 140px 160px 90px;gap:20px;padding:4px 12px 10px;border-bottom:1px solid var(--navy-600);font:500 11px/1.2 var(--font-body);letter-spacing:1px;text-transform:uppercase;color:var(--text-muted)">
+<span style="display:flex;align-items:center;gap:8px">{{ liveDot }}Match</span><span>Seats</span><span>Day length</span><span>Status</span><span></span>
+</div>
+<sc-for list="{{ matches }}" as="m" hint-placeholder-count="4">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 240px 140px 160px 90px;gap:20px;align-items:center;padding:12px;border-bottom:1px solid rgba(255,255,255,.05);border-radius:9px;background:{{ m.bg }};transition:background 500ms ease">
+<span style="font:600 16px/1.3 var(--font-body);color:var(--white)">{{ m.name }}</span>
+<span style="display:flex;align-items:center;gap:10px"><span style="display:flex;gap:4px"><sc-for list="{{ m.slots }}" as="sl" hint-placeholder-count="8"><span style="width:16px;height:16px;border-radius:4px;background:{{ sl.bg }};box-shadow:inset 0 1px 0 rgba(255,255,255,.25)"></span></sc-for></span><span style="font:700 16px/1 var(--font-num);color:var(--text-muted)">{{ m.seats }}</span></span>
+<span style="font:400 14px/1.3 var(--font-body);color:var(--text-body)">{{ m.speed }}</span>
+<span style="font:500 13px/1.3 var(--font-body);color:{{ m.statusColor }}">{{ m.status }}</span>
+<span style="display:flex;justify-content:flex-end">
+<sc-if value="{{ m.open }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Button" size="sm" variant="primary" hint-size="70px,34px">Join</x-import></sc-if>
+</span>
+</div>
+</sc-for>
+</x-import>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;gap:40px;padding:22px 56px;background:var(--navy-950);border-top:1px solid var(--navy-600)">
+<x-import component-from-global-scope="IAmPresidentDesignSystem_7cd541.Wordmark" size="sm" layout="inline" hint-size="200px,30px"></x-import>
+<p style="margin:0;max-width:440px;font:400 12px/1.5 var(--font-body);color:var(--navy-300);text-align:center">Leader names and titles follow the current real-world office holders and are updated when governments change.</p>
+<div style="display:flex;gap:28px;font:500 13px/1 var(--font-body)"><a href="#1c" style="color:var(--navy-300)">Rules</a><a href="#1c" style="color:var(--navy-300)">Privacy</a><a href="#1c" style="color:var(--navy-300)">Terms</a><a href="#1c" style="color:var(--navy-300)">Contact</a></div>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "<a class="dv-oid" href="#1a">1a</a> layout with the I am ___ headline from <a class="dv-oid" href="#1b">1b</a>" · "push the skewed plates in <a class="dv-oid" href="#1c">1c</a> further" · "mobile versions"</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;liveMatches&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;cycleSeconds&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:3,&quot;min&quot;:2,&quot;max&quot;:8,&quot;step&quot;:0.5,&quot;unit&quot;:&quot;s&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;globeSpin&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;}}">
+class Component extends DCLogic {
+  state = {
+    name: '', code: '', pickA: 'GBR', hoverA: null, cycle: 0, hoverB: null, pickB: null, claimC: null, hoverC: null, matchMode: 'Join random match', roomC: '', day: 1, flowT0: Date.now(), now: Date.now(), readyB: false, readyH: false, copied: false, hoverL: null, hoverH: null, flash: null,
+    matches: [
+      { id: 4821, name: 'World Stage', players: 3, max: 8, tick: 20 },
+      { id: 4819, name: 'Cold War Rematch', players: 6, max: 8, tick: 20 },
+      { id: 4815, name: 'Oil & Bread', players: 1, max: 4, tick: 10 },
+      { id: 4823, name: 'Grain Wars', players: 5, max: 8, tick: 20 },
+    ],
+  };
+  gA = React.createRef(); gB = React.createRef(); gC = React.createRef(); gS = React.createRef(); gL = React.createRef(); gH = React.createRef();
+  L = {
+    USA: ['Donald Trump', 'President'], RUS: ['Vladimir Putin', 'President'], CHN: ['Xi Jinping', 'President'], PRK: ['Kim Jong Un', 'Supreme Leader'],
+    KOR: ['Lee Jae-myung', 'President'], GBR: ['Keir Starmer', 'Prime Minister'], DEU: ['Friedrich Merz', 'Chancellor'], FRA: ['Emmanuel Macron', 'President'],
+    IND: ['Narendra Modi', 'Prime Minister'], JPN: ['Sanae Takaichi', 'Prime Minister'], CAN: ['Mark Carney', 'Prime Minister'], BRA: ['Luiz Inácio Lula da Silva', 'President'],
+    SAU: ['Salman bin Abdulaziz', 'King'], MEX: ['Claudia Sheinbaum', 'President'], AUS: ['Anthony Albanese', 'Prime Minister'], ITA: ['Giorgia Meloni', 'Prime Minister'],
+    ESP: ['Pedro Sánchez', 'Prime Minister'], IDN: ['Prabowo Subianto', 'President'], TUR: ['Recep Tayyip Erdoğan', 'President'], EGY: ['Abdel Fattah el-Sisi', 'President'],
+    NGA: ['Bola Tinubu', 'President'], ZAF: ['Cyril Ramaphosa', 'President'], ARG: ['Javier Milei', 'President'], UKR: ['Volodymyr Zelensky', 'President'],
+    POL: ['Karol Nawrocki', 'President'], NLD: ['Dick Schoof', 'Prime Minister'], SWE: ['Ulf Kristersson', 'Prime Minister'], NOR: ['Jonas Gahr Støre', 'Prime Minister'],
+    FIN: ['Petteri Orpo', 'Prime Minister'], DNK: ['Mette Frederiksen', 'Prime Minister'], IRN: ['Ali Khamenei', 'Supreme Leader'], IRQ: ['Mohammed Shia al-Sudani', 'Prime Minister'],
+    ISR: ['Benjamin Netanyahu', 'Prime Minister'], PAK: ['Shehbaz Sharif', 'Prime Minister'], VNM: ['Tô Lâm', 'General Secretary'], THA: ['Anutin Charnvirakul', 'Prime Minister'],
+    PHL: ['Ferdinand Marcos Jr.', 'President'], MYS: ['Anwar Ibrahim', 'Prime Minister'], NZL: ['Christopher Luxon', 'Prime Minister'], GRC: ['Kyriakos Mitsotakis', 'Prime Minister'],
+    HUN: ['Viktor Orbán', 'Prime Minister'], COL: ['Gustavo Petro', 'President'], CHL: ['Gabriel Boric', 'President'], VEN: ['Nicolás Maduro', 'President'],
+    ETH: ['Abiy Ahmed', 'Prime Minister'], KEN: ['William Ruto', 'President'], MAR: ['Mohammed VI', 'King'], DZA: ['Abdelmadjid Tebboune', 'President'],
+    KAZ: ['Kassym-Jomart Tokayev', 'President'], UZB: ['Shavkat Mirziyoyev', 'President'], SYR: ['Ahmed al-Sharaa', 'President'], QAT: ['Tamim bin Hamad Al Thani', 'Emir'],
+    ARE: ['Mohamed bin Zayed Al Nahyan', 'President'], JOR: ['Abdullah II', 'King'], CUB: ['Miguel Díaz-Canel', 'President'],
+  };
+  NAMES = { FRA: 'France', ITA: 'Italy', ARG: 'Argentina', NOR: 'Norway', DNK: 'Denmark', PRK: 'Dem. Rep. Korea', USA: 'United States', GBR: 'United Kingdom', SAU: 'Saudi Arabia', QAT: 'Qatar', DEU: 'Germany', JPN: 'Japan', BRA: 'Brazil', SWE: 'Sweden', VNM: 'Vietnam' };
+  SIL = {"PRK":"M93 13L95 16L90 15L84 21L80 27L80 40L73 44L70 47L65 52L56 55L50 60L50 68L48 70L54 73L61 81L59 85L54 87L44 87L38 96L32 95L31 97L25 93L23 97L19 98L19 95L15 93L11 90L15 82L18 80L17 77L21 67L20 64L12 62L5 57L16 46L32 36L41 23L48 29L59 29L57 20L79 12L84 2L93 13Z","USA":"M5 25L10 25L15 25L16 25L21 25L26 25L31 25L36 25L42 25L48 25L51 25L52 25L52 26L54 26L55 27L57 27L58 27L60 27L61 27L62 27L64 28L66 28L67 29L68 30L69 31L70 31L71 32L70 32L72 33L72 35L73 37L72 38L71 39L71 40L72 41L74 40L76 39L78 38L78 37L80 37L82 37L82 36L84 34L85 34L87 34L90 34L91 33L92 33L92 32L93 30L94 29L95 29L96 29L97 29L97 32L98 33L98 34L96 35L95 36L93 37L92 38L92 39L92 40L93 41L93 40L93 41L92 41L91 41L90 41L89 42L88 42L87 42L89 42L90 42L87 43L86 43L86 45L85 46L84 46L84 45L84 46L85 47L85 48L84 48L83 50L83 49L83 48L82 46L82 47L82 48L81 48L82 49L83 51L83 54L82 55L81 56L80 57L79 57L78 58L78 59L76 60L75 61L74 62L74 64L74 65L75 67L75 68L75 69L76 72L76 73L76 74L76 75L75 75L74 75L74 74L73 74L73 72L72 70L72 68L71 67L70 65L68 66L67 65L66 64L64 65L62 64L61 64L60 65L61 65L61 66L61 67L60 67L59 67L58 67L57 66L56 66L54 66L53 66L52 66L50 68L49 69L48 70L47 71L47 72L47 73L48 74L47 74L46 73L45 73L44 72L44 70L43 69L42 68L41 66L40 66L39 66L38 67L37 67L36 66L35 65L35 64L34 63L33 62L32 61L29 61L29 62L28 62L25 62L21 61L18 60L19 59L16 60L15 60L14 59L13 58L12 57L11 57L11 56L9 56L9 55L9 54L7 52L6 49L5 48L4 46L3 45L2 44L3 42L3 40L2 38L3 36L3 35L3 33L3 30L2 28L2 27L5 27L5 29L6 29L6 27L5 25Z","GBR":"M29 55L24 52L20 53L21 47L20 41L26 40L32 47L29 55ZM49 60L50 53L46 47L46 46L38 45L36 42L39 37L36 34L33 39L33 28L29 22L32 11L37 2L42 3L50 2L43 14L49 12L56 13L55 22L49 31L56 32L56 33L62 46L66 48L70 61L72 65L80 67L79 74L76 78L78 83L73 89L64 89L53 92L50 90L46 95L40 94L35 98L32 96L41 84L47 82L37 80L35 76L42 72L38 66L39 59L49 60Z","SAU":"M3 24L9 25L11 24L12 22L15 21L16 20L17 19L13 14L22 11L23 10L28 12L35 15L48 25L56 26L61 26L62 29L65 28L67 33L69 34L70 36L73 38L73 40L73 42L73 43L75 45L75 46L76 47L77 48L78 48L79 50L80 51L81 56L95 59L96 58L98 61L95 71L81 76L68 78L64 80L61 86L58 87L57 85L56 85L51 85L50 84L45 84L44 85L42 83L41 86L41 88L39 90L39 87L37 86L37 84L35 82L32 78L31 74L28 70L26 70L23 65L22 61L22 58L20 53L17 51L15 50L14 47L14 46L12 43L11 42L9 38L7 34L4 31L2 31L3 28L3 26L3 24Z","QAT":"M30 86L26 41L41 9L56 2L73 21L74 57L62 94L46 98L30 86Z","DEU":"M78 17L80 24L78 27L81 31L83 38L82 42L85 50L82 52L80 50L78 53L72 55L69 58L64 61L65 65L66 70L70 73L74 78L71 84L69 86L70 94L69 96L67 93L63 93L57 95L50 95L49 98L45 95L43 95L34 91L33 94L26 94L27 85L31 77L20 74L16 71L17 66L15 63L16 54L15 41L19 41L21 36L23 25L22 21L23 18L30 17L31 20L37 14L35 9L35 2L40 4L45 2L46 7L54 10L53 14L61 12L66 8L75 13L78 17Z","JPN":"M73 44L68 51L68 58L66 63L67 66L64 71L58 74L49 74L41 82L38 79L38 74L29 76L22 79L16 79L22 84L18 95L15 98L12 95L14 89L10 88L8 83L13 81L16 77L21 73L25 69L35 67L41 68L46 57L50 60L57 53L60 50L63 42L62 35L65 31L70 30L73 39L73 44ZM87 13L91 10L92 17L84 19L80 26L71 21L69 28L63 28L62 22L65 17L70 16L72 7L73 2L79 9L83 11L87 13ZM24 82L26 78L29 79L31 76L35 77L36 80L33 84L31 82L28 83L27 87L23 85L24 82Z","BRA":"M52 98L52 97L53 95L51 94L49 92L47 91L46 91L44 89L42 89L45 86L48 84L50 83L52 81L52 79L51 78L49 78L50 77L50 75L50 74L49 74L48 74L47 73L47 71L47 70L45 69L44 70L41 69L42 66L41 65L42 64L41 63L42 62L43 60L42 58L41 57L40 56L41 55L36 55L35 52L36 52L36 51L35 50L35 49L34 48L32 48L31 47L30 47L29 46L26 46L24 43L24 42L24 41L24 39L21 39L19 40L17 41L17 42L16 42L14 42L12 42L11 42L12 38L10 40L7 40L7 38L5 38L6 37L4 36L3 33L4 33L4 32L5 31L5 30L6 29L6 28L9 26L10 26L11 25L13 25L14 19L14 18L14 16L13 15L13 14L14 13L15 12L13 12L13 11L18 11L19 10L19 11L20 12L21 13L23 13L24 12L26 12L27 11L27 10L29 9L28 9L26 9L26 7L26 6L25 5L26 5L27 5L29 6L30 5L32 5L34 4L35 3L35 2L36 2L37 3L36 4L37 4L38 5L37 6L37 8L37 9L37 11L39 12L40 12L40 11L41 11L42 11L43 10L44 10L45 10L46 10L46 9L47 9L48 9L50 9L51 10L51 9L52 9L52 10L53 10L54 9L55 7L56 5L57 5L58 6L59 10L60 11L61 12L59 14L59 15L64 15L64 18L66 16L69 17L73 19L74 20L73 22L76 21L81 22L84 22L88 24L91 27L93 27L95 28L96 28L96 31L97 33L96 37L95 39L91 42L90 45L88 47L87 47L87 49L87 53L86 57L86 59L85 60L85 63L82 66L82 69L80 70L80 71L77 71L73 72L71 73L69 74L66 76L64 79L64 80L64 82L64 84L63 85L61 87L59 91L57 93L55 94L54 97L52 98Z","SWE":"M29 74L30 70L33 65L34 57L32 53L32 44L34 37L37 37L38 35L37 32L42 22L46 15L48 10L51 10L52 6L58 7L58 2L60 2L65 5L70 10L70 21L71 24L65 26L62 30L63 35L58 40L51 46L49 56L51 61L54 65L51 73L48 75L47 86L45 93L41 92L39 98L35 98L34 91L32 83L29 74Z","VNM":"M41 86L47 83L53 83L50 79L61 74L62 66L60 62L61 55L60 50L55 46L51 40L46 32L38 29L40 26L44 25L42 19L34 19L31 13L28 8L31 6L36 6L42 5L47 2L50 4L56 6L55 9L58 12L64 14L56 19L51 25L49 30L54 37L60 45L66 49L70 55L72 67L72 78L66 82L59 87L54 92L46 98L44 94L46 89L41 86Z"};
+  FEAT = ['PRK', 'USA', 'GBR', 'SAU', 'QAT', 'DEU', 'JPN', 'BRA', 'SWE', 'VNM'];
+  CYCLE = ['PRK', 'DEU', 'SAU', 'QAT', 'VNM', 'GBR', 'USA', 'JPN', 'BRA', 'SWE'];
+  GROUPS = ['Supreme Leader', 'King', 'Emir', 'Chancellor', 'General Secretary', 'Prime Minister', 'President'];
+  POOL = ['Northern Front', 'Sunday Summit', 'Treaty Night', 'Pacific Rim', 'Blue Marble', 'Iron Harvest'];
+  COLORS = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990', '#dcbeff', '#9a6324'];
+
+  componentDidMount() {
+    // Visual-test hooks (handoff copy only): ?freeze  ?ft=<seconds into flow>  ?claim=PRK  ?mode=Join%20private%20room  ?name=Alex  ?code=K7PX2Q
+    const q = new URLSearchParams(location.search);
+    this.frozen = q.has('freeze');
+    if (q.has('ft')) this.fixedFt = parseFloat(q.get('ft'));
+    const init = {};
+    if (q.get('claim')) init.claimC = q.get('claim').toUpperCase();
+    if (q.get('mode')) init.matchMode = q.get('mode');
+    if (q.get('name')) init.name = q.get('name');
+    if (q.get('code')) init.roomC = q.get('code').toUpperCase();
+    if (Object.keys(init).length) this.setState(init);
+    document.documentElement.dataset.hooks = 'ready';
+    this.nextId = 4830; this.poolI = 0; this.acc = 0;
+    const boot = () => {
+      if (!(window.Globe && window.THREE && window.earcut)) { this.bootT = setTimeout(boot, 150); return; }
+      this.initGlobes();
+    };
+    boot();
+    this.tCycle = setInterval(() => {
+      if (this.frozen) return;
+      this.acc += 250;
+      if (this.acc < (this.props.cycleSeconds ?? 3) * 1000) return;
+      this.acc = 0;
+      if (!this.state.hoverB && !this.state.pickB) this.setState(s => ({ cycle: (s.cycle + 1) % this.CYCLE.length }));
+    }, 250);
+    this.tLive = setInterval(() => this.liveStep(), 2600);
+    this.tDay = setInterval(() => !this.frozen && this.setState(s => ({ day: s.day >= 60 ? 1 : s.day + 1 })), 4000);
+    this.tFlow = setInterval(() => this.setState({ now: Date.now() }), 250);
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.bootT); clearInterval(this.tCycle); clearInterval(this.tLive); clearInterval(this.tDay); clearInterval(this.tFlow); clearTimeout(this.copyT);
+    [this.ga, this.gb, this.gc, this.gs, this.gl, this.gh].forEach(g => g && g.destroy());
+  }
+
+  syncGlobes() {
+    const s = this.state, m = this.synced || (this.synced = {});
+    const k = (this.props.globeSpin === false || this.frozen) ? 0 : 1;
+    if (this.gaReady && m.a !== s.pickA) { m.a = s.pickA; this.ga.setSelected(s.pickA); }
+    const fb = s.pickB || this.CYCLE[s.cycle];
+    if (this.gbReady && m.b !== fb) { m.b = fb; this.gb.setSelected(fb); this.gb.focus(fb); }
+    if (this.gcReady && m.c !== s.claimC) { m.c = s.claimC; this.gc.setSelected(s.claimC); }
+    if (m.k !== k) { m.k = k; if (this.ga) this.ga.spin = 0.0005 * k; if (this.gc) this.gc.spin = 0.0012 * k; if (this.gs) this.gs.spin = 0.004 * k; if (this.gl) this.gl.spin = 0.0007 * k; if (this.gh) this.gh.spin = 0.0007 * k; }
+    const claim = this._claim;
+    if (this.gsReady && m.s !== claim) { m.s = claim; this.gs.setSelected(claim); }
+    const oL = JSON.stringify(this._ownL || {}), oH = JSON.stringify(this._ownH || {});
+    if (this.glReady && m.lo !== oL) { m.lo = oL; this.gl.setOwners(this._ownL); }
+    if (this.glReady && m.l !== claim) { m.l = claim; this.gl.setSelected(claim); this.gl.focus(claim); }
+    if (this.ghReady && m.ho !== oH) { m.ho = oH; this.gh.setOwners(this._ownH); }
+    if (this.ghReady && m.h !== claim) { m.h = claim; this.gh.setSelected(claim); this.gh.focus(claim); }
+  }
+
+  startFlow() {
+    const mode = this.state.matchMode;
+    this.setState({ flowT0: Date.now(), now: Date.now(), readyB: false, readyH: false });
+    location.hash = mode === 'Host private room' ? '2c' : mode === 'Join private room' ? '2b' : '2a';
+  }
+
+  initGlobes() {
+    const k = (this.props.globeSpin === false || this.frozen) ? 0 : 1;
+    const mk = (ref, o, sel) => { const el = (sel && document.querySelector('[data-globe="' + sel + '"]')) || ref.current; return el && el.clientWidth ? new window.Globe(el, Object.assign({ wheelZoom: false }, o)) : null; };
+    const url = 'countries.geo.json';
+    if (!this.ga && (this.ga = mk(this.gA, { cameraZ: 3, spin: 0.0005 * k }))) this.ga.load(url).then(g => {
+      g.world.rotation.x = -0.45;
+      g.setSelectable(true);
+      g.onHover(c => this.setState({ hoverA: c })); g.onSelect(c => this.setState({ pickA: c }));
+      this.gaReady = true; this.forceUpdate();
+    });
+    if (!this.gb && (this.gb = mk(this.gB, { cameraZ: 3.25, spin: 0 }))) this.gb.load(url).then(g => {
+      g.setSelectable(true);
+      g.onHover(code => this.setState({ hoverB: code })); g.onSelect(code => this.setState({ pickB: code }));
+      this.gbReady = true; this.forceUpdate();
+    });
+    if (!this.gc && (this.gc = mk(this.gC, { cameraZ: 3.2, spin: 0.0012 * k }, 'c'))) this.gc.load(url).then(g => {
+      g.setSelectable(true);
+      g.onHover(c => this.setState({ hoverC: c })); g.onSelect(c => this.setState({ claimC: c }));
+      this.gcReady = true; this.forceUpdate();
+    });
+    const sel = (cb) => (g) => { g.setSelectable(true); cb(g); this.forceUpdate(); return g; };
+    if (!this.gs && (this.gs = mk(this.gS, { cameraZ: 3, spin: 0.004 * k }, 's'))) this.gs.load(url).then(g => { g.world.rotation.x = 0.3; this.gsReady = true; this.forceUpdate(); });
+    if (!this.gl && (this.gl = mk(this.gL, { cameraZ: 3, spin: 0.0007 * k }, 'l'))) this.gl.load(url).then(sel(g => { g.onHover(c => this.setState({ hoverL: c })); g.onSelect(c => this.setState({ claimC: c })); this.glReady = true; }));
+    if (!this.gh && (this.gh = mk(this.gH, { cameraZ: 3, spin: 0.0007 * k }, 'h'))) this.gh.load(url).then(sel(g => { g.onHover(c => this.setState({ hoverH: c })); g.onSelect(c => this.setState({ claimC: c })); this.ghReady = true; }));
+    if (!(this.ga && this.gb && this.gc && this.gs && this.gl && this.gh) && (this.tries = (this.tries || 0) + 1) < 80) this.bootT = setTimeout(() => this.initGlobes(), 150);
+  }
+
+  liveStep() {
+    if (this.props.liveMatches === false || this.frozen) return;
+    this.setState(s => {
+      let m = s.matches.slice();
+      const st = m.find(x => x.starting);
+      if (st) {
+        m = m.filter(x => x !== st);
+        const n = { id: this.nextId++, name: this.POOL[this.poolI++ % this.POOL.length], players: 1, max: Math.random() < 0.25 ? 4 : 8, tick: Math.random() < 0.3 ? 10 : 20 };
+        m.push(n);
+        return { matches: m, flash: n.id };
+      }
+      const i = Math.floor(Math.random() * m.length);
+      const x = Object.assign({}, m[i]);
+      x.players = Math.max(1, Math.min(x.max, x.players + (Math.random() < 0.82 ? 1 : -1)));
+      if (x.players === x.max) x.starting = true;
+      m[i] = x;
+      return { matches: m, flash: x.id };
+    });
+  }
+
+  flowVals(s, { cn, persona, tag }) {
+    const C = this.COLORS, L = this.L;
+    const claim = s.claimC || 'PRK';
+    const ft = this.fixedFt != null ? this.fixedFt : Math.max(0, (s.now - s.flowT0) / 1000), t = ft % 10, FOUND = 4.8, ENTER = 6.5;
+    const found = t >= FOUND;
+    const scan = [['Cold War Rematch', '8/8', true], ['Oil & Bread', '4/4', true], ['World Stage', '3/8', false]];
+    const scanRows = scan.map(([name, seats, full], i) => {
+      const a = 0.8 + 1.2 * i, st = t < a ? 'queued' : t < a + 1.2 ? 'checking' : full ? 'full' : 'found';
+      return { name, seats, queued: st === 'queued', checking: st === 'checking', full: st === 'full', found: st === 'found', op: st === 'full' ? 0.55 : 1, bg: st === 'checking' ? 'rgba(255,255,255,.05)' : st === 'found' ? 'var(--me-tint)' : 'transparent' };
+    });
+    const secs = Math.floor(Math.min(t, FOUND));
+    const name = s.name.trim() || 'You';
+    const priv = s.matchMode === 'Join private room';
+    const hostL = priv ? 'oskar' : 'marianne_77';
+    const hostC = claim === 'FRA' ? 'ITA' : 'FRA', p4C = claim === 'BRA' ? 'ARG' : 'BRA', friendC = claim === 'NOR' ? 'DNK' : 'NOR';
+    this._claim = claim;
+    this._ownL = { [hostC]: C[0], [p4C]: C[1] };
+    const hostPlayers = [{ name, color: C[0], me: true, meta: 'Leading ' + cn(claim), badges: s.readyH ? ['ready', 'host'] : ['host'] }];
+    if (ft >= 3.5) hostPlayers.push({ name: 'oskar', color: C[1], me: false, meta: ft >= 6 ? 'Leading ' + cn(friendC) : 'Choosing country…', badges: ft >= 6 ? ['ready'] : [] });
+    if (ft >= 8) hostPlayers.push({ name: 'lena', color: C[2], me: false, meta: 'Choosing country…', badges: [] });
+    this._ownH = ft >= 6 ? { [friendC]: C[1] } : {};
+    return {
+      gS: this.gS, gL: this.gL, gH: this.gH,
+      takeOffice: () => this.startFlow(),
+      claimName: cn(claim), claimPersona: persona(claim),
+      radar: React.createElement('div', { style: { position: 'absolute', inset: 0 } }, [0, 1, 2].map(i => React.createElement('span', { key: i, style: { position: 'absolute', left: '50%', top: '50%', width: 640, height: 640, marginLeft: -320, marginTop: -320, borderRadius: '50%', border: '2px solid rgba(79,209,197,.55)', boxShadow: '0 0 24px rgba(79,209,197,.25)', opacity: 0, animation: 'iapRing 3s ease-out ' + i + 's infinite' } }))),
+      searchClock: '0:' + String(secs).padStart(2, '0'),
+      scanRows,
+      plateMain: found ? 'Match found!' : 'Finding a match', plateDots: found ? '' : '.'.repeat(1 + (Math.floor(t * 2) % 3)),
+      plateBg: found ? 'var(--grad-gold)' : 'var(--grad-navy)',
+      plateColor: found ? 'var(--gold-900)' : 'var(--white)',
+      plateTextShadow: found ? 'none' : 'var(--text-shadow-display)',
+      plateShadow: found ? '0 6px 0 var(--gold-700), var(--glow-gold), var(--shadow-panel)' : '0 6px 0 var(--navy-950), var(--shadow-panel), var(--shadow-sheen)',
+      plateScale: found && t < FOUND + 0.3 ? 1.08 : 1,
+      searchStatus: t < 0.8 ? 'Connecting…' : t < 4.4 ? 'Checking open matches…' : t < ENTER ? 'Seat found in World Stage · 4/8 players · 20s/tick' : 'Entering lobby…',
+      searchSlots: Array.from({ length: 8 }, (_, i) => ({
+        bg: !found ? 'var(--navy-700)' : i < 3 ? C[i] : i === 3 ? 'var(--teal-400)' : 'var(--navy-700)',
+        shadow: found && i === 3 ? 'inset 0 2px 0 rgba(255,255,255,.35), 0 0 0 2px var(--teal-200), var(--glow-teal)' : 'inset 0 2px 0 rgba(255,255,255,.2), inset 0 -2px 0 rgba(0,0,0,.25)',
+      })),
+      enterOp: t >= ENTER ? 1 : 0, enterPct: t < ENTER ? '0%' : Math.min(100, ((t - ENTER) / 3) * 100) + '%',
+      lobbyName: priv ? 'Private room' : 'World Stage', lobbyMode: priv ? 'Private' : 'Online', lobbyPrivate: priv, lobbyCode: s.roomC || 'K7PX2Q',
+      lobbyMeta: '4/8 players · 20s/tick',
+      lobbyPlayers: [
+        { name: hostL, color: C[0], me: false, meta: 'Leading ' + cn(hostC), badges: ['ready', 'host'] },
+        { name: 'grainlord', color: C[1], me: false, meta: 'Leading ' + cn(p4C), badges: ['ready'] },
+        { name: 'nordwind', color: C[2], me: false, meta: 'Choosing country…', badges: [] },
+        { name, color: C[3], me: true, meta: 'Leading ' + cn(claim), badges: s.readyB ? ['ready'] : [] },
+      ],
+      readyVariantB: s.readyB ? 'primary' : 'default', readyIconB: s.readyB ? 'check-circle' : '', readyLabelB: s.readyB ? 'Ready' : 'Ready up',
+      toggleReadyB: () => this.setState(x => ({ readyB: !x.readyB })),
+      lobbyNote: hostL + ' starts the match when everyone is ready.',
+      toastB: ft < 6 ? 'You are now ' + (L[claim] ? persona(claim) + ' of ' + cn(claim) : persona(claim)) : null,
+      tagL: tag(s.hoverL), tagH: tag(s.hoverH),
+      hostCode: 'K7PX2Q', hostMeta: hostPlayers.length + '/8 players · 20s/tick', hostPlayers,
+      openSeats: Array.from({ length: Math.max(0, 4 - hostPlayers.length) }, (_, i) => ({ i })),
+      copyIcon: s.copied ? 'check-circle' : 'copy', copyLabel: s.copied ? 'Copied' : 'Copy code',
+      copyCode: () => { this.setState({ copied: true }); clearTimeout(this.copyT); this.copyT = setTimeout(() => this.setState({ copied: false }), 1800); },
+      readyVariantH: s.readyH ? 'primary' : 'default', readyIconH: s.readyH ? 'check-circle' : '', readyLabelH: s.readyH ? 'Ready' : 'Ready up',
+      toggleReadyH: () => this.setState(x => ({ readyH: !x.readyH })),
+      toastH: ft >= 3.5 && ft < 6.5 ? 'oskar joined the room.' : ft >= 8 && ft < 11 ? 'lena joined the room.' : null,
+    };
+  }
+
+  renderVals() {
+    const s = this.state, L = this.L;
+    Promise.resolve().then(() => this.syncGlobes());
+    const P = c => (c ? [this.ga, this.gb, this.gc, this.gl].map(g => g && g.getProps(c)).find(Boolean) : null) || null;
+    const cn = c => this.NAMES[c] || (P(c) && P(c).name) || c;
+    const ttl = c => (L[c] ? L[c][1] : 'President');
+    const who = c => (L[c] ? L[c][0] : null);
+    const persona = c => (L[c] ? L[c][1] + ' ' + L[c][0] : 'President of ' + cn(c));
+    const tag = c => {
+      if (!c) return null;
+      const p = P(c) || {};
+      return { name: p.name || cn(c), leader: 'Lead as ' + persona(c), farmland: p.farmland, minerals: p.minerals, oil: p.oil };
+    };
+    const card = (c, sel, onClick) => ({
+      code: c, d: this.SIL[c], country: cn(c), title: ttl(c), name: who(c), sel, onClick,
+      border: sel ? 'var(--teal-400)' : 'var(--navy-600)',
+      shadow: sel ? '0 4px 0 var(--teal-700), var(--glow-teal)' : '0 4px 0 var(--navy-950), 0 10px 24px rgba(0,0,0,.3)',
+      fill: sel ? 'var(--teal-400)' : 'var(--navy-400)',
+    });
+    const live = this.props.liveMatches !== false && !this.frozen;
+    const matches = s.matches.map(m => ({
+      name: m.name, players: m.players, max: m.max, tick: m.tick,
+      meta: m.players + '/' + m.max + ' players · ' + m.tick + 's/tick',
+      seats: m.players + '/' + m.max, speed: m.tick + 's per Day',
+      status: m.starting ? 'Full · starting' : 'Waiting for players',
+      statusColor: m.starting ? 'var(--gold-400)' : 'var(--text-muted)',
+      open: !m.starting, starting: !!m.starting,
+      slots: Array.from({ length: m.max }, (_, i) => ({ bg: i < m.players ? this.COLORS[i % 12] : 'var(--navy-700)' })),
+      bg: live && s.flash === m.id ? 'rgba(79,209,197,.09)' : 'transparent',
+    }));
+    const curB = s.hoverB || s.pickB || this.CYCLE[s.cycle];
+    const youActor = (s.claimC && who(s.claimC)) || s.name.trim() || 'You';
+    const groups = this.GROUPS.map(t => {
+      const people = Object.keys(L).filter(c => L[c][1] === t).map(c => ({
+        code: c, name: L[c][0],
+        onClick: () => { this.setState({ claimC: c }); if (this.gc) this.gc.focus(c); },
+        color: s.claimC === c ? 'var(--teal-300)' : 'var(--text-body)',
+        bg: s.claimC === c ? 'rgba(79,209,197,.12)' : 'transparent',
+      }));
+      return { title: t, count: people.length, people };
+    });
+    return {
+      gA: this.gA, gB: this.gB, gC: this.gC,
+      name: s.name, onName: e => this.setState({ name: e.target.value }),
+      code: s.code, onCode: e => this.setState({ code: e.target.value.toUpperCase() }),
+      tagA: tag(s.hoverA),
+      leadersA: this.FEAT.map(c => card(c, s.pickA === c, () => this.setState({ pickA: c }))),
+      aPersona: persona(s.pickA), aCountry: cn(s.pickA),
+      bTitle: ttl(curB), bLine: who(curB) ? who(curB) + ' · ' + cn(curB) : 'of ' + cn(curB),
+      tagB: tag(curB),
+      bCycling: !s.pickB, bLocked: !!s.pickB,
+      bDots: this.CYCLE.map((c, i) => {
+        const on = !s.hoverB && i === s.cycle;
+        return { w: on ? '28px' : '10px', bg: on ? 'var(--gold-400)' : 'var(--navy-500)', onClick: () => this.setState({ cycle: i, pickB: null }) };
+      }),
+      bLockText: s.pickB ? 'Locked in: ' + persona(s.pickB) : '',
+      bUnlock: () => this.setState({ pickB: null }),
+      rosterB: this.FEAT.map(c => card(c, s.pickB === c, () => this.setState({ pickB: c }))),
+      claimed: !!s.claimC, unclaimed: !s.claimC,
+      cPersona: s.claimC ? persona(s.claimC) : '', cCta: s.claimC ? 'Take office' : 'Play now',
+      tagC: tag(s.hoverC), day: s.day,
+      matchOptions: ['Join random match', 'Host private room', 'Join private room'],
+      matchMode: s.matchMode, onMatchMode: e => this.setState({ matchMode: e.target.value }),
+      needsCode: s.matchMode === 'Join private room',
+      codeLabel: 'Room code',
+      codeHint: 'Ask the host for their code.',
+      roomC: s.roomC, onRoomC: e => this.setState({ roomC: e.target.value.toUpperCase() }),
+      youActor, youVerb: youActor === 'You' ? 'dominate the world!' : 'dominates the world!',
+      groupsSmall: groups.slice(0, 5), groupsBig: groups.slice(5),
+      matches, openCount: s.matches.filter(m => !m.starting).length,
+      ...this.flowVals(s, { cn, persona, tag }),
+      liveDot: React.createElement('span', { style: { display: 'inline-block', width: 8, height: 8, borderRadius: 999, background: 'var(--green-500)', animation: live ? 'iapPulse 1.6s ease-out infinite' : 'none' } }),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{
+  "success": true,
+  "match": {
+    "status": "lobby",
+    "max_players": 8,
+    "tick_interval_sec": 20,
+    "current_tick": 0,
+    "id": 4821,
+    "name": "World Stage",
+    "mode": "online",
+    "join_code": null
+  },
+  "me": {
+    "player_id": 104,
+    "is_host": 0,
+    "country_code": "PRK"
+  },
+  "players": [
+    {
+      "id": 101,
+      "display_name": "marianne_77",
+      "color": "#e6194b",
+      "country_code": "FRA",
+      "is_ready": 1,
+      "is_host": 1,
+      "is_ai": 0
+    },
+    {
+      "id": 102,
+      "display_name": "grainlord",
+      "color": "#3cb44b",
+      "country_code": "BRA",
+      "is_ready": 1,
+      "is_host": 0,
+      "is_ai": 0
+    },
+    {
+      "id": 103,
+      "display_name": "nordwind",
+      "color": "#4363d8",
+      "country_code": null,
+      "is_ready": 0,
+      "is_host": 0,
+      "is_ai": 0
+    },
+    {
+      "id": 104,
+      "display_name": "Alex",
+      "color": "#f58231",
+      "country_code": "PRK",
+      "is_ready": 0,
+      "is_host": 0,
+      "is_ai": 0
+    }
+  ]
+}

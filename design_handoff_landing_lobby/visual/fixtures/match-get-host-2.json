@@ -1,0 +1,38 @@
+{
+  "success": true,
+  "match": {
+    "status": "lobby",
+    "max_players": 8,
+    "tick_interval_sec": 20,
+    "current_tick": 0,
+    "id": 5101,
+    "name": "Private room",
+    "mode": "private",
+    "join_code": "K7PX2Q"
+  },
+  "me": {
+    "player_id": 201,
+    "is_host": 1,
+    "country_code": "PRK"
+  },
+  "players": [
+    {
+      "id": 201,
+      "display_name": "Alex",
+      "color": "#e6194b",
+      "country_code": "PRK",
+      "is_ready": 0,
+      "is_host": 1,
+      "is_ai": 0
+    },
+    {
+      "id": 202,
+      "display_name": "oskar",
+      "color": "#3cb44b",
+      "country_code": null,
+      "is_ready": 0,
+      "is_host": 0,
+      "is_ai": 0
+    }
+  ]
+}

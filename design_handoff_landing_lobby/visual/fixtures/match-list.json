@@ -1,0 +1,38 @@
+{
+  "success": true,
+  "open": [
+    {
+      "id": 4821,
+      "name": "World Stage",
+      "mode": "online",
+      "max_players": 8,
+      "tick_interval_sec": 20,
+      "players": 3
+    },
+    {
+      "id": 4819,
+      "name": "Cold War Rematch",
+      "mode": "online",
+      "max_players": 8,
+      "tick_interval_sec": 20,
+      "players": 6
+    },
+    {
+      "id": 4815,
+      "name": "Oil & Bread",
+      "mode": "online",
+      "max_players": 4,
+      "tick_interval_sec": 10,
+      "players": 1
+    },
+    {
+      "id": 4823,
+      "name": "Grain Wars",
+      "mode": "online",
+      "max_players": 8,
+      "tick_interval_sec": 20,
+      "players": 5
+    }
+  ],
+  "mine": []
+}
